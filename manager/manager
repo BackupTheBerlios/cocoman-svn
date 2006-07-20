@@ -4,7 +4,7 @@
 
 # GLOBAL DEFINITIONS
 INTERVAL=5 # poll interval
-ROOT="/home/html-dev/under/acm/contest" # root directory of contest dir.
+ROOT="/home/html-dev/under/benamy/contest" # root directory of contest dir.
 TIMEOUT=30 # program execution timeout (we kill it after $TIMEOUT)
 JAVABIN="/opt/java/jre/bin/java" # location of java binary to be passed to soapbox
 STOP_FILE="STOP" # file to create to stop the poll.
@@ -136,7 +136,7 @@ compare() {
 		ID=`echo ${LINE} | awk -F ':' '{print $1}'`
 		NAME=`echo ${LINE} | awk -F ':' '{print $2}'`
 		echo "s/${ID}/${NAME}/g"
-	done < ${ROOT}/manager/users.txt > user_translation.tmp
+	done < ${ROOT}/manager/conf/users.txt > user_translation.tmp
 	ID=`echo ${BASE} | awk -F '-' '{print $1}'`
 	NAME=`echo ${BASE} | awk -F '-' '{print $1}' | sed -f user_translation.tmp`
 	rm user_translation.tmp -f
