@@ -72,6 +72,8 @@ function process_submission() {
 		sleep(1);
 		if (time() > $start_time + 6) {
 			$message = 'ERROR: There was no response from the backend to a registration request.';
+                        // Clean up the file we created over here
+                        unlink($contest_root . 'temp_web/registration_request-' . $random_chars);
 			return;
 		}
 		$reply_filename = $contest_root . 'temp_web/registration_status-' . $random_chars;
