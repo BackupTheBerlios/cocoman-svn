@@ -12,3 +12,4 @@ To Do
 * Implement better system for web scripts being able to log things.
 * Make everything more robust when various configuration files/options are missing.
 * Get normal diff working correctly instead of needing our own custom one.
+* Have submit-registration.php clean up registration_request if it times out.
