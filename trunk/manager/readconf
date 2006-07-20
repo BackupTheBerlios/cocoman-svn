@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Read the contents of CONF_FILE (which is in the .ini format)
+# and retrieve the variables named in VARS[] and places them inside
+# the variable with the same name in bash.
+
+# Example:
+# Reads ROOT out of contest.ini and then sets $ROOT to be
+# what is set in contest.ini
+
+CONF_FILE=conf/contest.ini
+
+# Reads the variable out of the file and evaluates it.
+read_var() {
+  NAME=$1
+  VAR=`echo "$1" | tr [A-Z] [a-z]`
+  VAR=`./parse_ini $CONF_FILE s=global k=$VAR`
+  eval ${NAME}="$VAR"
+}
+
+VARS=(ROOT NUM_PROBLEMS JAVABIN TIMEOUT INTERVAL)
+
+for VAR in "${VARS[@]}"; do 
+  NAME=$VAR
+  read_var $VAR;
+  export "${NAME}"="${VAR}"
+done

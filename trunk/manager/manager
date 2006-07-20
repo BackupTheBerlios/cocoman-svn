@@ -23,7 +23,8 @@ bashexec() {
 
 	# Check if soapbox exists.
         SOAPBOXPATH="${ROOT}/manager/soapbox/"
-        if [[ -x "${SOAPBOXPATH}/bin/soapbox" && -e "${SOAPBOXPATH}/lib/libsoapbox.so" ]]; then
+	export SOAPBOXLIBPATH="${SOAPBOXPATH}/lib/libsoapbox.so"
+	if [[ -x "${SOAPBOXPATH}/bin/soapbox" && -e "${SOAPBOXLIBPATH}" ]]; then
 		SOAPBOX="${SOAPBOXPATH}/bin/soapbox -s -f -l ${SOAPLOG} ${SOAPBOXARGS}"
 	else 
 		SOAPBOX="" 
