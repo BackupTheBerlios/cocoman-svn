@@ -150,14 +150,15 @@ compare() {
 	OUTFILE=output.txt
 
 	LOG="${ROOT}/manager/logs/compiles/${BASE}.log"
+	TESTING="${ROOT}/manager/testing"
 
-	rm ${ROOT}/testing -rf
-	mkdir ${ROOT}/testing/cases -p
-	mkdir ${ROOT}/testing/build/home -p
-	cp ${FILE}* ${ROOT}/testing/build
-	cp ${ROOT}/problems/${PROB}/*output ${ROOT}/testing/cases
-	cp ${ROOT}/problems/${PROB}/*input ${ROOT}/testing/cases
-	cd ${ROOT}/testing/build
+	rm ${TESTING} -rf
+	mkdir ${TESTING}/cases -p
+	mkdir ${TESTING}/build/home -p
+	cp ${FILE}* ${TESTING}/build
+	cp ${ROOT}/problems/${PROB}/*output ${TESTING}/cases
+	cp ${ROOT}/problems/${PROB}/*input ${TESTING}/cases
+	cd ${TESTING}/build
 
         case ${TYPE} in
             $JAVA)
