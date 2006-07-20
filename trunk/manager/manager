@@ -92,17 +92,20 @@ build() {
             $JAVA)
                 COMPILE="${JAVAC} ${BFILE}" ;;
             $C)
-                COMPILE="${GCC} ${CFLAGS} ${BFILE}" ;;
+                COMPILE="${GCC} ${CFLAGS} ${BFILE} -o a.out" ;;
             $CPP)
-                COMPILE="${GCPP} ${CPPFLAGS} ${BFILE}" ;;
+                COMPILE="${GCPP} ${CPPFLAGS} ${BFILE} -o a.out" ;;
             $CS)
-                COMPILE="${MCS} ${CSFLAGS} ${BFILE}" ;;
+                COMPILE="${MCS} ${CSFLAGS} ${BFILE} -out:a.out" ;;
             *)
                 break ;;
         esac
 
-	echo ${COMPILE}
-	`${COMPILE}`
+	echo "${COMPILE}"
+	LOG=`${COMPILE} 2>&1`
+	RET=$?
+	echo "${LOG}"
+	return $RET
 }
 
 # Clean up the whole contest directory, i.e. move old files out into a new one.
@@ -165,7 +168,7 @@ compare() {
                 ;;
             $CS)
                 export MONO_SHARED_DIR=`pwd`/home
-                EXEC="bashexec mono ${BASE}.exe"
+                EXEC="bashexec mono a.out"
                 SOAPBOXARGS="-p ${MONO_SHARED_DIR}"
                 ;;
             *) 
@@ -175,7 +178,7 @@ compare() {
         esac
 
         # Build the file and send the output to the compile log.
-        build ${BASE} &> ${LOG}
+        build ${BASE} & 2>&1 ${LOG}
 
 	if [ $? != 0 ]; then
 		echo "${TIME},${ID},${NAME},${PROB},1,${LOG},Error Compiling"
@@ -251,7 +254,7 @@ findext() {
     if [ `basename ${BASE} .java` != ${BASE} ]; then
         TYPE=${JAVA}
     elif [ `basename ${BASE} .cs` != ${BASE} ]; then
-        TYPE=${MONO}
+        TYPE=${CS}
     elif [ `basename ${BASE} .cpp` != ${BASE} ]; then
         TYPE=${CPP}
     elif [ `basename ${BASE} .c` != ${BASE} ]; then
