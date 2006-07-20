@@ -1,0 +1,180 @@
+#!/usr/bin/env bash
+# Script for managing submissions from the web frontend.
+# Natan Zohar
+
+# GLOBAL DEFINITIONS
+INTERVAL=5
+ROOT="/home/html-dev/under/acm/contest"
+TIMEOUT=30
+
+# build the submitted file, (takes file.ext as an argument)
+build() {
+    # test existence of file we are building.
+    if (! test -f $1); then
+        return 
+    fi
+
+    #Declare our compilers
+    JAVAC="javac"
+    GCPP="g++"
+    GCC="gcc"
+    CPPFLAGS=
+    CFLAGS=
+
+    # Find out the file's type:
+    FILE=`basename $1`
+    JAVA=`basename ${FILE} .java`
+    C=`basename ${FILE} .c`
+    CPP=`basename ${FILE} .cpp`
+
+    if [[ ${FILE} != ${JAVA} ]]; then
+        COMPILE="${JAVAC} ${FILE}"
+    fi
+    if [[ ${FILE} != ${C} ]]; then
+        COMPILE="${GCC} ${CFLAGS} ${FILE}"
+    fi
+    if [[ ${FILE} != ${CPP} ]]; then
+        COMPILE="${GCPP} ${CPPFLAGS} ${FILE}"
+    fi
+
+    echo ${COMPILE}
+    `${COMPILE}`
+}
+
+# Clean up the whole contest directory, i.e. move old files out into a new one.
+clean() {
+    DATE=`date +%F`
+    # Create a directory for all the information from this contest.
+    mkdir "${ROOT_DIR}/old/${DATE}" -p
+    cd "${ROOT_DIR}/old/${DATE}"
+    mkdir logs submissions problems
+    #!/usr/bin/env bash
+    if [ $# == 0 ]; then
+        return
+    fi
+}
+
+
+# build and compare the problem to the test cases.
+compare() {
+    FILE=$1
+    PROB=`dirname $1`
+    BASE=`basename ${FILE}`
+    JAVA=`basename ${BASE} .java`
+    MAKE=${BASE}.make
+    while read LINE
+    do
+        ID=`echo ${LINE} | awk -F ':' '{print $1}'`
+        NAME=`echo ${LINE} | awk -F ':' '{print $2}'`
+        echo "s/${ID}/${NAME}/g"
+    done < handles > user_translation.tmp
+    ID=`echo ${BASE} | awk -F '-' '{print $1}'`
+    NAME=`echo ${BASE} | awk -F '-' '{print $1}' | sed -f user_translation.tmp`
+    rm user_translation.tmp -f
+    TIME=`echo ${BASE} | awk -F '-' '{print $2}'`
+    TIME=`basename ${TIME} .c`
+    TIME=`basename ${TIME} .cpp`
+    TIME=`basename ${TIME} .java`
+    VERIFY="mydiff"
+
+    OUTFILE=output.txt
+
+    LOG="${ROOT}/logs/compiles/${BASE}.log"
+
+    rm ${ROOT}/testing -rf
+    mkdir ${ROOT}/testing
+    cp ${FILE}* ${ROOT}/testing/
+    cp ${ROOT}/problems/${PROB}/*output ${ROOT}/testing/
+    cp ${ROOT}/problems/${PROB}/*input ${ROOT}/testing/
+    cd ${ROOT}/testing/
+
+    if [ ${JAVA} != ${BASE} ]; then
+        mv ${BASE} ${PROB}.java
+        EXEC="executor ./${PROB}.class"
+    else
+        EXEC="executor ./a.out"
+    fi
+
+    build ${BASE} &> ${LOG}
+    #while read line; do
+    #        ${line} &> ${LOG}
+    #done < ${MAKE}
+
+    if [ $? != 0 ]; then
+        echo "${TIME},${ID},${NAME},${PROB},1,${LOG},Error Compiling"
+        return 1	
+    fi
+
+    
+    # Run test cases on the submission
+    STATUS=0
+    MESSAGE=Success
+    for INPUT in *.input; do
+        OUTPUT=`basename ${INPUT} .input`.output
+        ${EXEC} ${INPUT} ${OUTFILE} ${TIMEOUT} > /dev/null
+        if [ $? == 1 ]; then
+            STATUS=4
+            MESSAGE="${INPUT}-Program crashed"
+            break
+        fi
+        if [ $? == 2 ]; then
+            STATUS=3
+            MESSAGE="${INPUT}-Program timed out"
+            break
+        fi 
+        if [ $? != 0 ]; then
+            STATUS=15
+            MESSAGE="${INPUT}-Unknown Error"
+            break
+        fi
+        ${VERIFY} ${OUTFILE} ${OUTPUT} > /dev/null
+        if [ $? != 0 ]; then
+            STATUS=2
+            MESSAGE="${INPUT}-Output is not as expected"
+            break
+        fi
+    done
+    echo "${TIME},${ID},${NAME},${PROB},${STATUS},${MESSAGE}"
+}
+
+# Empty our queue of received submissions and run compare on each one.
+empty_queue() {
+    QUEUE=`cat queue 2>/dev/null`
+    if [ $? != 0 ]; then
+        return 
+    fi
+    for item in $QUEUE; do
+        echo "Looking at $item"
+        OUTPUT=`compare $item`
+        echo $OUTPUT >> ../logs/log
+        echo $OUTPUT
+    done
+
+    # Move the contents of the queue to the finished pile.
+    cat queue >> finished 
+    rm queue -f
+}
+
+# Sit and wait for the queue to get populated.
+poll() {
+    DIR="${ROOT}/submissions/"
+    STOP_FILE="STOP"
+    cd ${DIR}
+    rm ${STOP_FILE} -f
+    if [[ $1 == "stop" ]]; then
+        touch $STOP_FILE
+        return 
+    fi
+    echo "Starting the poll"
+    while (sleep $INTERVAL); do
+        if (test -f ${STOP_FILE}); then
+            echo "Stopping the poll program from request."
+            break;
+        fi
+        empty_queue
+    done
+}
+
+# Call our poll function with all passed arguments.
+# TODO: later on, fix this, so different arguments can be passed.
+poll $*
