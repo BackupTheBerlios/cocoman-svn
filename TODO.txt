@@ -9,4 +9,5 @@ o See if it's possible to do something so that users don't hit the case where th
 o Find safer way for submit-registration.php to be able to write to users file - have users file owned by apache account?
 o Remove the construction of the .make files from the php scripts. I think the shell scripts are better suited to be customized to a machine's setup or to try to figure out how to build stuff.
 o Don't allow submissions when contest isn't going on.
-o Countdown till start time
+o Countdown till start time.
+o Submission dialog automatically picks the problem you last submiteed.
