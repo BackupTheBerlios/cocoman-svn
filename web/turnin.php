@@ -1,14 +1,12 @@
 <?php
 require('../web/logging.php');
 //ini_set("include_path", ".:../"); doesn't fix copy so I prepended ../ to $dir
-// phpinfo();
 
 // Processes the submission and fills in some variables
 // Should not write anything out
 function process_submission() {
 	// Variable that will be used to display the page
 	global $message;
-	global $user_id_given;
 	global $user_id;
 	
 	$dir = "../submissions/";
@@ -21,10 +19,16 @@ function process_submission() {
 	foreach ($users as $index => $user) {
 		$users[$index] = strtok($user, ':');
 	}
+	
+	if (!array_key_exists("id", $_POST)) {
+		$message = 'You came here from a bad form.';
+		return;
+	}
 	$user_id = $_POST["id"];
 	
 	if (!in_array($user_id, $users)) {
 		$message = "You tried to submit a file using an invalid user id.";
+		unset($GLOBALS['user_id']); // unset $user_id would only destroy it in this function's scope
 		return;
 	}
 	
@@ -85,10 +89,6 @@ function process_submission() {
 	}
 	
 	$message = "The program was successfully uploaded. Thanks!";
-	if (array_key_exists("id", $_POST)) {
-		$user_id_given = true;
-		$user_id = $_POST["id"];
-	}
 }
 
 process_submission();
@@ -112,7 +112,7 @@ app_log(sprintf("User %d submitted a file. IP address: %s. Language: %s. Problem
   </p>
   <p>
     <?php
-  	if ($user_id_given) {
+  	if (isset($user_id)) {
 		echo '<a href="scoreboard.php?id=' . $user_id . '">Scoreboard</a>';
 	} else {
 		echo '<a href="scoreboard.php">Scoreboard</a>';
