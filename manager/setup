@@ -64,6 +64,8 @@ echo ""
 echo "Setting permissions..."
 chmod -R g-r-w-x *
 chmod -R o-r-w-x *
+# TODO move conf out of manager and don't give o r or x to manager
+chmod o+r+x manager/
 chmod o+r+x manager/conf
 chmod o+r manager/conf/users.txt
 chmod o+r manager/conf/times.txt
