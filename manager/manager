@@ -3,11 +3,8 @@
 # Natan Zohar
 
 # GLOBAL DEFINITIONS
-INTERVAL=5 # poll interval
-ROOT="/home/html-dev/under/benamy/contest" # root directory of contest dir.
-TIMEOUT=30 # program execution timeout (we kill it after $TIMEOUT)
-JAVABIN="/opt/java/jre/bin/java" # location of java binary to be passed to soapbox
-STOP_FILE="STOP" # file to create to stop the poll.
+. conf/contest.conf
+
 
 #TODO: Declare all variables that are local at top of function.
 
@@ -286,6 +283,63 @@ poll() {
 	done
 }
 
+# empties temp_web of files that were submitted in the format
+# submission-<user id>-<time>-Problem<Num>-randomchars.ext
+# and places them in the queue, as well in their respective 
+# directories in submissions/
+
+process_submissions() {
+    local GROUP USER ID TIME PNUM EXT FILE PBLM CMD LINE DIR
+    GROUP=`id -ng`
+    USER=`id -nu`
+    DIR="${ROOT}/temp_web"
+    pushd ${DIR}
+    for s in submission*; do
+	ID=`echo "${s}" | awk -F '-' '{print $2}'`
+	TIME=`echo "${s}" | awk -F '-' '{print $3}'`
+	PNUM=`echo "${s}" | awk -F '-' '{print $4}' | sed 's/[^0-9]*//g'`
+	EXT=`echo "${s}" | awk -F '.' '{print $NF}'`
+	FILE="${ID}-${TIME}.${EXT}"
+	PBLM="Problem${PNUM}"
+	LINE="${PBLM}/${FILE}"
+	VALID=0
+
+	ALLOWED_EXT=(c cpp java)
+	
+	# Is the ext in the valid list.
+	for ext in ${ALLOWED_EXT[*]}; do
+		if [[ $EXT == $ext ]]; then
+			VALID=1
+			break;
+		fi
+	done
+
+	#TODO: Check possible time
+	
+	# Is the user id only a set of digits
+	if ( echo $ID | grep [^0-9] > /dev/null ); then
+		echo "Invalid User ID"
+		VALID=0
+	fi
+
+	# If the problem number is valid
+	if !(( $PNUM > 0 && $PNUM < $NUM_PROBLEMS )); then
+		VALID=0
+	fi
+
+	if (( VALID )); then
+		echo "Allowed Submission"
+		mv $s ${ROOT}/submissions/${PBLM}/${FILE}
+		chown ${USER}.${GROUP} ${ROOT}/submissions/${PBLM}/${FILE}
+		echo "$LINE" >> ${ROOT}/submissions/queue
+	else
+		echo "Invalid File ${s}" >> ${ROOT}/manager/logs/manager.log
+	fi
+	
+    done
+    popd
+}
 # Call our poll function with all passed arguments.
 # TODO: later on, fix this, so different arguments can be passed.
-poll $*
+#poll $*
+process_submissions
