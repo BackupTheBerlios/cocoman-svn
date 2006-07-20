@@ -140,11 +140,11 @@ compare() {
 	TIME=`basename ${TIME} .cpp`
 	TIME=`basename ${TIME} .java`
 	TIME=`basename ${TIME} .cs`
-	VERIFY="mydiff"
+	VERIFY="${ROOT}/manager/mydiff"
 
 	OUTFILE=output.txt
 
-	LOG="${ROOT}/manager/logs/compiles/${BASE}.log"
+	LOG="${ROOT}/logs/compiles/${BASE}.log"
 	TESTING="${ROOT}/manager/testing"
 
 	rm ${TESTING} -rf
@@ -228,7 +228,7 @@ empty_queue() {
 	for item in $QUEUE; do
 		echo "Looking at $item"
 		OUTPUT=`compare $item`
-		echo $OUTPUT >> ${ROOT}/manager/logs/log
+		echo $OUTPUT >> ${ROOT}/logs/log
 		echo $OUTPUT
 	done
 
