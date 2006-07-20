@@ -18,7 +18,7 @@ shopt -s nullglob
 function process_one() {
 	#echo "$request"
 	
-	random=`echo "${request}" | awk -F '-' '{print $2}'`
+	random=`echo "${request}" | awk -F '-' '{print $NF}'`
 	# TODO check exit code and log if error occurred
 	
 	id=""
