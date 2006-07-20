@@ -2,8 +2,12 @@
 // Copyright 2006 Daniel Benamy <dbenamy1@binghamton.edu>
 // License to be determined
 
+require('logging.php');
+
 $NUM_PROBLEMS=5;
 $ROOT_DIR="logs/";
+$users_filename = '../submissions/handles';
+
 // More like a struct. Member variables get updated by Person
 class Problem {
     var $number; // set by contructor. not used yet.
@@ -124,6 +128,24 @@ function time_from_start($time) {
 
 // ***Program flow starts here (sorta)***
 
+// Read all registered users in from the users file
+if (!$users = file($users_filename)) {
+	echo "Manager error: Opening users file failed.";
+	exit;
+}
+$people = array();
+foreach ($users as $user_entry) {
+	$user_id = strtok($user_entry, ':');
+	$name = strtok("\n");
+    if (array_key_exists($user_id, $people)) {
+    	app_log(sprintf("ERROR: Users file contains 2 entries with user id %d", $user_id));
+    	continue;
+    }
+	$people[$user_id] = new Person($user_id);
+	$people[$user_id]->name = $name;
+}
+
+// Fill in their submission data from the submission results log file
 // Syntax of log file:
 // <hhmmss>,<user id>,<first name last name>,Problem<problem number>,<status code>,[text]
 // status codes:
@@ -135,8 +157,6 @@ function time_from_start($time) {
 // "15" unknown error while executing program
 // if status code is 1, there is another token before text which has the 
 // filename of a log of the compile
-
-$people = array();
 
 $log = file($ROOT_DIR.'/log', 1);
 foreach ($log as $line) {        
@@ -151,10 +171,11 @@ foreach ($log as $line) {
     
     //echo "tokenized line: time=$time, name=$name, problem number=$problem_number, code=$status_code<br />";
     
-    if (!array_key_exists($user_id, $people)) {
-        $people[$user_id] = new Person($user_id);
-        $people[$user_id]->name = $name;
+	if (!array_key_exists($user_id, $people)) {
+    	app_log(sprintf("ERROR: Submission results log refers to user id %d which is not in the users file.", $user_id));
+    	continue;
     }
+    
     $people[$user_id]->submitted_problem($problem_number, $time, $status_code);
     
     if ($status_code == 1) {
@@ -198,7 +219,12 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
     $end_time = $start_time + $contest_length_in_seconds; // unix time format (seconds since epoch)
     $current_time = time(); // unix time format
     $seconds_left = $end_time - $current_time;
-    echo seconds_to_time($seconds_left);
+    if ($seconds_left > 0) {
+    	echo seconds_to_time($seconds_left);
+    } else {
+    	echo "The contest is over. Thanks for participating!.";
+    	// TODO lock submissions?
+    }
     ?>
   </p>
   
