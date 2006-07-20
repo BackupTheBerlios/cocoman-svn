@@ -2,6 +2,8 @@ To Do
 -----
 
 * Add support for verifiers (maybe look for files named Problem1.verifier and so on)
+* Clean the configuration files, so they are used by both bash and php. (I wrote a script to read
+  ini style files in bash, so just need to finalize our configuration)
 * Make it so manager.log in temp_web gets merged with manager.log 
   inside manager/logs. 
 * Clean up the log structure, we have 3 log files: 
