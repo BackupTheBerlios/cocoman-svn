@@ -1,10 +1,7 @@
 <?php
+require('../web/logging.php');
 //ini_set("include_path", ".:../"); doesn't fix copy so I prepended ../ to $dir
 // phpinfo();
-
-$user_id_given = false;
-$user_id = 0;
-$message = "";
 
 // Processes the submission and fills in some variables
 // Should not write anything out
@@ -83,18 +80,11 @@ function process_submission() {
 		}
 	}
 	
-	if (!$info_file = fopen($filename_with_path . '-info.txt', 'wb')) {
-		$message = "Error opening info file.";
-		return;
-	}
-	fputs($info_file, sprintf("Submitted from %s\n", $REMOTE_ADDR));
-	fclose($info_file);
-	
 	if ($queue_file = fopen($dir . "/queue", "a")) {
 		fputs($queue_file, sprintf("%s\n", $_POST["progno"] . "/" . $filename));
 	}
 	
-	$message = "The program was successfully uploaded. Thanks!<br />";
+	$message = "The program was successfully uploaded. Thanks!";
 	if (array_key_exists("id", $_POST)) {
 		$user_id_given = true;
 		$user_id = $_POST["id"];
@@ -102,6 +92,8 @@ function process_submission() {
 }
 
 process_submission();
+
+app_log(sprintf("User %d submitted a file. IP address: %s. Language: %s. Problem: %s. Result: %s", $user_id, get_ip(), $_POST['lang'], $_POST['progno'], $message));
 ?>
 
 
