@@ -16,3 +16,4 @@
 * Wrote installation instructions in README.txt (Dan)
 * Have submit-registration.php clean up registration_request if it times out.
 * Create test suite for contest manager
+* Fix the scoreboard's sort function, the test2/ scoreboard is not sorting participants properly.

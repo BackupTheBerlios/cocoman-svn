@@ -168,8 +168,10 @@ function rank_users() {
 		$total_times[] = $person->total_seconds();
 		$ranked_user_ids[] = $person->user_id;
 	}
-	
-	array_multisort($problems_solved, $total_times, $ranked_user_ids);
+        // Have to pass arrays in by reference, otherwise the sort won't 
+        // work properly. (ranked_user_ids will not be changed as it is 
+        // a global variable.        
+	array_multisort(&$problems_solved, &$total_times, &$ranked_user_ids);
 	//echo "<pre>"; print_r($problems_solved); print_r($total_times); print_r($user_ids); echo "</pre><br />";
 }
 
