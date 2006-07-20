@@ -2,9 +2,7 @@
 # Script for managing submissions from the web frontend.
 # Natan Zohar
 
-# GLOBAL DEFINITIONS
 . conf/contest.conf
-
 
 #TODO: Declare all variables that are local at top of function.
 
@@ -331,8 +329,10 @@ process_submissions() {
 
 	if (( VALID )); then
 		echo "Allowed Submission"
-		mv $s ${ROOT}/submissions/${PBLM}/${FILE}
-		chown ${USER}.${GROUP} ${ROOT}/submissions/${PBLM}/${FILE}
+		# TODO make sure destination file doesn't exist
+		cat "${s}" > "${ROOT}/submissions/${PBLM}/${FILE}"
+		rm -f "${s}"
+		chmod 400 "${ROOT}/submissions/${PBLM}/${FILE}"
 		echo "$LINE" >> ${ROOT}/submissions/queue
 	else
 		echo "Invalid File ${s}" >> ${ROOT}/manager/logs/manager.log
