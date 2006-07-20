@@ -3,6 +3,8 @@
 # clean up the directories.
 . conf/contest.conf
 PHP=/usr/bin/php
+
+mkdir -p "${ROOT}/over"
 # Copy all submissions out of the tree and sort
 # them by ID to be made available later.
 cd "${ROOT}/submissions"
@@ -36,4 +38,4 @@ for p in *; do
 done
 
 # Copy the logs over
-cp -R "${ROOT}/logs" "${ROOT}/"
+cp -R "${ROOT}/logs" "${ROOT}/over"
