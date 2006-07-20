@@ -193,7 +193,7 @@ function process_specified_user() {
 	}
 	$specified_user = $people[$_GET['id']];
 	$show_submission_result = 1;
-        $last_processed = "Your most recent submission processed is the one submitted around $specified_user->time_of_last_submission. <br /><h2>Result: ";
+        $last_processed = "Your most recent submission processed is the one submitted around $specified_user->time_of_last_submission. <br />Result: ";
 	//$submission_result = "Your most recent submission's status is: ";
 	switch ($specified_user->last_status_code) {
 		case "-1":
@@ -230,7 +230,7 @@ function process_specified_user() {
 			app_log(sprintf("ERROR: User %d has a last_status_code of %d which is invalid. (scoreboard status display)", $specified_user->user_id, $specified_user->last_status_code));
 			break;
 	}
-        $submission_result = $submission_result . "</h2>";
+        $submission_result = "<h3>" . $submission_result . "</h3>";
 }
 
 // ***Program flow starts here***
