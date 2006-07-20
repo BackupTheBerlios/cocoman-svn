@@ -1,5 +1,6 @@
 <?php
 require('logging.inc');
+require('time.inc');
 //ini_set("include_path", ".:../"); doesn't fix copy so I prepended ../ to $dir
 
 // Processes the submission and fills in some variables
@@ -46,6 +47,16 @@ function process_submission() {
 		return;
 	} else if ($upload["size"] > 100 * 1024) {
 		$message = "You tried to upload a file that is too big.";
+		return;
+	}
+	
+	global $contest_status;
+	global $times_file;
+	require('contest_status.inc');
+	process_contest_status();
+	//echo "<pre>"; print_r($GLOBALS); echo "</pre>";
+	if ($contest_status != 1) {
+		$message = "You can not submit a file now because the contest is not in progress.";
 		return;
 	}
 	

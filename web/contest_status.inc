@@ -2,6 +2,8 @@
 
 $times_file = 'logs/times.txt';
 
+ini_set("include_path", ".:../");
+
 require_once('logging.inc');
 
 function process_contest_status() {
