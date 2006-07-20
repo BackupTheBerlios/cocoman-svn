@@ -86,7 +86,7 @@ function process_submission() {
 		$random_chars .= $chars[mt_rand(0, strlen($chars) - 1)];
 	}
 	$tempfile = $upload["tmp_name"];        
-	$filename = 'submission-' . $user_id . '-' . $submission_time . '-Problem' . $_POST['progno'] . '-' . $random_chars . $extension;
+	$filename = 'submission-' . $user_id . '-' . $submission_time . '-' . $_POST['progno'] . '-' . $random_chars . $extension;
 	$filename_with_path = $contest_root . 'temp_web/' . $filename;
 	$result = copy($tempfile, $filename_with_path);
 	if ($result === false) {
