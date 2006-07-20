@@ -2,6 +2,8 @@ import java.lang.reflect.*;
 import java.io.File;
 import java.util.StringTokenizer;
 import java.io.*;
+import java.security.Policy;
+import java.lang.SecurityManager;
 
 class JavaRun {
     public static void main(String[] args) {
@@ -16,7 +18,6 @@ class JavaRun {
         Object[] parameters = new Object[1];
         parameters[0] = new String[0];
         Object[] pargs = parameters;
-        System.setProperty("java.class.path", ".");
         for (i = 0; i < contents.length; i++) {
             try {
                 File curfile = new File(contents[i]);
@@ -33,7 +34,9 @@ class JavaRun {
                   Method mainMethod = defined.getDeclaredMethod("main", argTypes);
                   mainMethod.setAccessible(true);
                 try {
+                    System.setSecurityManager(new SecurityManager());
                     mainMethod.invoke(null, pargs);
+                    System.exit(0);
                 } catch (IllegalAccessException e) {
 //                    System.out.println(e);
                 } catch (InvocationTargetException e) {
