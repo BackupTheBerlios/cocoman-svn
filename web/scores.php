@@ -1,4 +1,7 @@
 <?php
+// Copyright 2006 Daniel Benamy <dbenamy1@binghamton.edu>
+// License to be determined
+
 $NUM_PROBLEMS=5;
 $ROOT_DIR="../logs/";
 // More like a struct. Member variables get updated by Person
