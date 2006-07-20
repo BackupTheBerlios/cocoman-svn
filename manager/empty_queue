@@ -6,8 +6,9 @@ if [ $? != 0 ]; then
 fi
 for item in $QUEUE; do
 	echo "Looking at $item"
-	OUTPUT=`./compare $item`
+	OUTPUT=`compare $item`
 	echo $OUTPUT >> ../logs/log
+	echo $OUTPUT
 done
 
 # Move the contents of the queue to the finished pile.

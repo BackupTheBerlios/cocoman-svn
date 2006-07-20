@@ -27,10 +27,12 @@ class Person {
     var $last_compile_log_filename;
     
     function Person($user_id) {
+        global $NUM_PROBLEMS; 
         $this->user_id = $user_id;
         $this->problems = array();
-        for ($i = 0; $i < $NUM_PROBLEMS; $i++) {
-            $this->problems[] = new Problem($i);
+        // HOW DO WE FIX THIS?
+        for ($i = 1; $i <= $NUM_PROBLEMS; ++$i) {
+            $this->problems["$i"] = new Problem($i);
         }
 //	$this->problems = array("1" => new Problem(1), new Problem(2), 
 //	                        new Problem(3), new Problem(4));
@@ -204,7 +206,7 @@ foreach ($ranked_user_ids as $ranked_user_id) {
     $person = $people[$ranked_user_id];
     echo "    <tr>";
     printf("      <td>%s</td>", $person->name);
-    for ($i = 1; $i <= 4; ++$i) {
+    for ($i = 1; $i <= $NUM_PROBLEMS; ++$i) {
         printf("      <td>%s</td><td>%s</td>", 
             $person->problems[$i]->time, $person->problems[$i]->submissions);
     }

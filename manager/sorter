@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+ARRAY=(java c cpp)
+for PROBLEM in *Problem*; do
+    pushd ${PROBLEM}
+    for ext in ${ARRAY[@]}; do
+        for i in *${ext}; do
+            ID=`echo $i | awk -F '-' '{print $1}'`
+            if (! test -f ${i}); then
+                continue
+            fi
+            mkdir ../sorted2/${ID}/${PROBLEM} -p
+            cp $i ../sorted2/${ID}/${PROBLEM}
+        done
+    done
+    popd
+done

@@ -2,6 +2,8 @@
 if [ $# == 0 ]; then
 	exit	
 fi
+
+ROOT="/home/html-dev/under/acm/contest"
 FILE=$1
 PROB=`dirname $1`
 BASE=`basename ${FILE}`
@@ -20,29 +22,29 @@ TIME=`echo ${BASE} | awk -F '-' '{print $2}'`
 TIME=`basename ${TIME} .c`
 TIME=`basename ${TIME} .cpp`
 TIME=`basename ${TIME} .java`
-VERIFY="../mydiff"
+VERIFY="mydiff"
 
 TIMEOUT=30
 OUTFILE=output.txt
 
-LOG="../logs/compiles/${BASE}.log"
+LOG="${ROOT}/logs/compiles/${BASE}.log"
 
-rm testing -rf
-mkdir testing
-cp ${FILE}* testing/
-cp ${PROB}/*output testing/
-cp ${PROB}/*input testing/
-cd testing/
+rm ${ROOT}/testing -rf
+mkdir ${ROOT}/testing
+cp ${FILE}* ${ROOT}/testing/
+cp ${ROOT}/problems/${PROB}/*output ${ROOT}/testing/
+cp ${ROOT}/problems/${PROB}/*input ${ROOT}/testing/
+cd ${ROOT}/testing/
 
 if [ ${JAVA} != ${BASE} ]; then
 	mv ${BASE} ${PROB}.java
-	EXEC="../executor ./${PROB}.class"
+	EXEC="executor ./${PROB}.class"
 else
-	EXEC="../executor ./a.out"
+	EXEC="executor ./a.out"
 fi
 
 while read line; do
-        ${line} &> ../${LOG}
+        ${line} &> ${LOG}
 done < ${MAKE}
 
 if [ $? != 0 ]; then
