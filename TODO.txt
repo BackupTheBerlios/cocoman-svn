@@ -5,6 +5,11 @@ o See if it's possible to do something so that users don't hit the case where th
 o Find safer way for submit-registration.php to be able to write to users file - have users file owned by apache account?
 o Submission dialog automatically picks the problem you last submiteed
 o Have more important output go to logs/manager.log (compiles, program runs, etc)
+o Rewrite the css and make the UI more friendly for use.
+o Implement C# support php script side and test it out manager side.
+o Test that programs are properly soapboxed (needs alot of testing)
+
+
 
 Done
 ----
