@@ -122,7 +122,7 @@ function time_from_start($time) {
 
 function process_contest_status() {
 	global $ROOT_DIR;       // input
-	global $contest_status; // output - 0: hasn't started, 1: in progress, 2: finished
+	global $contest_status; // output - 0: hasn't started, 1: in progress, 2: finished, 3: hasn't started with countdown
 	global $start_time;     // output
 	global $time_left;      // output - formatted as a string of our normal time format (24 hour hh:mm:ss)
 	
@@ -133,8 +133,10 @@ function process_contest_status() {
 		$start_time = strtotime($times[0]); // unix time format
 		$contest_length_in_seconds = time_to_seconds($times[1]);
 		$current_time = time(); // unix time format
-		if ($current_time < $start_time) {
-			$contest_status = 0;
+		if ($current_time < $start_time) { // do countdown
+			$contest_status = 3;
+			$seconds_left = $start_time - $current_time;
+			$time_left = seconds_to_time($seconds_left);
 		} else {
 			$end_time = $start_time + $contest_length_in_seconds; // unix time format (seconds since epoch)
 			$seconds_left = $end_time - $current_time;
@@ -342,10 +344,12 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
     <?php
     if ($contest_status == 0) {
     	echo "The contest has not yet started.";
+    } else if ($contest_status == 3) {
+        echo "Time until contest start: " . $time_left;
     } else if ($contest_status == 1) {
-		echo "Time left in contest: " . $time_left;
-	} else if ($contest_status == 2) {
-		echo "The contest is over. Thanks for participating!";
+        echo "Time left in contest: " . $time_left;
+    } else if ($contest_status == 2) {
+        echo "The contest is over. Thanks for participating!";
     } else {
     	app_log("ERROR: \$contest_status is set to $contest_status which is an invalid value. (scoreboard)");
     	echo "Error.";
