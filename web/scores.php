@@ -3,7 +3,7 @@
 // License to be determined
 
 $NUM_PROBLEMS=5;
-$ROOT_DIR="../logs/";
+$ROOT_DIR="logs/";
 // More like a struct. Member variables get updated by Person
 class Problem {
     var $number; // set by contructor. not used yet.
@@ -78,7 +78,7 @@ class Person {
 }
 
 
-$start_time = file($ROOT_DIR.'/start');
+$start_time = file($ROOT_DIR.'/start', 1);
 $start_time = strtotime($start_time[0]);
 
 // takes an elapsed time in the format hh:mm:ss (date format His) and converts 
@@ -127,7 +127,7 @@ function time_from_start($time) {
 
 $people = array();
 
-$log = file($ROOT_DIR.'/log');
+$log = file($ROOT_DIR.'/log', 1);
 foreach ($log as $line) {        
 //echo "tokenized log entry as:<br />"; echo "<pre>"; print_r($entry); echo "</pre>";
 
@@ -167,18 +167,18 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html>
-<head>
-  <meta http-equiv="refresh" content="10" />
-  <title>ACM Coding Contest Scoreboard</title>
-  <link rel="stylesheet" type="text/css" href="style.css" />
-  <style type="text/css">
-    th {text-align: center}
-    td {text-align: center}
-  </style>
-</head>
+<!-- <html> -->
+<!-- <head> -->
+<!--   <meta http-equiv="refresh" content="10" /> -->
+<!--   <title>ACM Coding Contest Scoreboard</title> -->
+<!--   <link rel="stylesheet" type="text/css" href="style.css" /> -->
+<!--   <style type="text/css"> -->
+<!--     th {text-align: center} -->
+<!--     td {text-align: center} -->
+<!--   </style> -->
+<!-- </head> -->
 
-<body>
+<!-- <body> -->
   <h1>ACM Coding Contest Scoreboard</h1>
   <table border="1">
     <tr>
@@ -194,10 +194,10 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
     <?php
         for ($i = 1; $i <= $NUM_PROBLEMS; $i++) {
             echo "<td>Time</td>";
-            echo "<td>Submissions</td>";
+            echo "<td>Submitted</td>";
         }
     ?>
-    <td>Time to Solve</td>
+    <td>Total Time</td>
     <td>Solved</td>
     </tr>
 <?php
@@ -256,7 +256,7 @@ if (array_key_exists("id", $_GET)) {
             echo "  <div>";
             echo "    Compile log:<br />";
             //echo "reading log from" . $person->last_compile_log_filename . "<br />";
-            $compile_log = file($person->last_compile_log_filename);
+            $compile_log = file($person->last_compile_log_filename, 1);
             foreach ($compile_log as $line) {
                 printf("    <pre>%s</pre>", htmlentities($line));
             }
@@ -312,11 +312,11 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
 //echo "<hr /><pre>"; print_r($people); echo "</pre>";
 ?>
 
-  <hr />
-  <p>
-    <a href="http://validator.w3.org/check?uri=referer"><img
-        src="http://www.w3.org/Icons/valid-xhtml10"
-        alt="Valid XHTML 1.0 Transitional" height="31" width="88" /></a>
-  </p>
-</body>
-</html>
+<!--   <hr /> -->
+<!--   <p> -->
+<!--     <a href="http://validator.w3.org/check?uri=referer"><img -->
+<!--         src="http://www.w3.org/Icons/valid-xhtml10" -->
+<!--         alt="Valid XHTML 1.0 Transitional" height="31" width="88" /></a> -->
+<!--   </p> -->
+<!-- </body> -->
+<!-- </html> -->

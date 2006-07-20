@@ -12,7 +12,7 @@
 
 // phpinfo();
 
-$dir = "../submissions/";
+$dir = "submissions/";
 $submission_time = date("H:i:s");
 
 $users = file($dir . 'handles');
@@ -58,7 +58,7 @@ if (!in_array($user_id, $users)) {
         $filename_with_path = $dir . $_POST["progno"] . "/" . $filename;
         copy($tempfile, $filename_with_path);
         
-        if ($build_file = fopen($filename_with_path . ".make", "w")) {
+        if ($build_file = fopen_with_path($filename_with_path . ".make", "w")) {
             if ($extension == '.java') {
                 fputs($build_file, sprintf("javac %s.java\n", $_POST["progno"]));
             }
@@ -70,14 +70,14 @@ if (!in_array($user_id, $users)) {
             }
         }
         
-        if (!$info_file = fopen($filename_with_path . '-info.txt', 'wb')) {
+        if (!$info_file = fopen_with_path($filename_with_path . '-info.txt', 'wb')) {
         	echo "Error opening info file.";
         	exit;
         }
         fputs($info_file, sprintf("Submitted from %s\n", $REMOTE_ADDR));
         fclose($info_file);
         
-        if ($queue_file = fopen($dir . "/queue", "a")) {
+        if ($queue_file = fopen_with_path($dir . "/queue", "a")) {
             fputs($queue_file, sprintf("%s\n", $_POST["progno"] . "/" . $filename));
         }
         
