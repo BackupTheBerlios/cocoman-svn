@@ -304,8 +304,6 @@ process_submissions() {
 	LINE="${PBLM}/${FILE}"
 	VALID=0
 
-	ALLOWED_EXT=(c cpp java)
-	
 	# Is the ext in the valid list.
 	for ext in ${ALLOWED_EXT[*]}; do
 		if [[ $EXT == $ext ]]; then

@@ -1,16 +1,39 @@
 #!/usr/bin/env bash
-ARRAY=(java c cpp)
+# Bash script to finalize problem standings and
+# clean up the directories.
+. conf/contest.conf
+PHP=/usr/bin/php
+# Copy all submissions out of the tree and sort
+# them by ID to be made available later.
+cd "${ROOT}/submissions"
 for PROBLEM in *Problem*; do
     pushd ${PROBLEM}
-    for ext in ${ARRAY[@]}; do
+    for ext in ${ALLOWD_EXT[@]}; do
         for i in *${ext}; do
             ID=`echo $i | awk -F '-' '{print $1}'`
             if (! test -f ${i}); then
                 continue
             fi
-            mkdir ../sorted2/${ID}/${PROBLEM} -p
-            cp $i ../sorted2/${ID}/${PROBLEM}
+            mkdir ../over/submitted/${ID}/${PROBLEM} -p
+            cp $i ../over/submitted/${ID}/${PROBLEM}
         done
     done
     popd
 done
+
+# Generate a webpage with the final standings.
+# The sed line removes all the Javascript tags,
+# <script>, </script>, <noscript>, </noscript>
+cd "${ROOT}/web"
+$PHP scoreboard.php | sed '/<[no]*script\>/,/<[no]*\/script>/d' > "${ROOT}/over/standings.html"
+
+
+# Copy the problems and their test cases over
+mkdir "${ROOT}/over/testcases" -p
+cd "${ROOT}/problems"
+for p in *; do
+    cp -R "${p}" "${ROOT}/over/testcases"
+done
+
+# Copy the logs over
+cp -R "${ROOT}/logs" "${ROOT}/"
