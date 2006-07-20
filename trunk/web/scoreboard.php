@@ -336,6 +336,8 @@ foreach ($ranked_user_ids as $ranked_user_id) {
 ?>
   </tbody>
   </table>
+      </div>
+      </div>
       </td>
       <td>
 <!-- Side Bar -->
@@ -393,9 +395,6 @@ echo "</div>";
       </td>
     </tr>
   </table>
-
-  </div>
- </div>
 
 
 <?php

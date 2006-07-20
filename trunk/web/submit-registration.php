@@ -101,7 +101,7 @@ function process_submission() {
 	}
 	
 	// Acknowledge to backend that we saw the information if possible so it can clean up
-	$ack = fopen($contest_root . 'temp_web/registration_done-' . $random_chars, 'w');
+	$ack = fopen($contest_root . '/temp_web/registration_done-' . $random_chars, 'w');
 	if ($ack === false) {
 		// TODO log this
 	} else {
