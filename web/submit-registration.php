@@ -49,6 +49,11 @@ function process_submission() {
 	$message = "You have been successfully registered. Your user id is $user_id.";
 }
 
+function get_ip() {
+	// TODO make this more robust. see user comments on http://php3.de/getenv
+	return($_SERVER['REMOTE_ADDR']);
+}
+
 process_submission();
 
 // Write entry to log file
@@ -61,7 +66,7 @@ if (!$log = fopen($log_filename, 'ab')) {
 	return;
 }
 $time = date("H:i:s");
-fputs($log, sprintf("%s: %s attemped to register with name \"%s\". Result: %s\n", $time, getenv('REMOTE_ADDR'), $_GET['name'], $message));
+fputs($log, sprintf("%s: %s attemped to register with name \"%s\". Result: %s\n", $time, get_ip(), $_GET['name'], $message));
 fclose($log);
 ?>
 
