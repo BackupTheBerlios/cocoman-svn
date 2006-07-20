@@ -11,30 +11,23 @@
 <body>
   <h1>ACM Coding Contest</h1>
   <p>
-    <a href="register.php">New user registration</a><br />
     <a href="scoreboard.php">Scoreboard</a><br />
+    Insert link to rules
   </p>
   
-  <form method="post" enctype="multipart/form-data" action="submit-file.php">
-  <u>Submit new file</u><br />
-  <label>User ID:</label><input type="text" name="id" /><br />
-  <label>Language:</label>
-  <select name="lang">
-    <option value="auto">Auto</option>
-    <option value="c">C</option>
-    <option value="cpp">C++</option>
-    <option value="java">Java</option>
-  </select><br />
-  <label>Problem Number:</label>
-  <select name="progno">
-    <option value="Problem1">Problem 1</option>
-    <option value="Problem2">Problem 2</option>
-    <option value="Problem3">Problem 3</option>
-    <option value="Problem4">Problem 4</option>
-  </select><br />
-  <label>Source file:</label><input type="file" name="program" /><br />
-  <input type="hidden" name="MAX_FILE_SIZE" value="100 * 1024" />
-  <input type="submit" value="Submit" />
+  <hr />
+  
+  <h3>New User Registration</h3>
+  <form method="get" action="submit-registration.php">
+    <label>Name:</label> <input type="text" name="name" />
+    <input type="submit" value="Register" />
+  </form>
+
+
+  <h3>Already registered? Log in here.</h3>
+  <form method="get" action="scoreboard.php">
+    <label>User ID:</label> <input name="id" type="text" />
+    <input type="submit" value="Log in" />
   </form>
 
   <hr />
