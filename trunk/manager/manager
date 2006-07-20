@@ -10,7 +10,7 @@
 # and if it timed out. Additionally, it uses soapbox if it is around
 # to make sure programs aren't messing about with security.
 bashexec() {
-        local RET COMMAND ERROUT PID KPID SOAPBOXPATH
+        local RET COMMAND ERROUT PID KPID SOAPBOXPATH SOAPLOG
 
 	#Return Codes:
 	SUCCESS=0
@@ -18,14 +18,17 @@ bashexec() {
 	TIMEDOUT=2
 	SOAPED=3
 
+	# Log for soapbox (off the NFS mount)
+	SOAPLOG="/tmp/soapbox.log"
+
 	# Check if soapbox exists.
         SOAPBOXPATH="${ROOT}/manager/soapbox/"
         if [[ -x "${SOAPBOXPATH}/bin/soapbox" && -e "${SOAPBOXPATH}/lib/libsoapbox.so" ]]; then
-		SOAPBOX="${SOAPBOXPATH}/bin/soapbox -s -f -l soapbox.log ${SOAPBOXARGS}"
+		SOAPBOX="${SOAPBOXPATH}/bin/soapbox -s -f -l ${SOAPLOG} ${SOAPBOXARGS}"
 	else 
 		SOAPBOX="" 
 	fi
-
+	
 	COMMAND="$SOAPBOX $*"
 	ERROUT=output.err
 
@@ -44,7 +47,7 @@ bashexec() {
         kill $KPID 2> /dev/null
 
 	#Check security on the program (perhaps it wasn't soapboxed properly)
-	if ( test -s soapbox.log ); then
+	if ( test -s ${SOAPLOG} ); then
 		return $SOAPED
 	fi
 	# Output the return value into output.ret (for debugging purposes)
@@ -173,7 +176,7 @@ compare() {
                 ;;
             $CS)
                 export MONO_SHARED_DIR=`pwd`/mono
-                EXEC="bashexec mono --debug a.out"
+                EXEC="bashexec mono a.out"
                 SOAPBOXARGS="-p ${MONO_SHARED_DIR}"
                 ;;
             *) 
