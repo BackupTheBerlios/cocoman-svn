@@ -18,11 +18,22 @@ License: To be determined
   <h1>ACM Coding Contest - New User Registration</h1>
   <form method="get" action="submit-registration.php">
     <label>Name:</label> <input type="text" name="name" />
-    <input type="submit" value="Submit" />
+    <input type="submit" value="Register" />
   </form>
 
   <hr />
-  
+
+  <h2>Already registered? Log in here.</h2>
+  <form method="get" action="scoreboard.php">
+    <label>User ID:</label><input name="id" type="text" />
+    <input type="submit" value="Log in" />
+  </form>
+
+  <br />
+  <br />
+
+
+    
   <p>
     <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10"

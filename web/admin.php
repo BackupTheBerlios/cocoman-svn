@@ -39,7 +39,7 @@ if (array_key_exists('poll', $_GET)) {
 }
 ?>
 
-<form method="get" action="admin.php">
+<form method="get" action="adminboard.php">
   <input type="submit" name="poll" value="Start poller" />
   <input type="submit" name="poll" value="Stop poller" />
 </form>
