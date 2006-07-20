@@ -4,7 +4,6 @@ o Have submission system give the timestamp of the most recently processed submi
 o New directory layout- largly done but I think could still be improved a little
 o Security
 o More robust ids
-o Change handles filename to users
 o See if it's possible to do something so that users don't hit the case where the scoreboard refreshes while they're browsing for a file and when they select it it doesn't go in the box. (Is this browser specific?)
 o Find safer way for submit-registration.php to be able to write to users file - have users file owned by apache account?
 o Remove the construction of the .make files from the php scripts. I think the shell scripts are better suited to be customized to a machine's setup or to try to figure out how to build stuff.
