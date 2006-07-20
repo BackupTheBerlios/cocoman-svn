@@ -279,6 +279,7 @@ poll() {
 			echo "Stopping the poll program from request."
 			break;
 		fi
+		process_submissions
 		empty_queue
 	done
 }
@@ -293,8 +294,9 @@ process_submissions() {
     GROUP=`id -ng`
     USER=`id -nu`
     DIR="${ROOT}/temp_web"
-    pushd ${DIR}
-    for s in submission*; do
+    pushd ${DIR} > /dev/null
+    for s in $(ls | grep submission); do
+	echo $s
 	ID=`echo "${s}" | awk -F '-' '{print $2}'`
 	TIME=`echo "${s}" | awk -F '-' '{print $3}'`
 	PNUM=`echo "${s}" | awk -F '-' '{print $4}' | sed 's/[^0-9]*//g'`
@@ -337,9 +339,8 @@ process_submissions() {
 	fi
 	
     done
-    popd
+    popd  > /dev/null
 }
 # Call our poll function with all passed arguments.
 # TODO: later on, fix this, so different arguments can be passed.
-#poll $*
-process_submissions
+poll $*
