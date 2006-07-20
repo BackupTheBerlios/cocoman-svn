@@ -5,3 +5,5 @@ times.txt:
 2nd line is contest length
 format for both is hh:mm:ss with 24 hour style hours
 leaving file blank indicates contest hasn't started yet
+
+All user ids have to be the same length.
