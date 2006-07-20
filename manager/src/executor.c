@@ -23,6 +23,7 @@ int stdoutLogLen = 0;
 char * stderrLog;
 int stderrLogLen = 0;
 volatile int isJava = 0;
+volatile int isCSharp = 0;
 volatile char classname[2049] = {0};
 extern int errno;          /* for reporting additional error information */
 struct timeval startTime;
@@ -196,10 +197,20 @@ void spawnChild(const char * filename)
         //and overlay it over this child process
                  
         if (isJava == 0)
-        {    
-          execlp("soapbox", "soapbox", "-l", "soapbox.log", "-f", 
-                 filename, NULL);
-          printf ("Error: Could not overlay %s\n", filename);
+        {     
+          if (isCSharp == 0)
+          {
+            execlp("soapbox", "soapbox", "-l", "soapbox.log", "-f", 
+                   filename, NULL);
+            printf ("Error: Could not overlay %s\n", filename);
+          }
+          else
+          {
+            setenv("MONO_SHARED_DIR","monotemp/",1);
+            execlp("soapbox", "soapbox", "-l", "soapbox.log", "-f", 
+                   "-p", "monotemp/", "mono", filename, NULL);
+            printf ("Error: Could not overlay %s\n", filename);
+          }
         }
         else
         {
@@ -425,6 +436,8 @@ int main (int argc, char ** argv)
   fwrite("\n",1,1,blankPolicyFile);  
   fclose(blankPolicyFile); 
 
+  //Make a temporary directory for mono
+  mkdir("monotemp",0xFFFFFF);
 
 
   pipe(selfpipe);
@@ -494,6 +507,7 @@ int main (int argc, char ** argv)
 
 
   int len = strlen(execname);
+
   isJava = 0;
 
   if (len >= 7)
@@ -507,6 +521,13 @@ int main (int argc, char ** argv)
       strncpy((char*)classname,execname+offset,2048);
       classname[len-offset-6] = '\0';
     }
+
+  isCSharp = 0;
+
+  if (len >= 5)
+    if (strcmp(".exe",execname+len-4) == 0)
+      isCSharp = 1;
+
 
 
 
@@ -670,7 +691,35 @@ int main (int argc, char ** argv)
             }
           }
 
-          //Handle C/C++ programs
+          //Handle C# programs
+          else if (isCSharp != 0)
+          {
+            int soapboxLogFile = open("soapbox.log", O_RDONLY);
+            int isBlank = 1;
+
+            int n = read(soapboxLogFile, buf, 256); 
+            for (; n > 0 && isBlank != 0; 
+                 n = read(soapboxLogFile, buf, 256))
+            {
+              int k;
+              for (k = 0; k < n && isBlank != 0; ++k)
+                if (buf[k] > ' ')
+                  isBlank = 0;
+            }
+
+            close(soapboxLogFile);
+
+            if (isBlank == 0)
+              child.status = 3;
+            else
+            {
+              int n = strstr(stderrLog, "Unhandled Exception: ") - stderrLog;
+              if (n >= 0 && n < stderrLogLen)
+                child.status = 1;
+            }
+          }
+
+          //Handle C/C++
           else
           {
             int soapboxLogFile = open("soapbox.log", O_RDONLY);

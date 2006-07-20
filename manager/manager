@@ -23,11 +23,10 @@ bashexec(){
 	which soapbox > /dev/null
 	RET=$?
 	if [[ $RET == 0 ]]; then
-		SOAPBOX="soapbox -s -f -l soapbox.log"
+		SOAPBOX="${CWD} soapbox -s -p ${CWD} -f -l soapbox.log"
 	else 
 		SOAPBOX="" 
 	fi
-
 
 	COMMAND="$SOAPBOX $*"
 	TIMEOUT=5 # how long to let a program run
@@ -77,7 +76,7 @@ build() {
 	if (! test -f $1); then
 		return 
 	fi
-
+        BFILE=$1
 	# Declare our compilers
 	GCPP="g++"
 	GCC="gcc"
@@ -88,24 +87,38 @@ build() {
 	CSFLAGS=
 
 	# Find out the file's type:
-	FILE=`basename $1`
-	C=`basename ${FILE} .c`
-	CPP=`basename ${FILE} .cpp`
-	JAVA=`basename ${FILE} .java`
-	CS=`basename ${FILE} .cs`
+#	FILE=`basename $1`
+#	C=`basename ${FILE} .c`
+#	CPP=`basename ${FILE} .cpp`
+#	JAVA=`basename ${FILE} .java`
+#	CS=`basename ${FILE} .cs`
+        
+        echo "build type: ${TYPE}"
+        case ${TYPE} in
+            $JAVA)
+                COMPILE="${JAVAC} ${BFILE}" ;;
+            $C)
+                COMPILE="${GCC} ${CFLAGS} ${BFILE}" ;;
+            $CPP)
+                COMPILE="${GCPP} ${CPPFLAGS} ${BFILE}" ;;
+            $CS)
+                COMPILE="${MCS} ${CSFLAGS} ${BFILE}" ;;
+            *)
+                break ;;
+        esac
 
-	if [[ ${FILE} != ${JAVA} ]]; then
-		COMPILE="${JAVAC} ${FILE}"
-	fi
-	if [[ ${FILE} != ${C} ]]; then
-		COMPILE="${GCC} ${CFLAGS} ${FILE}"
-	fi
-	if [[ ${FILE} != ${CPP} ]]; then
-		COMPILE="${GCPP} ${CPPFLAGS} ${FILE}"
-	fi
-	if [[ ${FILE} != ${CS} ]]; then
-		COMPILE="${MCS} ${CSFLAGS} ${FILE}"
-	fi
+#	if [[ ${FILE} != ${JAVA} ]]; then
+#		COMPILE="${JAVAC} ${FILE}"
+#	fi
+#	if [[ ${FILE} != ${C} ]]; then
+#		COMPILE="${GCC} ${CFLAGS} ${FILE}"
+#	fi
+#	if [[ ${FILE} != ${CPP} ]]; then
+#		COMPILE="${GCPP} ${CPPFLAGS} ${FILE}"
+#	fi
+#	if [[ ${FILE} != ${CS} ]]; then
+#		COMPILE="${MCS} ${CSFLAGS} ${FILE}"
+#	fi
 
 	echo ${COMPILE}
 	`${COMPILE}`
@@ -128,10 +141,12 @@ clean() {
 # build and compare the problem to the test cases.
 compare() {
 	FILE=$1
-	PROB=`dirname $1`
-	BASE=`basename ${FILE}`
-	JAVA=`basename ${BASE} .java`
-	MAKE=${BASE}.make
+        PROB=`dirname $1`
+        findext ${FILE}
+#	BASE=`basename ${FILE}`
+#	JAVA=`basename ${BASE} .java`
+#	CS=`basename ${BASE} .cs`
+#	MAKE=${BASE}.make
 	while read LINE
 	do
 		ID=`echo ${LINE} | awk -F ':' '{print $1}'`
@@ -154,20 +169,38 @@ compare() {
 
 	rm ${ROOT}/testing -rf
 	mkdir ${ROOT}/testing/cases -p
-	mkdir ${ROOT}/testing/build -p
+	mkdir ${ROOT}/testing/build/home -p
 	cp ${FILE}* ${ROOT}/testing/build
 	cp ${ROOT}/problems/${PROB}/*output ${ROOT}/testing/cases
 	cp ${ROOT}/problems/${PROB}/*input ${ROOT}/testing/cases
 	cd ${ROOT}/testing/build
 
 	#TODO: have it execute mono executables with mcs.
-	if [ ${JAVA} != ${BASE} ]; then
-		mv ${BASE} ${PROB}.java
-		EXEC="bashexec java ${PROB}"
-		BASE=${PROB}.java
-	else
-		EXEC="bashexec ./a.out"
-	fi
+        case ${TYPE} in
+            $JAVA)
+                mv ${BASE} ${PROB}.java
+                EXEC="bashexec java ${PROB}"
+                BASE=${PROB}.java
+                ;;
+            $CS)
+                export MONO_SHARED_DIR=`pwd`/home
+                EXEC="bashexec mono ${BASE}.exe"
+                ;;
+            *) 
+                EXEC="bashexec ./a.out"
+                ;;
+        esac
+
+                
+#	if [ ${JAVA} != ${BASE} ]; then
+#		mv ${BASE} ${PROB}.java
+#		EXEC="bashexec java ${PROB}"
+#		BASE=${PROB}.java
+#	elif [ ${CS} != ${BASE} ]; then
+#		EXEC="bashexec mono ${CS}.exe"
+#	else
+#		EXEC="bashexec ./a.out"
+#	fi
 
 	build ${BASE} &> ${LOG}
 	#while read line; do
@@ -230,6 +263,36 @@ empty_queue() {
 	# Move the contents of the queue to the finished pile.
 	cat queue >> finished 
 	rm queue -f
+}
+
+# Find the ext of passed in argument and set TYPE 
+# to either JAVA, C, CPP or CS (Also set these types
+# as integers, for later use.
+findext() {
+    C=0 # c
+    CPP=1 # c++
+    CS=2 # c#
+    JAVA=3 # java
+    UNKNOWN=15
+    BASE=`basename $*`
+    
+    if [ `basename ${BASE} .java` != ${BASE} ]; then
+        TYPE=${JAVA}
+#        BASE=`basename ${BASE} .java`
+    elif [ `basename ${BASE} .cs` != ${BASE} ]; then
+        TYPE=${MONO}
+#        BASE=`basename ${BASE} .cs`
+    elif [ `basename ${BASE} .cpp` != ${BASE} ]; then
+        TYPE=${CPP}
+#        BASE=`basename ${BASE} .cpp`
+    elif [ `basneame ${BASE} .c` != ${BASE} ]; then
+        TYPE=${C}
+#        BASE=`basename ${BASE} .c`
+    else
+        TYPE=${UNKNOWN} 
+#        BASE=${BASE}
+    fi
+    echo "type: ${TYPE} file: ${FILE}"
 }
 
 # Sit and wait for the queue to get populated.
