@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+QUEUE=`cat queue 2>/dev/null`
+if [ $? != 0 ]; then
+	exit 
+fi
+for item in $QUEUE; do
+	echo "Looking at $item"
+	OUTPUT=`./compare $item`
+	echo $OUTPUT >> ../logs/log
+done
+
+# Move the contents of the queue to the finished pile.
+cat queue >> finished 
+rm queue -f

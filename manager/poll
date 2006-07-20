@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+TIMEOUT=5
+while (sleep $TIMEOUT); do
+	./empty_queue
+done
