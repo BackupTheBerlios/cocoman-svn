@@ -10,18 +10,20 @@
 
 CONF_FILE=conf/contest.ini
 
-# Reads the variable out of the file and evaluates it.
+# Reads the variable out of CONF_FILE and evaluates it.
 read_var() {
+  local NAME 
   NAME=$1
   VAR=`echo "$1" | tr [A-Z] [a-z]`
   VAR=`./parse_ini $CONF_FILE s=global k=$VAR`
   eval ${NAME}="$VAR"
 }
 
-VARS=(ROOT NUM_PROBLEMS JAVABIN TIMEOUT INTERVAL)
 
-for VAR in "${VARS[@]}"; do 
-  NAME=$VAR
-  read_var $VAR;
-  export "${NAME}"="${VAR}"
+# Reads all the options available in CONF_FILE's global section
+# and then sets us up to use them.
+for option in `./parse_ini $CONF_FILE o=global`; do
+  OPT="`echo $option | tr [:lower:] [:upper:]`"
+  read_var $OPT;
+  export "${OPT}"="${VAR}"
 done
