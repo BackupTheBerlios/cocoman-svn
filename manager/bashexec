@@ -28,7 +28,6 @@ INTERVAL=1 #interval to sleep for while waiting for a process to finish
 # Run the command
 $COMMAND&
 PID=$!
-echo $PID ":" $COMMAND
 
 # Start the timeout timer.
 sleep $TIMEOUT && kill $PID 2> /dev/null&
