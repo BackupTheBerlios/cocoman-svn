@@ -9,3 +9,6 @@ For each language, we need a piece of code that tries to:
 - runs and doesn't output anything
 - hangs idle
 - crashes or throw an exception
+
+And then we need to create a 'queue' file that contains all these 
+files and tells the poll'er to run it.
