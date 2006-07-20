@@ -6,6 +6,7 @@
 INTERVAL=5
 ROOT="/home/html-dev/under/acm/contest"
 TIMEOUT=30
+JAVABIN="/opt/java/jre/bin/java"
 
 #TODO: Declare all variables that are local at top of function.
 
@@ -25,7 +26,7 @@ bashexec(){
 	which soapbox > /dev/null
 	RET=$?
 	if [[ $RET == 0 ]]; then
-		SOAPBOX="soapbox -s -p ${MONO_SHARED_DIR} -f -l soapbox.log"
+		SOAPBOX="soapbox -s -f -l soapbox.log ${SOAPBOXARGS}"
 	else 
 		SOAPBOX="" 
 	fi
@@ -186,14 +187,17 @@ compare() {
                 touch blankpolicyfile
                 ARGS="-Djava.security.manager -Djava.security.policy=blankpolicyfile"
                 EXEC="bashexec java ${ARGS} ${PROB}"
+                SOAPBOXARGS="-r ${JAVABIN}"
                 BASE=${PROB}.java
                 ;;
             $CS)
                 export MONO_SHARED_DIR=`pwd`/home
                 EXEC="bashexec mono ${BASE}.exe"
+                SOAPBOXARGS="-p ${MONO_SHARED_DIR}"
                 ;;
             *) 
                 EXEC="bashexec ./a.out"
+                SOAPBOXARGS=""
                 ;;
         esac
 
