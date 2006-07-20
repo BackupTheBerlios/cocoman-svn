@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Copyright 2006 Daniel Benamy
+# License to be determined
+
+echo -n "You should have run this from the application's root directory. The script doesn't yet check this though. Did you run it from there? (y/n) "
+read -n1 reply
+while [ "${reply}" != "y" ]; do
+	if [ "${reply}" == "n" ]; then
+		echo ""
+		exit 3
+	fi
+	echo ""
+	echo -n "Invalid response. (y/n): "
+	read -n1 reply
+done
+echo ""
+echo ""
+
+echo -n "Do you want to set up the problem directories now? (y/n) "
+read -n1 reply
+while [ "${reply}" != "n" ]; do
+	if [ "${reply}" == "y" ]; then
+		#. Create a directory for each problem in problems/ of the form Problem1, Problem2, etc. They are case sensitive.
+		echo "Be sure to put at least one test case in each problem directory in problems/"
+		#. Also create Problem1, Problem2, etc directories in submissions/
+		break
+	else
+		echo ""
+		echo -n "Invalid response. (y/n): "
+		read -n1 reply
+	fi
+done
+echo ""
+echo ""
+
+echo "Making sure various files and directories exist..."
+if [ ! -d logs/compiles ]; then
+	echo "logs/compiles already exists but is not a directory. Figure out what's going on and then try again."
+	exit 4
+fi
+if [ ! -e logs/compiles ]; then
+	mkdir logs/compiles
+fi
+if [ ! -e manager/conf/users.txt ]; then
+	touch manager/conf/users.txt
+fi
+if [ ! -f manager/conf/users.txt ]; then
+	echo "Something's wrong with manager/conf/users.txt. Figure it out and try again."
+	exit 5
+fi
+if [ ! -e logs/log ]; then
+	touch logs/log
+fi
+if [ ! -f logs/log ]; then
+	echo "Something's wrong with logs/log. Figure it out and try again."
+	exit 6
+fi
+if [ ! -e manager/mydiff ]; then
+	g++ "source/mydiff.cpp" -o "manager/mydiff"
+fi
+echo ""
+
+echo "Setting permissions..."
+chmod -R g-r-w-x *
+chmod -R o-r-w-x *
+chmod o+r+x manager/conf
+chmod o+r manager/conf/users.txt
+chmod o+r manager/conf/times.txt
+chmod o+r+x logs
+chmod 644 logs/log
+chmod o+r+w+x temp_web
+chmod o+r+x web
+chmod o+r web/*
+echo ""
+
+echo "Consult README.txt for other things you need to do before using this application."
+echo ""
+echo "Be sure that if you add files (or directories) later such as test cases, that you rerun this script or make sure their permissions are set correctly."
