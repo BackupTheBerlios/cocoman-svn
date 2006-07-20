@@ -123,7 +123,7 @@ clean() {
 
 # build and compare the problem to the test cases.
 compare() {
-        local FILE PROB BASE ID NAME TIME VERIFY OUTFILE LOG STATUS MESSAGE OUTPUT
+        local FILE PROB BASE ID NAME TIME VERIFY INFILE OUTFILE LOG STATUS MESSAGE OUTPUT
 	FILE=$1
         PROB=`dirname $1`
         findext ${FILE}
@@ -192,28 +192,29 @@ compare() {
 	for INPUT in ../cases/*.input; do
 		OUTPUT=`basename ${INPUT} .input`.output
 		OUTPUT="../cases/$OUTPUT"
+                INFILE=`basename ${INPUT}`
 		${EXEC} < ${INPUT} > ${OUTFILE}
 		RET=$?
 		if [ $RET == 1 ]; then
 			STATUS=4
-			MESSAGE="`basename ${INPUT}`-Program crashed"
+			MESSAGE="${INFILE}-Program crashed"
 			break
 		fi
 		if [ $RET == 2 ]; then
 			STATUS=3
-			MESSAGE="${INPUT}-Program timed out"
+			MESSAGE="${INFILE}-Program timed out"
 			break
 		fi 
 		if [ $RET != 0 ]; then
 			STATUS=15
-			MESSAGE="${INPUT}-Unknown Error"
+			MESSAGE="${INFILE}-Unknown Error"
 			break
 		fi
 		${VERIFY} ${OUTFILE} ${OUTPUT} > /dev/null
 		RET=$?
 		if [ $RET != 0 ]; then
 			STATUS=2
-			MESSAGE="${INPUT}-Output is not as expected"
+			MESSAGE="${INFILE}-Output is not as expected"
 			break
 		fi
 	done
