@@ -22,7 +22,6 @@ class Problem {
     }
 }
 
-// hardcoded to have 4 problems. could be made more generic later if needed.
 class Person {
     var $user_id;
     var $name;
@@ -38,18 +37,14 @@ class Person {
         for ($i = 1; $i <= $NUM_PROBLEMS; ++$i) {
             $this->problems["$i"] = new Problem($i);
         }
-//	$this->problems = array("1" => new Problem(1), new Problem(2), 
-//	                        new Problem(3), new Problem(4));
         $this->last_status_code = -1;
         $this->last_compile_log_filename = "";
     }
     
     // Called each time a line is read from the log file about this person
-    // problem is an int from 1 to 4
+    // problem is the problem number
     // time is a string in the log file format of hhmmss (24 hour time)
-    // succeeded is a bool
     function submitted_problem($problem, $time, $status_code) {
-        //echo "Called submitted_problem($problem, $time, $status_code)<br />";
         if ($this->problems[$problem]->time == "-") { // no working submission yet for this problem
             ++$this->problems[$problem]->submissions;
             if ($status_code == "0") {
@@ -79,29 +74,6 @@ class Person {
         }
         return $total_time;
     }
-}
-
-
-$times = file($ROOT_DIR.'/times.txt', 1); // TODO error checking
-// contest status- 0: hasn't started, 1: in progress, 2: finished
-if (count($times) < 2) { // leaving times.txt blank indicates contest hasn't started yet
-	$contest_status = 0;
-} else {
-	$start_time = strtotime($times[0]); // unix time format
-	$contest_length_in_seconds = time_to_seconds($times[1]);
-	$current_time = time(); // unix time format
-	if ($current_time < $start_time) {
-		$contest_status = 0;
-	} else {
-		$end_time = $start_time + $contest_length_in_seconds; // unix time format (seconds since epoch)
-		$seconds_left = $end_time - $current_time;
-		if ($seconds_left <= 0) {
-			$contest_status = 2;
-		} else {
-			$contest_status = 1;
-			$time_left = seconds_to_time($seconds_left);
-		}
-	}
 }
 
 // takes an elapsed time in the format hh:mm:ss (date format His) and converts 
@@ -144,81 +116,126 @@ function time_from_start($time) {
     return seconds_to_time($time);
 }
 
-// ***Program flow starts here (sorta)***
-
-// Read all registered users in from the users file
-$users = file($users_filename);
-if ($users === false) {
-	app_log("ERROR: Opening users file failed.");
-	echo "ERROR: Opening users file failed.";
-	exit;
-}
-$people = array();
-foreach ($users as $user_entry) {
-	$user_id = strtok($user_entry, ':');
-	$name = strtok("\n");
-    if (array_key_exists($user_id, $people)) {
-    	app_log(sprintf("ERROR: Users file contains 2 entries with user id %d", $user_id));
-    	continue;
-    }
-	$people[$user_id] = new Person($user_id);
-	$people[$user_id]->name = $name;
-}
-
-// Fill in their submission data from the submission results log file
-// Syntax of log file:
-// <hhmmss>,<user id>,<first name last name>,Problem<problem number>,<status code>,[text]
-// status codes:
-// "0" success
-// "1" compile failure
-// "2" test failure
-// "3" timeout while running
-// "4" crash
-// "15" unknown error while executing program
-// if status code is 1, there is another token before text which has the 
-// filename of a log of the compile
-
-$log = file($ROOT_DIR.'/log', 1);
-if ($log === false) {
-	app_log("ERROR: Opening submission results log file failed.");
-	echo "ERROR: Opening submission results log file failed.";
-	exit;
-}
-foreach ($log as $line) {        
-//echo "tokenized log entry as:<br />"; echo "<pre>"; print_r($entry); echo "</pre>";
-
-    $time = strtok($line, ",");
-    $time = time_from_start($time);
-    $user_id = strtok(",");
-    $name = strtok(",");
-    $problem_number = substr(strtok(","), 7);
-    $status_code = strtok(",");
-    
-    //echo "tokenized line: time=$time, name=$name, problem number=$problem_number, code=$status_code<br />";
-    
-	if (!array_key_exists($user_id, $people)) {
-    	app_log(sprintf("ERROR: Submission results log refers to user id %d which is not in the users file.", $user_id));
-    	continue;
-    }
-    
-    $people[$user_id]->submitted_problem($problem_number, $time, $status_code);
-    
-    if ($status_code == 1) {
-        $people[$user_id]->last_compile_log_filename = strtok(",");
-    }
+function process_contest_status() {
+	global $ROOT_DIR;       // input
+	global $contest_status; // output - 0: hasn't started, 1: in progress, 2: finished
+	global $time_left;      // output - formatted as a string of our normal time format (24 hour hh:mm:ss)
+	
+	$times = file($ROOT_DIR.'/times.txt', 1); // TODO error checking
+	if (count($times) < 2) { // leaving times.txt blank indicates contest hasn't started yet
+		$contest_status = 0;
+	} else {
+		$start_time = strtotime($times[0]); // unix time format
+		$contest_length_in_seconds = time_to_seconds($times[1]);
+		$current_time = time(); // unix time format
+		if ($current_time < $start_time) {
+			$contest_status = 0;
+		} else {
+			$end_time = $start_time + $contest_length_in_seconds; // unix time format (seconds since epoch)
+			$seconds_left = $end_time - $current_time;
+			if ($seconds_left <= 0) {
+				$contest_status = 2;
+			} else {
+				$contest_status = 1;
+				$time_left = seconds_to_time($seconds_left);
+			}
+		}
+	}
 }
 
-$problems_solved = array();
-$total_times = array(); // in seconds
-$ranked_user_ids = array();
-foreach ($people as $person) {
-    $problems_solved[] = 0 - $person->total_problems_solved();
-    $total_times[] = $person->total_seconds();
-    $ranked_user_ids[] = $person->user_id;
+function read_in_all_users() {
+	global $users_filename; // input - filename of users file
+	global $people;         // output - array of user ids to people
+	
+	$users = file($users_filename);
+	if ($users === false) {
+		app_log("ERROR: Opening users file failed.");
+		echo "ERROR: Opening users file failed.";
+		exit;
+	}
+	$people = array();
+	foreach ($users as $user_entry) {
+		$user_id = strtok($user_entry, ':');
+		$name = strtok("\n");
+		if (array_key_exists($user_id, $people)) {
+			app_log(sprintf("ERROR: Users file contains 2 entries with user id %d", $user_id));
+			continue;
+		}
+		$people[$user_id] = new Person($user_id);
+		$people[$user_id]->name = $name;
+	}
 }
 
-array_multisort($problems_solved, $total_times, $ranked_user_ids);
-//echo "<pre>"; print_r($problems_solved); print_r($total_times); print_r($user_ids); echo "</pre><br />";
+// Fills in peoples' submission data from the submission results log file
+function process_submission_results() {
+	global $ROOT_DIR; // input
+	global $people;   // input & output
+	
+	// Syntax of log file:
+	// <hhmmss>,<user id>,<first name last name>,Problem<problem number>,<status code>,[text]
+	// status codes:
+	// "0" success
+	// "1" compile failure
+	// "2" test failure
+	// "3" timeout while running
+	// "4" crash
+	// "15" unknown error while executing program
+	// if status code is 1, there is another token before text which has the 
+	// filename of a log of the compile
+	
+	$log = file($ROOT_DIR.'/log', 1);
+	if ($log === false) {
+		app_log("ERROR: Opening submission results log file failed.");
+		echo "ERROR: Opening submission results log file failed.";
+		exit;
+	}
+	foreach ($log as $line) {        
+	//echo "tokenized log entry as:<br />"; echo "<pre>"; print_r($entry); echo "</pre>";
+		$time = strtok($line, ",");
+		$time = time_from_start($time);
+		$user_id = strtok(",");
+		$name = strtok(",");
+		$problem_number = substr(strtok(","), 7);
+		$status_code = strtok(",");
+		//echo "tokenized line: time=$time, name=$name, problem number=$problem_number, code=$status_code<br />";
+		
+		if (!array_key_exists($user_id, $people)) {
+			app_log(sprintf("ERROR: Submission results log refers to user id %d which is not in the users file.", $user_id));
+			continue;
+		}
+		
+		$people[$user_id]->submitted_problem($problem_number, $time, $status_code);
+		
+		if ($status_code == 1) {
+			$people[$user_id]->last_compile_log_filename = strtok(",");
+		}
+	}
+}
+
+function rank_users() {
+	global $people;          // input
+	global $ranked_user_ids; // output
+	
+	$problems_solved = array();
+	$total_times = array(); // in seconds
+	$ranked_user_ids = array();
+	foreach ($people as $person) {
+		$problems_solved[] = 0 - $person->total_problems_solved();
+		$total_times[] = $person->total_seconds();
+		$ranked_user_ids[] = $person->user_id;
+	}
+	
+	array_multisort($problems_solved, $total_times, $ranked_user_ids);
+	//echo "<pre>"; print_r($problems_solved); print_r($total_times); print_r($user_ids); echo "</pre><br />";
+}
+
+// ***Program flow starts here***
+
+process_contest_status();
+read_in_all_users();
+process_submission_results();
+rank_users();
+
 ?>
 
 <!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -306,10 +323,7 @@ if (array_key_exists("id", $_GET)) {
     if (!array_key_exists($_GET["id"], $people)) {
         echo "<p>You are trying to display the status for an invalid user.</p>";
         // TODO log?
-    } else {
-        echo "<hr/>";
-        echo "<h3>Submission Status</h3>";
-        
+    } else {        
         $person = $people[$_GET["id"]];
         if ($person->last_status_code == -1) {
 			echo "    <p>You haven't yet submitted anything yet or you just submitted and it hasn't been processed yet.</p>";
@@ -337,7 +351,9 @@ if (array_key_exists("id", $_GET)) {
 					$last_status = "Unknown error.";
 					app_log(sprintf("ERROR: User %d has a last_status_code of %d which is invalid. (scoreboard status display)", $person->user_id, $person->last_status_code));
 			}
-			printf("  <p>Your most recent submission's status is: %s,</p>", $last_status);
+			echo "<hr/>";
+            echo "<h3>Submission Status</h3>";
+            printf("  <p>Your most recent submission's status is: %s,</p>", $last_status);
 			if ($person->last_status_code == "1") {
 				echo "  <div>";
 				echo "    Compile log:<br />";
@@ -358,14 +374,14 @@ if (array_key_exists("id", $_GET)) {
 ?>
 
   <hr />
-  <div>
+<!--  <div>
     <form method="get" action="scoreboard.php">
       <u>View person's submission status</u><br />
       <label>User ID:</label><input name="id" type="text" />
       <input type="submit" value="Submit" />
     </form>
   </div>
-  <hr />
+  <hr />-->
   
   <div>
     <form method="post" enctype="multipart/form-data" action="submit-file.php">
