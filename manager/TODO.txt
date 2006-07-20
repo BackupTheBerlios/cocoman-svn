@@ -1,7 +1,6 @@
 To Do
 -----
 * See if it's possible to do something so that users don't hit the case where the scoreboard refreshes while they're browsing for a file and when they select it it doesn't go in the box. (Is this browser specific?) // In response: perhaps a framed page is the way to fix it. I.E. frame the scoreboard and have it autorefresh, but do not have the submit part inside that frame.
-* Find safer way for submit-registration.php to be able to write to users file - have users file owned by apache account?
 * Submission dialog automatically picks the problem you last submiteed
 * Have more important output go to logs/manager.log (compiles, program runs, etc)
 * Rewrite the css and make the UI more friendly for use.
@@ -26,3 +25,4 @@ Done
 * Moved logs directory into manager. Hopefully updated everything that referenced it.
 * Created config.inc which has a contest directory setting. Started changing php scripts so that all file accesses are relative to that setting. I think I got all the important ones.
 * Created a directory temp_web_log and changed the php logger script to write to a log in there. This is so the web server user doesn't need to be able to write to the manager directory.
+* Find safer way for submit-registration.php to be able to write to users file - have users file owned by apache account? - See DESIGN.txt
