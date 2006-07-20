@@ -3,17 +3,18 @@
 # Natan Zohar
 
 # GLOBAL DEFINITIONS
-INTERVAL=5
-ROOT="/home/html-dev/under/acm/contest"
-TIMEOUT=30
-JAVABIN="/opt/java/jre/bin/java"
+INTERVAL=5 # poll interval
+ROOT="/home/html-dev/under/acm/contest" # root directory of contest dir.
+TIMEOUT=30 # program execution timeout (we kill it after $TIMEOUT)
+JAVABIN="/opt/java/jre/bin/java" # location of java binary to be passed to soapbox
+STOP_FILE="STOP" # file to create to stop the poll.
 
 #TODO: Declare all variables that are local at top of function.
 
+# Bash script to run a command and find it's return code
+# and if it timed out. Additionally, it uses soapbox if it is around
+# to make sure programs aren't messing about with security.
 bashexec(){
-	# Bash script to run a command and find it's return code
-	# and if it timed out. Additionally, it uses soapbox if it is around
-	# to make sure programs aren't messing about with security.
         local RET COMMAND ERROUT PID KPID
 
 	#Return Codes:
@@ -92,13 +93,7 @@ build() {
 	CFLAGS=
 	CSFLAGS=
 
-	# Find out the file's type:
-#	FILE=`basename $1`
-#	C=`basename ${FILE} .c`
-#	CPP=`basename ${FILE} .cpp`
-#	JAVA=`basename ${FILE} .java`
-#	CS=`basename ${FILE} .cs`
-        
+	# Find out the file's type and set compile line.
         case ${TYPE} in
             $JAVA)
                 COMPILE="${JAVAC} ${BFILE}" ;;
@@ -112,19 +107,6 @@ build() {
                 break ;;
         esac
 
-#	if [[ ${FILE} != ${JAVA} ]]; then
-#		COMPILE="${JAVAC} ${FILE}"
-#	fi
-#	if [[ ${FILE} != ${C} ]]; then
-#		COMPILE="${GCC} ${CFLAGS} ${FILE}"
-#	fi
-#	if [[ ${FILE} != ${CPP} ]]; then
-#		COMPILE="${GCPP} ${CPPFLAGS} ${FILE}"
-#	fi
-#	if [[ ${FILE} != ${CS} ]]; then
-#		COMPILE="${MCS} ${CSFLAGS} ${FILE}"
-#	fi
-
 	echo ${COMPILE}
 	`${COMPILE}`
 }
@@ -136,7 +118,6 @@ clean() {
 	mkdir "${ROOT_DIR}/old/${DATE}" -p
 	cd "${ROOT_DIR}/old/${DATE}"
 	mkdir logs submissions problems
-	#!/usr/bin/env bash
 	if [ $# == 0 ]; then
 		return
 	fi
@@ -150,9 +131,6 @@ compare() {
         PROB=`dirname $1`
         findext ${FILE}
 	BASE=`basename ${FILE}`
-#	JAVA=`basename ${BASE} .java`
-#	CS=`basename ${BASE} .cs`
-#	MAKE=${BASE}.make
 	while read LINE
 	do
 		ID=`echo ${LINE} | awk -F ':' '{print $1}'`
@@ -201,21 +179,8 @@ compare() {
                 ;;
         esac
 
-                
-#	if [ ${JAVA} != ${BASE} ]; then
-#		mv ${BASE} ${PROB}.java
-#		EXEC="bashexec java ${PROB}"
-#		BASE=${PROB}.java
-#	elif [ ${CS} != ${BASE} ]; then
-#		EXEC="bashexec mono ${CS}.exe"
-#	else
-#		EXEC="bashexec ./a.out"
-#	fi
-
-	build ${BASE} &> ${LOG}
-	#while read line; do
-	#        ${line} &> ${LOG}
-	#done < ${MAKE}
+        # Build the file and send the output to the compile log.
+        build ${BASE} &> ${LOG}
 
 	if [ $? != 0 ]; then
 		echo "${TIME},${ID},${NAME},${PROB},1,${LOG},Error Compiling"
@@ -304,7 +269,6 @@ findext() {
 # Sit and wait for the queue to get populated.
 poll() {
 	DIR="${ROOT}/submissions/"
-	STOP_FILE="STOP"
 	cd ${DIR}
 	rm ${STOP_FILE} -f
 	if [[ $1 == "stop" ]]; then
