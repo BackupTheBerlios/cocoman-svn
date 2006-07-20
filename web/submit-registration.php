@@ -3,7 +3,7 @@
 
 //$user_id_given = false;
 //$user_id = 0;
-$message = "";
+//$message = "";
 
 // Processes the submission and fills in some variables
 // Should not write anything out
@@ -11,7 +11,7 @@ function process_submission() {
 	// Variable that will be used to display the page
 	global $message;
 	//global $user_id_given;
-	//global $user_id;
+	global $user_id;
 	
 	//$dir = "../submissions/";
 	$users_filename = '../submissions/handles';
@@ -84,12 +84,10 @@ process_submission();
   </p>
   <p>
     <?php
-/*  	if ($user_id_given) {
+  	if (isset($user_id)) {
 		echo '<a href="scoreboard.php?id=' . $user_id . '">Scoreboard</a>';
-	} else {
-		echo '<a href="scoreboard.php">Scoreboard</a>';
-	}*/
-    ?>
+	}
+	?>
   </p>
   <hr />
   
