@@ -29,7 +29,8 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
         }
     ?>
     </select><br />
-    <label>Source file:</label><input type="file" name="program" /><br />
+    <label>Source file:</label><input type="file" name="program" onFocus="clickedBrowse()" onClick="clickedBrowse()" /><br />
+    <div id="refreshStatus"></div>
     <input type="hidden" name="MAX_FILE_SIZE" value="102400" />
     <input type="submit" value="Submit" />
     </form>
