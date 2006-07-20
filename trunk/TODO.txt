@@ -1,5 +1,9 @@
 To Do
 -----
+* Make it so manager.log in temp_web gets merged with manager.log 
+  inside manager/logs. 
+* Clean up the log structure, we have 3 log files: 
+  logs/log manager/logs/manager.log and temp_web/manager.log
 * Move NUM_PROBLEMS from scoreboard.php to config.inc
 * Submission dialog automatically picks the problem you last submiteed
 * Have more important output go to logs/manager.log (compiles, program runs, etc)

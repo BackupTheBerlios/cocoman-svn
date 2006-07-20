@@ -16,6 +16,7 @@ CMD="$(basename $0)"
 SOAPBOXPATHTEMP=""
 SOAPBOXRUNTEMP=""
 SOAPBOXRUNPATH=""
+SOAPBOXLIBPATH="/lib/libsoapbox.so"
 
 function help {
 	cat <<EOF
@@ -98,6 +99,6 @@ fi
 export SOAPBOXACTION SOAPBOXDEBUG SOAPBOXLOG SOAPBOXPATH SOAPBOXRUN SOAPBOXRUNPATH
 
 ### Preload Soapbox
-export LD_PRELOAD="/lib/libsoapbox.so:$LD_PRELOAD"
+export LD_PRELOAD="$SOAPBOXLIBPATH:$LD_PRELOAD"
 
 exec $@
