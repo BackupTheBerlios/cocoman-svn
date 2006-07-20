@@ -196,7 +196,7 @@ compare() {
 		RET=$?
 		if [ $RET == 1 ]; then
 			STATUS=4
-			MESSAGE="${INPUT}-Program crashed"
+			MESSAGE="`basename ${INPUT}`-Program crashed"
 			break
 		fi
 		if [ $RET == 2 ]; then
