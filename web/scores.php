@@ -280,55 +280,62 @@ foreach ($ranked_user_ids as $ranked_user_id) {
 <?php
 if (array_key_exists("id", $_GET)) {
     if (!array_key_exists($_GET["id"], $people)) {
-        echo "<p>The user you specified hasn't submitted anything.</p>";
+        echo "<p>You are trying to display the status for an invalid user.</p>";
+        // TODO log?
     } else {
-        $person = $people[$_GET["id"]];
-        switch ($person->last_status_code) {
-            case 0:
-                $last_status = "Submission ok!";
-                break;
-            case 1:
-                $last_status = "Compile failure.";
-                break;
-            case 2:
-                $last_status = "Program failed test.";
-                break;
-            case 3:
-                $last_status = "Program timed out while running.";
-                break;
-            case 4:
-                $last_status = "Program crashed while running.";
-                break;
-            case 5:
-                $last_status = "Unknown error while running program.";
-                break;
-            default:
-                $last_status = "Unknown error. This should never happen. Please inform the proctor.";
-        }
         echo "<hr/>";
-        echo "<p>";
-        echo "  Please note that it may take a couple of minutes for your ";
-        echo "  submissions to be processed.";
-        echo "</p>";
-        //echo "<p>";
-        printf("  <p>Your most recent submission's status is: %s</p>", $last_status);
-        if ($person->last_status_code == "1") {
-            echo "  <div>";
-            echo "    Compile log:<br />";
-            //echo "reading log from" . $person->last_compile_log_filename . "<br />";
-            $compile_log = file($person->last_compile_log_filename, 1);
-            foreach ($compile_log as $line) {
-                printf("    <pre>%s</pre>", htmlentities($line));
-            }
-            echo "  </div>";
+        echo "<h3>Submission Status</h3>";
+        
+        $person = $people[$_GET["id"]];
+        if ($person->last_status_code == -1) {
+			echo "    <p>You haven't yet submitted anything yet or you just submitted and it hasn't been processed yet.</p>";
+        } else {
+			switch ($person->last_status_code) {
+				case 0:
+					$last_status = "Submission ok!";
+					break;
+				case 1:
+					$last_status = "Compile failure.";
+					break;
+				case 2:
+					$last_status = "Program failed test.";
+					break;
+				case 3:
+					$last_status = "Program timed out while running.";
+					break;
+				case 4:
+					$last_status = "Program crashed while running.";
+					break;
+				case 5:
+					$last_status = "Unknown error while running program.";
+					break;
+				default:
+					$last_status = "Unknown error.";
+					app_log(sprintf("ERROR: User %d has a last_status_code of %d which is invalid. (scoreboard status display)", $person->user_id, $person->last_status_code));
+			}
+			printf("  <p>Your most recent submission's status is: %s,</p>", $last_status);
+			if ($person->last_status_code == "1") {
+				echo "  <div>";
+				echo "    Compile log:<br />";
+				//echo "reading log from" . $person->last_compile_log_filename . "<br />";
+				$compile_log = file($person->last_compile_log_filename, 1);
+				foreach ($compile_log as $line) {
+					printf("    <pre>%s</pre>", htmlentities($line));
+				}
+				echo "  </div>";
+			}
         }
+        echo "<p>";
+        echo "  <i>Please note that it may take a couple of minutes for your ";
+        echo "  submissions to be processed.</i>";
+        echo "</p>";
     }
 }
 ?>
 
   <hr />
   <div>
-    <form method="get" action="scores.php">
+    <form method="get" action="scoreboard.php">
       <u>View person's submission status</u><br />
       <label>User ID:</label><input name="id" type="text" />
       <input type="submit" value="Submit" />
