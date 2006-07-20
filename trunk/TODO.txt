@@ -1,5 +1,6 @@
 To Do
 -----
+* Move NUM_PROBLEMS from scoreboard.php to config.inc
 * Submission dialog automatically picks the problem you last submiteed
 * Have more important output go to logs/manager.log (compiles, program runs, etc)
 * Rewrite the css and make the UI more friendly for use.
