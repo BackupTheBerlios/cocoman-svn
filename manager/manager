@@ -117,7 +117,7 @@ clean() {
 	# Create a directory for all the information from this contest.
 	mkdir "${ROOT_DIR}/old/${DATE}" -p
 	cd "${ROOT_DIR}/old/${DATE}"
-	mkdir logs submissions problems
+	mkdir manager manager/logs submissions problems
 	if [ $# == 0 ]; then
 		return
 	fi
@@ -149,7 +149,7 @@ compare() {
 
 	OUTFILE=output.txt
 
-	LOG="${ROOT}/logs/compiles/${BASE}.log"
+	LOG="${ROOT}/manager/logs/compiles/${BASE}.log"
 
 	rm ${ROOT}/testing -rf
 	mkdir ${ROOT}/testing/cases -p
@@ -232,7 +232,7 @@ empty_queue() {
 	for item in $QUEUE; do
 		echo "Looking at $item"
 		OUTPUT=`compare $item`
-		echo $OUTPUT >> ../logs/log
+		echo $OUTPUT >> ${ROOT}/manager/logs/log
 		echo $OUTPUT
 	done
 

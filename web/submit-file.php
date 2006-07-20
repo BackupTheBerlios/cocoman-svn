@@ -1,4 +1,5 @@
 <?php
+require_once('config.inc');
 require('logging.inc');
 require('time.inc');
 //ini_set("include_path", ".:../"); doesn't fix copy so I prepended ../ to $dir
@@ -9,9 +10,10 @@ function process_submission() {
 	// Variable that will be used to display the page
 	global $message;
 	global $user_id;
+	global $contest_root;
 	
-	$users_file = "../manager/users.txt";
-	$dir = "../submissions/";
+	$users_file = $contest_root . 'manager/users.txt';
+	$dir = $contest_root . 'submissions/';
 	$submission_time = date("H:i:s");
 	
 	if (!$users = file($users_file)) {

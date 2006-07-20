@@ -1,10 +1,11 @@
 <?php
 
 //require('logging.inc');
+require_once('config.inc');
 
 $NUM_PROBLEMS=5;
-$ROOT_DIR="logs/";
-$users_filename = '../manager/users.txt';
+$ROOT_DIR = $contest_root . "logs/";
+$users_filename = $contest_root . 'manager/users.txt';
 
 // Admin functions 
 // starts the poll on the machine

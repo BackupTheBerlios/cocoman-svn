@@ -4,6 +4,7 @@ Author: Daniel Benamy <dbenamy1@binghamton.edu>
 License: To be determined
 */
 
+require_once('config.inc');
 require('../web/logging.inc');
 
 // Processes the submission and fills in some variables
@@ -13,7 +14,7 @@ function process_submission() {
 	global $message;
 	global $user_id;
 	
-	$users_filename = '../manager/users.txt';
+	$users_filename = $contest_root . 'manager/users.txt';
 	
 	// TODO check to make sure _GET has name
 	
@@ -60,7 +61,7 @@ function process_submission() {
 //	}
 
         $output = array();
-        $genid = "../manager/genid $users_filename";
+        $genid = $contest_root . "manager/genid $users_filename";
         $ret = exec($genid, $output);
 
         $user_id = $output[0];

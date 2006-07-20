@@ -2,13 +2,14 @@
 // Copyright 2006 Daniel Benamy <dbenamy1@binghamton.edu>
 // License to be determined
 
+require_once('config.inc');
 require_once('logging.inc');
 require('contest_status.inc');
 require('time.inc');
 
 $NUM_PROBLEMS=5;
-$ROOT_DIR="logs/";
-$users_filename = '../manager/users.txt';
+$ROOT_DIR = $contest_root . 'manager/logs/';
+$users_filename = $contest_root . 'manager/users.txt';
 
 // More like a struct. Member variables get updated by Person
 class Problem {

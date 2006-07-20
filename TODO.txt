@@ -10,6 +10,7 @@ To Do
 * Restructure directories- add tempsubmit and scripts to move stuff out of there. php creates files there with 32 character names. other stuff on paper. change permissions... // With permissions, it turns out the setuid bit on directories makes it so that files created inside that dir are automatically owned by that user.group. In conjuction with umask, you can have it so that the php script will automatically upload files of mask 700 to that dir and have the submit dir be 733 or something.
 * Have submit script write line in queue file instead of web server.
 * Create test suite for contest manager
+* Make sure clean() in manager still works with new directories
 
 Done
 ----
@@ -20,3 +21,6 @@ Done
 * Check for sane names
 * Countdown till start time
 * Don't allow submissions when contest isn't going on.
+* Moved logs directory into manager. Hopefully updated everything that referenced it.
+* Created config.inc which has a contest directory setting. Started changing php scripts so that all file accesses are relative to that setting. I think I got all the important ones.
+* Created a directory temp_web_log and changed the php logger script to write to a log in there. This is so the web server user doesn't need to be able to write to the manager directory.

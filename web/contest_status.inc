@@ -1,6 +1,7 @@
 <?php
+require_once('config.inc');
 
-$times_file = 'logs/times.txt';
+$times_file = $contest_root . 'manager/logs/times.txt';
 
 ini_set("include_path", ".:../");
 

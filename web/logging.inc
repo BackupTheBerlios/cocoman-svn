@@ -4,6 +4,8 @@ Author: Daniel Benamy <dbenamy1@binghamton.edu>
 License: To be determined
 */
 
+require_once('config.inc');
+
 // Get client's ip address
 function get_ip() {
 	// TODO make this more robust. see user comments on http://php3.de/getenv
@@ -13,7 +15,9 @@ function get_ip() {
 // Write entry to log file
 // If log can't be opened, echos an error and exits
 function app_log($message) {
-	$log_filename = '../logs/manager.log'; // this isn't what is called the log
+	global $contest_root;
+	$log_filename = $contest_root . 'temp_web_log/manager.log';
+	//$log_filename = $contest_root . 'manager/logs/manager.log'; // this isn't what is called the log
 	// in a few other place. The other log just has the results of users' 
 	// submissions. This refers to a general log where various events that are 
 	// recorded.
