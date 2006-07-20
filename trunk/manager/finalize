@@ -27,6 +27,8 @@ for PROBLEM in Problem*; do
                 continue
             fi
             mkdir "${ROOT}/over/submitted/${ID}/${PROBLEM}" -p
+	    chmod 755 "${ROOT}/over/submitted/${ID}/"
+	    chmod 755 "${ROOT}/over/submitted/${ID}/${PROBLEM}"
             cp $i "${ROOT}/over/submitted/${ID}/${PROBLEM}"
         done
     done
@@ -49,3 +51,6 @@ done
 
 # Copy the logs over
 cp -R "${ROOT}/logs" "${ROOT}/over"
+
+# Fix permissions on the files copied over
+chmod 644 "${ROOT}/over/logs/*
