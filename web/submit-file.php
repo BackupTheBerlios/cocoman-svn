@@ -1,5 +1,5 @@
 <?php
-require('logging.php');
+require('logging.inc');
 //ini_set("include_path", ".:../"); doesn't fix copy so I prepended ../ to $dir
 
 // Processes the submission and fills in some variables

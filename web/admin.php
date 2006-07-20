@@ -1,6 +1,6 @@
 <?php
 
-//require('logging.php');
+//require('logging.inc');
 
 $NUM_PROBLEMS=5;
 $ROOT_DIR="logs/";

@@ -4,7 +4,7 @@ Author: Daniel Benamy <dbenamy1@binghamton.edu>
 License: To be determined
 */
 
-require('../web/logging.php');
+require('../web/logging.inc');
 
 // Processes the submission and fills in some variables
 // Should not write anything out
