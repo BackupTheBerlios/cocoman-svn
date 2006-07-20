@@ -9,7 +9,7 @@
 # Bash script to run a command and find it's return code
 # and if it timed out. Additionally, it uses soapbox if it is around
 # to make sure programs aren't messing about with security.
-bashexec(){
+bashexec() {
         local RET COMMAND ERROUT PID KPID SOAPBOXPATH
 
 	#Return Codes:
@@ -47,6 +47,8 @@ bashexec(){
 	if ( test -s soapbox.log ); then
 		return $SOAPED
 	fi
+	# Output the return value into output.ret (for debugging purposes)
+	echo ${RET} >> output.ret
 	#Check for errors:
 	case $RET in 
 		0)  # Successfully returned.
@@ -57,6 +59,9 @@ bashexec(){
 		    return $CRASHED;
 		fi
 		;;
+
+		127) # Execution finished really early (wait returned 127)
+		return $SUCCESS;;
 
 		139) # Crashed (Segfault) 
 		return $CRASHED;;
