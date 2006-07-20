@@ -69,12 +69,12 @@ if [ ! -e manager/soapbox/bin/soapbox ]; then
         SOAPBOXPATH="${CWD}/manager/soapbox/lib"
         SEDLINE="s_/lib/_${SOAPBOXPATH}/_"
         echo $SEDLINE
-        pushd "source/soapbox"
+        pushd "source/soapbox" > /dev/null
         make clean
         make
         sed -i ${SEDLINE} soapbox.sh
         make DESTDIR=${CWD}/manager/soapbox bindir=/bin install
-        popd
+        popd > /dev/null
 fi
 
 echo "Setting permissions..."

@@ -10,7 +10,7 @@
 # and if it timed out. Additionally, it uses soapbox if it is around
 # to make sure programs aren't messing about with security.
 bashexec(){
-        local RET COMMAND ERROUT PID KPID
+        local RET COMMAND ERROUT PID KPID SOAPBOXPATH
 
 	#Return Codes:
 	SUCCESS=0
@@ -19,10 +19,9 @@ bashexec(){
 	SOAPED=3
 
 	# Check if soapbox exists.
-	which soapbox > /dev/null
-	RET=$?
-	if [[ $RET == 0 ]]; then
-		SOAPBOX="soapbox -s -f -l soapbox.log ${SOAPBOXARGS}"
+        SOAPBOXPATH="${ROOT}/manager/soapbox/"
+        if [ ( -x "${SOAPBOXPATH}/bin/soapbox" && -e "${SOAPBOXPATH}/lib/libsoapbox.so" ) ]; then
+		SOAPBOX="${SOAPBOXPATH}/bin/soapbox -s -f -l soapbox.log ${SOAPBOXARGS}"
 	else 
 		SOAPBOX="" 
 	fi
