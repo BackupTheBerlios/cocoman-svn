@@ -1,6 +1,8 @@
 <?php
 if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
 ?>  
+  <hr />
+  
   <!--Submission form-->
   <div>
     <form method="post" enctype="multipart/form-data" action="submit-file.php">

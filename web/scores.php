@@ -431,8 +431,6 @@ if ($show_submission_result != 0) {
 }
 ?>
 
-  <hr />
-
 <?php
 //echo "<hr /><pre>"; print_r($people); echo "</pre>";
 ?>
