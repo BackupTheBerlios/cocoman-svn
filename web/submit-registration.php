@@ -35,14 +35,20 @@ function process_submission() {
 	}
 	
 	// Find unique ID
-	$possible_id = 1000;
-	while (1) {
-		if (!in_array($possible_id, $ids)) {
-			$user_id = $possible_id;
-			break;
-		}
-		++$possible_id;
-	}
+//	$possible_id = 1000;
+//	while (1) {
+//		if (!in_array($possible_id, $ids)) {
+//			$user_id = $possible_id;
+//			break;
+//		}
+//		++$possible_id;
+//	}
+
+        $output = array();
+        $genid = "../manager/genid $users_filename";
+        $ret = exec($genid, $output);
+
+        $user_id = $output[0];
 		
 	// Append new entry to user file
 	$users_file = fopen($users_filename, 'ab');

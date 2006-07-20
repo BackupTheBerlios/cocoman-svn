@@ -6,6 +6,12 @@ ID=0
 MOD=10000 # Change to reflect the number of digits you want.
 LOWER=1000
 
+if [ $# == 1 ]; then
+    USER_FILE=$1
+else
+    USER_FILE=users.txt
+fi
+
 while [ true ]; do
     #Generate our ID.
     while [ "$ID" -le $LOWER ]; do
@@ -13,7 +19,11 @@ while [ true ]; do
     done
 
     #Check if the ID is in use.
-    grep $ID users.txt
+    grep $ID $USER_FILE
+
+    if (! test -f ${USER_FILE}); then
+	break	
+    fi
 
     if [ $? == 1 ]; then
         echo $ID
