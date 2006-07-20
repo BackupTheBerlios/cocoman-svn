@@ -14,7 +14,7 @@ build() {
         return 
     fi
 
-    #Declare our compilers
+    # Declare our compilers
     JAVAC="javac"
     GCPP="g++"
     GCC="gcc"
