@@ -119,6 +119,7 @@ function time_from_start($time) {
 function process_contest_status() {
 	global $ROOT_DIR;       // input
 	global $contest_status; // output - 0: hasn't started, 1: in progress, 2: finished
+	global $start_time;     // output
 	global $time_left;      // output - formatted as a string of our normal time format (24 hour hh:mm:ss)
 	
 	$times = file($ROOT_DIR.'/times.txt', 1); // TODO error checking
@@ -301,6 +302,7 @@ process_specified_user();
 
 ?>
 
+<!-- ***Output starts here*** -->
 
 <!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
