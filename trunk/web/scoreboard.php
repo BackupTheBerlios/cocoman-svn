@@ -195,7 +195,7 @@ function process_specified_user() {
 	}
 	$specified_user = $people[$_GET['id']];
 	$show_submission_result = 1;
-        $last_processed = "Your most recent submission processed is the one submitted around $specified_user->time_of_last_submission. <br />Result: ";
+        $last_processed = "Your most recent submission processed is the one submitted around $specified_user->time_of_last_submission. <br />";
 	//$submission_result = "Your most recent submission's status is: ";
 	switch ($specified_user->last_status_code) {
 		case "-1":
@@ -209,22 +209,27 @@ function process_specified_user() {
 			$show_submission_result = 2;
 			$compile_log = file($specified_user->last_compile_log_filename, 1);
 			if ($compile_log === false) {
-				$submission_result = "Compile failure but compile log could not be read. Notify a proctor.";
+				$submission_msg = "Compile failure but compile log could not be read. Notify a proctor.";
+//				$submission_result = "Compile failure but compile log could not be read. Notify a proctor.";
 				$show_submission_result = 1;
 				// TODO log
 			}
 			break;
 		case "2":
-			$submission_result = $last_processed . "Program failed test.";
+			$submission_msg = "Program failed test";
+//			$submission_result = $last_processed . "Program failed test.";
 			break;
 		case "3":
-			$submission_result = $last_processed . "Program timed out while running.";
+			$submission_msg = "Program timed out while running";
+//			$submission_result = $last_processed . "Program timed out while running.";
 			break;
 		case "4":
-			$submission_result = $last_processed . "Program crashed while running.";
+			$submission_msg = "Program crashed while running.";
+//			$submission_result = $last_processed . "Program crashed while running.";
 			break;
 		case "5":
-			$submission_result = "Unknown error while running program.";
+			$submission_msg = "Unknown error while running program.";
+//			$submission_result = "Unknown error while running program.";
 			// TODO log
 			break;
 		default:
@@ -232,6 +237,7 @@ function process_specified_user() {
 			app_log(sprintf("ERROR: User %d has a last_status_code of %d which is invalid. (scoreboard status display)", $specified_user->user_id, $specified_user->last_status_code));
 			break;
 	}
+	$submission_result = $last_processed."<br /><b>".$submission_msg."</b>";
         $submission_result = "<span>" . $submission_result . "</span>";
 }
 
