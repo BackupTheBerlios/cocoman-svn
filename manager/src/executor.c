@@ -15,26 +15,21 @@
 
 
 
-
-int status = 0;
-
-
-
-
+int exitQueueSize = 0;
+int deadQueueSize = 0;
 volatile char inputFileName[1025] = {0};
-
 char * stdoutLog;
 int stdoutLogLen = 0;
-
+char * stderrLog;
+int stderrLogLen = 0;
 volatile int isJava = 0;
 volatile char classname[2049] = {0};
-
-
 extern int errno;          /* for reporting additional error information */
-
 struct timeval startTime;
-double timeoutPeriod = 10.0;
-//double lastJavaExceptionTime = -10000.0;
+double timeoutPeriod = 30.0;
+int javaException = 0;
+int javaSecurityException = 0;
+
 
 struct childInfo
 {
@@ -47,21 +42,23 @@ struct childInfo
 
   int terminatedBySignal; 
 
+  //0 - normal termination
+  //1 - abnormally terminated due to signal or uncaught exception
+  //2 - timed out
+  //3 - abnormally terminated due to security violation
+  int status;
+
   //if terminatedBySignal is 0, exitNum is the return code
   //if terminatedBySignal is 1, exitNum is the signal number
   int exitNum;
+
+  double exitTime;
 };
 
-
-volatile struct childInfo children[1];
+volatile struct childInfo child;
 volatile int childIsAlive = 0;
-
 int selfpipe[2];
 
-#define DEAD_QUEUE_SIZE 4
-volatile int deadQueue[DEAD_QUEUE_SIZE] = {0};
-volatile int deadQueueStartPos = 0;
-volatile int deadQueueEndPos = 0;
 
 
 
@@ -88,9 +85,9 @@ double getCurrentTime()
 
 
 
-void spawnChild(const char * filename, int index)
+void spawnChild(const char * filename)
 {
-      if (children[index].running != 0)
+      if (child.running != 0)
       {
         printf("Error: Child already running\n"); 
         return;
@@ -134,13 +131,14 @@ void spawnChild(const char * filename, int index)
         //Parent's code section
         //---------------------
 
-        children[index].processName = (char*)filename;
-        children[index].fdStdout = fd1[0];
-        children[index].fdStderr = fd2[0];
-        children[index].pid = pid;
-        children[index].terminatedBySignal = 0;
-        children[index].exitNum = 0;
-        children[index].running = 1;
+        child.processName = (char*)filename;
+        child.fdStdout = fd1[0];
+        child.fdStderr = fd2[0];
+        child.pid = pid;
+        child.terminatedBySignal = 0;
+        child.exitNum = 0;
+        child.running = 1;
+        child.status = 0;
 
         //Close read side of p2c pipe
         close(p2c[0]);
@@ -183,8 +181,7 @@ void spawnChild(const char * filename, int index)
 
         //Open input file and redirect STDIN
         int fdStdin = open((char*)inputFileName, O_RDONLY);
-        if (dup2(fdStdin,0) != 0)
-          printf("Grrr!!\n");
+        dup2(fdStdin,0);
         close(fdStdin);
 
         //Redirect STDOUT
@@ -257,25 +254,22 @@ void sigchld_handler (int signo)
       return;
     }
 
-
-    int i = 0;
     
-    if (children[0].running == 1 && pid == children[0].pid)
+    if (child.running == 1 && pid == child.pid)
     {
       at_least_one = 1;
-      children[0].running = 0;
-      deadQueue[deadQueueEndPos] = 0;
-      deadQueueEndPos = (deadQueueEndPos+1) % DEAD_QUEUE_SIZE;
+      child.running = 0;
+      deadQueueSize = 1;
 
       if (WIFSIGNALED(rv))
       {
-        children[0].terminatedBySignal = 1;
-        children[0].exitNum = WTERMSIG(rv);
+        child.terminatedBySignal = 1;
+        child.exitNum = WTERMSIG(rv);
       }
       else
       {
-        children[0].terminatedBySignal = 0;
-        children[0].exitNum = WEXITSTATUS(rv);
+        child.terminatedBySignal = 0;
+        child.exitNum = WEXITSTATUS(rv);
       }
     }
     else
@@ -296,20 +290,20 @@ int pollRetryOnSignal(struct pollfd fds[], int numfds, int timeout)
 
             if (getCurrentTime() > timeoutPeriod)
             {
-              printf("Timed out\n");
-              kill(children[0].pid,SIGINT);
-              exit(2);
+              kill(child.pid,SIGINT);
+              child.status = 2;
+              timeout = 0;
             }
 
             while ((rc = poll(fds,numfds,timeout)) == -1)
             {
               if (getCurrentTime() > timeoutPeriod)
               {
-                printf("Timed out\n");
-                kill(children[0].pid,9);
-                exit(2);
+                kill(child.pid,SIGINT);
+                child.status = 2;
+                timeout = 0;
               }
-
+          
               if (errno != EINTR && errno != EAGAIN)
                 return rc;
 
@@ -317,7 +311,7 @@ int pollRetryOnSignal(struct pollfd fds[], int numfds, int timeout)
               if (retries > 10)
                 return rc;                
             }
-
+           
             return rc;
 }
 
@@ -332,9 +326,9 @@ int errorEvents = (POLLERR | POLLHUP | POLLNVAL);
 
 
 
-void reportStdout(int index)
+void reportStdout()
 {
-          int n = read(children[index].fdStdout, buf, 256);
+          int n = read(child.fdStdout, buf, 256);
           if (n > 0)
           {
             if (stdoutLogLen < 1999000)
@@ -345,13 +339,13 @@ void reportStdout(int index)
             }
 
             struct pollfd fds[1];
-            fds[0].fd = children[index].fdStdout;
+            fds[0].fd = child.fdStdout;
             fds[0].events = events;
             while (pollRetryOnSignal(fds,1,0) >= 0)
             {
               if ((fds[0].revents & events) != 0)
               {
-                int n = read(children[index].fdStdout, buf, 256); 
+                int n = read(child.fdStdout, buf, 256); 
                 if (n <= 0) break;
 
                 if (stdoutLogLen < 1999000)
@@ -375,36 +369,40 @@ void reportStdout(int index)
 
 
 
-
-
-void reportStderr(int index)
+void reportStderr()
 {
-          int n = read(children[index].fdStderr, buf, 256);
+          int n = read(child.fdStderr, buf, 256);
           if (n > 0)
           {
-            buf[n] = '\0';
-  
-            //char * res = strstr(buf,"Exception ");
-            //if (res == NULL)
-              //lastJavaExceptionTime = getCurrentTime(); 
+            if (stderrLogLen < 1999000)
+            {
+              memcpy(stderrLog+stderrLogLen,buf,n);
+              stderrLogLen += n;
+              stderrLog[stderrLogLen] = '\0';
+            }
 
             struct pollfd fds[1];
-            fds[0].fd = children[index].fdStderr;
+            fds[0].fd = child.fdStderr;
             fds[0].events = events;
             while (pollRetryOnSignal(fds,1,0) >= 0)
             {
               if ((fds[0].revents & events) != 0)
               {
-                int n = read(children[index].fdStderr, buf, 256); 
+                int n = read(child.fdStderr, buf, 256); 
                 if (n <= 0) break;
-                buf[n] = '\0';
+
+                if (stderrLogLen < 1999000)
+                {
+                  memcpy(stderrLog+stderrLogLen,buf,n);
+                  stderrLogLen += n;
+                  stderrLog[stderrLogLen] = '\0';
+                }
               }
               else
                 break;
             }
           }
 }
-
 
 
 
@@ -435,7 +433,6 @@ int main (int argc, char ** argv)
 
   childIsAlive = 1;
   gettimeofday(&startTime, NULL);
-  int i = 0;
   char execname[1025] = {0};
 
 
@@ -493,6 +490,8 @@ int main (int argc, char ** argv)
 
 
   stdoutLog = (char*)malloc(2000000);
+  stderrLog = (char*)malloc(2000000);
+
 
   int len = strlen(execname);
   isJava = 0;
@@ -511,7 +510,7 @@ int main (int argc, char ** argv)
 
 
 
-  spawnChild(execname,0);
+  spawnChild(execname);
   
   int numfds = 3;
 
@@ -519,12 +518,12 @@ int main (int argc, char ** argv)
   int fdtype[3] = {0};
   int fdownerindex[3] = {0};
 
-  fds[0].fd = children[0].fdStdout;
+  fds[0].fd = child.fdStdout;
   fds[0].events = events;
   fdtype[0] = 1;
   fdownerindex[0] = 0;
 
-  fds[1].fd = children[0].fdStderr;
+  fds[1].fd = child.fdStderr;
   fds[1].events = events;
   fdtype[1] = 2;
   fdownerindex[1] = 0;
@@ -534,11 +533,6 @@ int main (int argc, char ** argv)
   fdtype[2] = 0;
   fdownerindex[2] = -1;
   
-
-
-  int exitQueue[DEAD_QUEUE_SIZE] = {0};
-  int exitQueueStartPos = 0;
-  int exitQueueEndPos = 0;
 
   int polltimems = 1000;
 
@@ -553,8 +547,12 @@ int main (int argc, char ** argv)
     }
 
     //Set poll time to the standard value
-    polltimems = 1000;
+    if (getCurrentTime() < timeoutPeriod)
+      polltimems = 1000;
+    else
+      polltimems = 0;
 
+    int i;
     for (i = 0; i < numfds; ++i)
     {
       if (fdtype[i] == 0)
@@ -617,109 +615,100 @@ int main (int argc, char ** argv)
 
 
 
-        //Report all processes on the exit queue and free
-        //all resources, and restart the processes if necessary
 
-        for (; exitQueueStartPos != exitQueueEndPos; 
-             exitQueueStartPos = (exitQueueStartPos+1) % DEAD_QUEUE_SIZE)    
+      //Report all processes on the exit queue and free
+      //all resources, and restart the processes if necessary
+
+      if (exitQueueSize != 0)
+      {
+        //Mark the the child is completely dead and that all its
+        //output has been logged
+        exitQueueSize = 0;
+        childIsAlive = 0;
+
+        //Close child's STDOUT and STDERR
+        close(child.fdStdout);
+        close(child.fdStderr);
+
+        //Record the time at which the child exitted
+        child.exitTime = getCurrentTime();
+
+        //If the program did not time out, we need 
+        //to check whether it crashed, and we need to
+        //check if it was terminated for a security
+        //violation
+        if (child.status != 2) 
         {
-          i = exitQueue[exitQueueStartPos];
+          //Handle programs that crashed
+          if (child.terminatedBySignal != 0)
+            child.status = 1;
 
-          if (children[i].terminatedBySignal == 0)
+          //Handle Java programs
+          else if (isJava != 0)
           {
-            if (isJava != 0 && children[i].exitNum == 1)
+            //If JVM returned 1
+            if (child.exitNum == 1)
             {
-              printf("Process terminated abnormally on an uncaught exception at %2.2f\n", 
-                     getCurrentTime());
+              //Check STDERR to see if the program exited
+              //due to an uncaught exception
 
-              close(children[i].fdStdout);
-              close(children[i].fdStderr);
-
-              childIsAlive = 0;
-
-              exit(1);              
-            }
-
-            if (isJava == 0)
-            {
-              int soapboxLogFile = open("soapbox.log", O_RDONLY);
-
-              int isBlank = 1;
-
-              int n = read(soapboxLogFile, buf, 256); 
-              for (; n > 0 && isBlank != 0; 
-                   n = read(soapboxLogFile, buf, 256))
+              int n = strstr(stderrLog, "java.lang.SecurityException") - stderrLog;
+              if (n >= 0 && n < stderrLogLen)
+                child.status = 3;
+              else 
               {
-                int k;
-                for (k = 0; k < n && isBlank != 0; ++k)
-                  if (buf[k] > ' ')
-                    isBlank = 0;
-              }
-
-              close(soapboxLogFile);
-
-              if (isBlank == 0)
-              {
-                printf("Process terminated abnormally due to a security exception at %2.2f\n", 
-                       getCurrentTime());
-
-                close(children[i].fdStdout);
-                close(children[i].fdStderr);
-
-                childIsAlive = 0;
-
-                exit(3);              
+                n = strstr(stderrLog, "java.security.AccessControlException") - stderrLog;
+                if (n >= 0 && n < stderrLogLen)
+                  child.status = 3;
+                else
+                {
+                  n = strstr(stderrLog, "Exception in thread ") - stderrLog;
+                  if (n >= 0 && n < stderrLogLen)
+                    child.status = 1;
+                }
               }
             }
-
-
-
-            printf("Process terminated normally with exit code %d at %2.2f\n", 
-                    children[i].exitNum, getCurrentTime());
-
-            close(children[i].fdStdout);
-            close(children[i].fdStderr);
-
-            childIsAlive = 0;
           }
+
+          //Handle C/C++ programs
           else
           {
-            printf("Process terminated abnormally on signal %d at %2.2f\n", 
-                   children[i].exitNum, getCurrentTime());
+            int soapboxLogFile = open("soapbox.log", O_RDONLY);
+            int isBlank = 1;
 
-            close(children[i].fdStdout);
-            close(children[i].fdStderr);
+            int n = read(soapboxLogFile, buf, 256); 
+            for (; n > 0 && isBlank != 0; 
+                 n = read(soapboxLogFile, buf, 256))
+            {
+              int k;
+              for (k = 0; k < n && isBlank != 0; ++k)
+                if (buf[k] > ' ')
+                  isBlank = 0;
+            }
 
-            childIsAlive = 0;
+            close(soapboxLogFile);
 
-            exit(1);
+            if (isBlank == 0)
+              child.status = 3;
           }
         }
+      }
 
 
 
-        //Enqueue any processes in the dead queue into the
-        //exit queue, so that they will be processed in the
-        //next iteration, and set the poll time to a low
-        //value -- this allows us to check the output pipes
-        //of processes that died before we clean up
+      //Enqueue any processes in the dead queue into the
+      //exit queue, so that they will be processed in the
+      //next iteration, and set the poll time to a low
+      //value -- this allows us to check the output pipes
+      //of processes that died before we clean up
 
-        if (deadQueueStartPos != deadQueueEndPos)
-        {
+      if (deadQueueSize != 0)
+      {
+        if (polltimems != 0)
           polltimems = 10;
-
-          exitQueue[exitQueueEndPos] = deadQueue[deadQueueStartPos];
-          exitQueueEndPos = (exitQueueEndPos+1) % DEAD_QUEUE_SIZE;
-          deadQueueStartPos = (deadQueueStartPos+1) % DEAD_QUEUE_SIZE;
-
-          for (; deadQueueStartPos != deadQueueEndPos; 
-               deadQueueStartPos = (deadQueueStartPos+1) % DEAD_QUEUE_SIZE)    
-          {
-            exitQueue[exitQueueEndPos] = deadQueue[deadQueueStartPos];
-            exitQueueEndPos = (exitQueueEndPos+1) % DEAD_QUEUE_SIZE;
-          }
-        }
-
+        exitQueueSize = 1;
+        deadQueueSize = 0;
+      }
   }
 
 
@@ -735,17 +724,38 @@ int main (int argc, char ** argv)
 
 
   //Check for abnormal termination
+  if (child.status != 0)
+  {
+    if (child.status == 1)
+    {
+      if (child.terminatedBySignal != 0)
+        printf("Program terminated abnormally due to signal %d at time %3.2f\n",
+               child.exitNum, child.exitTime);
+      else
+        printf("Program terminated abnormally due to uncaught exception at time %3.2f\n",
+               child.exitTime);
+    }
+    else if (child.status == 2)
+      printf("Program exceeded %3.2f second time limit\n", timeoutPeriod);
+    else if (child.status == 3)
+      printf("Program was terminated due to a security violation at time %3.2f\n",
+             child.exitTime);
+    else
+      printf("Program terminated for unknown reasons\n");
+  }
+  else
+  {
+    printf("Program terminated normally with return code %d at time %3.2f\n",
+           child.exitNum, child.exitTime);
 
-
-
-
-
-  //Print STDOUT output to the specified file 
-  FILE * outfile = fopen(outputFileName,"w");  
-  fwrite(stdoutLog,1,stdoutLogLen,outfile);  
-  fclose(outfile); 
+    //Print STDOUT output to the specified file 
+    FILE * outfile = fopen(outputFileName,"w");  
+    fwrite(stdoutLog,1,stdoutLogLen,outfile);  
+    fclose(outfile); 
+  }
 
   free(stdoutLog);
+  free(stderrLog);
 
-  return 0;
+  return child.status;
 }
