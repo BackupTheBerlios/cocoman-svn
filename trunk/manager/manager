@@ -151,7 +151,7 @@ compare() {
 
 	rm ${TESTING} -rf
 	mkdir ${TESTING}/cases -p
-	mkdir ${TESTING}/build/home -p
+	mkdir ${TESTING}/build/mono -p
 	cp ${FILE}* ${TESTING}/build
 	cp ${ROOT}/problems/${PROB}/*output ${TESTING}/cases
 	cp ${ROOT}/problems/${PROB}/*input ${TESTING}/cases
@@ -167,7 +167,7 @@ compare() {
                 BASE=${PROB}.java
                 ;;
             $CS)
-                export MONO_SHARED_DIR=`pwd`/home
+                export MONO_SHARED_DIR=`pwd`/mono
                 EXEC="bashexec mono a.out"
                 SOAPBOXARGS="-p ${MONO_SHARED_DIR}"
                 ;;
