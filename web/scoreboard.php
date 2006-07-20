@@ -193,15 +193,15 @@ function process_specified_user() {
 	}
 	$specified_user = $people[$_GET['id']];
 	$show_submission_result = 1;
-	$last_processed = "Your most recent submission processed is the one submitted around $specified_user->time_of_last_submission. Result: ";
+        $last_processed = "Your most recent submission processed is the one submitted around $specified_user->time_of_last_submission. <br /><h2>Result: ";
 	//$submission_result = "Your most recent submission's status is: ";
 	switch ($specified_user->last_status_code) {
 		case "-1":
 			$submission_result = "You haven't submitted anything yet or your submission hasn't been processed.";
-			return;
+			break;
 		case "0":
 			$submission_result = $last_processed . "Submission ok!";
-			return;
+			break;
 		case "1":
 			$submission_result = $last_processed . "Compile failure.";
 			$show_submission_result = 2;
@@ -211,25 +211,26 @@ function process_specified_user() {
 				$show_submission_result = 1;
 				// TODO log
 			}
-			return;
+			break;
 		case "2":
 			$submission_result = $last_processed . "Program failed test.";
-			return;
+			break;
 		case "3":
 			$submission_result = $last_processed . "Program timed out while running.";
-			return;
+			break;
 		case "4":
 			$submission_result = $last_processed . "Program crashed while running.";
-			return;
+			break;
 		case "5":
 			$submission_result = "Unknown error while running program.";
 			// TODO log
-			return;
+			break;
 		default:
 			$submission_result = "Unknown error.";
 			app_log(sprintf("ERROR: User %d has a last_status_code of %d which is invalid. (scoreboard status display)", $specified_user->user_id, $specified_user->last_status_code));
-			return;
+			break;
 	}
+        $submission_result = $submission_result . "</h2>";
 }
 
 // ***Program flow starts here***

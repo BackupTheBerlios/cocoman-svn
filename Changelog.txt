@@ -14,3 +14,4 @@
 * Implemented a method of not refreshing file submission form while browse dialog is open. See TODO.txt for more details. (Dan)
 * Wrote setup script. (Dan)
 * Wrote installation instructions in README.txt (Dan)
+* Have submit-registration.php clean up registration_request if it times out.
