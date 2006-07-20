@@ -2,6 +2,7 @@
 #include <poll.h>
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -28,7 +29,7 @@ extern int errno;          /* for reporting additional error information */
 
 struct timeval startTime;
 double timeoutPeriod = 10.0;
-double lastJavaExceptionTime = -10000.0;
+//double lastJavaExceptionTime = -10000.0;
 
 struct childInfo
 {
@@ -194,12 +195,15 @@ void spawnChild(const char * filename, int index)
                  
         if (isJava == 0)
         {    
-          execlp(filename, filename, NULL);
+          execlp("soapbox", "soapbox", "-l", "soapbox.log", "-f", 
+                 filename, NULL);
           printf ("Error: Could not overlay %s\n", filename);
         }
         else
         {
-          execlp("java", "java", classname, NULL);
+          execlp("java", "java", "-Djava.security.manager",
+                 "-Djava.security.policy=blankpolicyfile",
+                 classname, NULL);
           printf ("Error: Could not overlay %s\n", filename);
         }
 
@@ -288,7 +292,7 @@ int pollRetryOnSignal(struct pollfd fds[], int numfds, int timeout)
             if (getCurrentTime() > timeoutPeriod)
             {
               printf("Timed out\n");
-              kill(children[0].pid,9);
+              kill(children[0].pid,SIGINT);
               exit(2);
             }
 
@@ -375,9 +379,9 @@ void reportStderr(int index)
           {
             buf[n] = '\0';
   
-            char * res = strstr(buf,"Exception ");
-            if (res == NULL)
-              lastJavaExceptionTime = getCurrentTime(); 
+            //char * res = strstr(buf,"Exception ");
+            //if (res == NULL)
+              //lastJavaExceptionTime = getCurrentTime(); 
 
             struct pollfd fds[1];
             fds[0].fd = children[index].fdStderr;
@@ -411,6 +415,14 @@ int main (int argc, char ** argv)
     printf("usage: executor [executable file] [input file] [output file] [timeout period]\n");
     return 100;
   }
+
+
+  //Print STDOUT output to the specified file 
+  FILE * blankPolicyFile = fopen("blankpolicyfile","w");  
+  fwrite("\n",1,1,blankPolicyFile);  
+  fclose(blankPolicyFile); 
+
+
 
   pipe(selfpipe);
 
@@ -610,8 +622,7 @@ int main (int argc, char ** argv)
 
           if (children[i].terminatedBySignal == 0)
           {
-            if (isJava != 0 && children[i].exitNum == 1 &&
-                getCurrentTime() - lastJavaExceptionTime < 3.0)
+            if (isJava != 0 && children[i].exitNum == 1)
             {
               printf("Process terminated abnormally on an uncaught exception at %2.2f\n", 
                      getCurrentTime());
@@ -623,6 +634,40 @@ int main (int argc, char ** argv)
 
               exit(1);              
             }
+
+            if (isJava == 0)
+            {
+              int soapboxLogFile = open("soapbox.log", O_RDONLY);
+
+              int isBlank = 1;
+
+              int n = read(soapboxLogFile, buf, 256); 
+              for (; n > 0 && isBlank != 0; 
+                   n = read(soapboxLogFile, buf, 256))
+              {
+                int k;
+                for (k = 0; k < n && isBlank != 0; ++k)
+                  if (buf[k] > ' ')
+                    isBlank = 0;
+              }
+
+              close(soapboxLogFile);
+
+              if (isBlank == 0)
+              {
+                printf("Process terminated abnormally due to a security exception at %2.2f\n", 
+                       getCurrentTime());
+
+                close(children[i].fdStdout);
+                close(children[i].fdStderr);
+
+                childIsAlive = 0;
+
+                exit(1);              
+              }
+            }
+
+
 
             printf("Process terminated normally with exit code %d at %2.2f\n", 
                     children[i].exitNum, getCurrentTime());

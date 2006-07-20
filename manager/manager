@@ -27,6 +27,7 @@ build() {
     C=`basename ${FILE} .c`
     CPP=`basename ${FILE} .cpp`
 
+    echo "$FILE $JAVA $C $CPP"
     if [[ ${FILE} != ${JAVA} ]]; then
         COMPILE="${JAVAC} ${FILE}"
     fi
@@ -82,15 +83,17 @@ compare() {
     LOG="${ROOT}/logs/compiles/${BASE}.log"
 
     rm ${ROOT}/testing -rf
-    mkdir ${ROOT}/testing
-    cp ${FILE}* ${ROOT}/testing/
-    cp ${ROOT}/problems/${PROB}/*output ${ROOT}/testing/
-    cp ${ROOT}/problems/${PROB}/*input ${ROOT}/testing/
-    cd ${ROOT}/testing/
+    mkdir ${ROOT}/testing/cases -p
+    mkdir ${ROOT}/testing/build -p
+    cp ${FILE}* ${ROOT}/testing/build
+    cp ${ROOT}/problems/${PROB}/*output ${ROOT}/testing/cases
+    cp ${ROOT}/problems/${PROB}/*input ${ROOT}/testing/cases
+    cd ${ROOT}/testing/build
 
     if [ ${JAVA} != ${BASE} ]; then
         mv ${BASE} ${PROB}.java
         EXEC="executor ./${PROB}.class"
+        BASE=${PROB}.java
     else
         EXEC="executor ./a.out"
     fi
@@ -109,20 +112,22 @@ compare() {
     # Run test cases on the submission
     STATUS=0
     MESSAGE=Success
-    for INPUT in *.input; do
+    for INPUT in ../cases/*.input; do
         OUTPUT=`basename ${INPUT} .input`.output
+        OUTPUT="../cases/$OUTPUT"
         ${EXEC} ${INPUT} ${OUTFILE} ${TIMEOUT} > /dev/null
-        if [ $? == 1 ]; then
+        RET=$?
+        if [ $RET == 1 ]; then
             STATUS=4
             MESSAGE="${INPUT}-Program crashed"
             break
         fi
-        if [ $? == 2 ]; then
+        if [ $RET == 2 ]; then
             STATUS=3
             MESSAGE="${INPUT}-Program timed out"
             break
         fi 
-        if [ $? != 0 ]; then
+        if [ $RET != 0 ]; then
             STATUS=15
             MESSAGE="${INPUT}-Unknown Error"
             break
