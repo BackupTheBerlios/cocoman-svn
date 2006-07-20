@@ -11,7 +11,7 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
 
 <?php
     $user_id = $_GET["id"];
-    printf("User ID: <input type=\"hidden\" name=\"id\" value=\"%s\" />", $user_id);
+    printf("User ID: <input type=\"text\" name=\"id\" value=\"%s\" /><br />", $user_id);
 ?>
 
     <label>Language:</label>
