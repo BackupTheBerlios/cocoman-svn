@@ -1,19 +1,13 @@
 <?php
 //ini_set("include_path", ".:../"); doesn't fix copy so I prepended ../ to $dir
 
-//$user_id_given = false;
-//$user_id = 0;
-//$message = "";
-
 // Processes the submission and fills in some variables
 // Should not write anything out
 function process_submission() {
 	// Variable that will be used to display the page
 	global $message;
-	//global $user_id_given;
 	global $user_id;
 	
-	//$dir = "../submissions/";
 	$users_filename = '../submissions/handles';
 	
 	// Read in existing user file
@@ -26,7 +20,6 @@ function process_submission() {
 	foreach ($users as $index => $user_entry) {
 		$ids[] = strtok($user_entry, ':');
 		$names[] = strtok("\n");
-		//echo "Tokenized entry as \"" . $ids[$index] . "\", \"" . $names[$index] . "\".";
 	}
 	
 	// Make sure name is unique
@@ -44,16 +37,7 @@ function process_submission() {
 		}
 		++$possible_id;
 	}
-	
-	// Write entry to log file
-	$submission_time = date("H:i:s");
-/*	if (!$info_file = fopen($filename_with_path . '-info.txt', 'wb')) {
-		$message = "Error opening info file.";
-		return;
-	}
-	fputs($info_file, sprintf("Submitted from %s\n", $REMOTE_ADDR));
-	fclose($info_file);*/
-	
+		
 	// Append new entry to user file
 	if (!$users_file = fopen($users_filename, 'ab')) {
 		$message = "Manager error: Opening users file for append failed.";
@@ -62,10 +46,23 @@ function process_submission() {
 	fputs($users_file, $user_id . ':' . $_GET['name'] . "\n");
 	fclose($users_file);
 	
-	$message = "You have been successfully registered. Your user id is $user_id.<br />";
+	$message = "You have been successfully registered. Your user id is $user_id.";
 }
 
 process_submission();
+
+// Write entry to log file
+$log_filename = '../logs/manager.log'; // this isn't what is called the log
+// in a few other place. The other log just has the results of users' 
+// submissions. This refers to a general log where various events that are 
+// recorded.
+if (!$log = fopen($log_filename, 'ab')) {
+	$message = "Manager error: Error opening info file.";
+	return;
+}
+$time = date("H:i:s");
+fputs($log, sprintf("%s: %s attemped to register with name \"%s\". Result: %s\n", $time, getenv('REMOTE_ADDR'), $_GET['name'], $message));
+fclose($log);
 ?>
 
 
