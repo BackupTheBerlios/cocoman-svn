@@ -7,6 +7,7 @@ INTERVAL=5
 ROOT="/home/html-dev/under/acm/contest"
 TIMEOUT=30
 
+#TODO: Declare all variables that are local at top of function.
 
 bashexec(){
 	# Bash script to run a command and find it's return code
@@ -23,30 +24,32 @@ bashexec(){
 	which soapbox > /dev/null
 	RET=$?
 	if [[ $RET == 0 ]]; then
-		SOAPBOX="${CWD} soapbox -s -p ${CWD} -f -l soapbox.log"
+		SOAPBOX="soapbox -s -p ${MONO_SHARED_DIR} -f -l soapbox.log"
 	else 
 		SOAPBOX="" 
 	fi
 
 	COMMAND="$SOAPBOX $*"
-	TIMEOUT=5 # how long to let a program run
 	ERROUT=output.err
 
 	# Run the command
 	${COMMAND} 2> ${ERROUT}&
 	PID=$!
 
-	# Start the timeout timer.
+        # Start the timeout timer (TIMEOUT is defined at top of file).
 	sleep $TIMEOUT && kill $PID 2> /dev/null&
-	# Wait for the process to end
+        KPID=$!
+	# Wait for the process to end or be killed.
 	wait $PID 2> /dev/null
 	RET=$?
+        # kill the backgrounded process if it isn't already dead
+        # because it is stopping us from returning.
+        kill $KPID 2> /dev/null
 
 	#Check security on the program (perhaps it wasn't soapboxed properly)
 	if ( test -s soapbox.log ); then
 		return $SOAPED
 	fi
-
 	#Check for errors:
 	case $RET in 
 		0)  # Successfully returned.
@@ -93,7 +96,6 @@ build() {
 #	JAVA=`basename ${FILE} .java`
 #	CS=`basename ${FILE} .cs`
         
-        echo "build type: ${TYPE}"
         case ${TYPE} in
             $JAVA)
                 COMPILE="${JAVAC} ${BFILE}" ;;
@@ -143,7 +145,7 @@ compare() {
 	FILE=$1
         PROB=`dirname $1`
         findext ${FILE}
-#	BASE=`basename ${FILE}`
+	BASE=`basename ${FILE}`
 #	JAVA=`basename ${BASE} .java`
 #	CS=`basename ${BASE} .cs`
 #	MAKE=${BASE}.make
@@ -175,11 +177,12 @@ compare() {
 	cp ${ROOT}/problems/${PROB}/*input ${ROOT}/testing/cases
 	cd ${ROOT}/testing/build
 
-	#TODO: have it execute mono executables with mcs.
         case ${TYPE} in
             $JAVA)
                 mv ${BASE} ${PROB}.java
-                EXEC="bashexec java ${PROB}"
+                touch blankpolicyfile
+                ARGS="-Djava.security.manager -Djava.security.policy=blankpolicyfile"
+                EXEC="bashexec java ${ARGS} ${PROB}"
                 BASE=${PROB}.java
                 ;;
             $CS)
@@ -278,21 +281,15 @@ findext() {
     
     if [ `basename ${BASE} .java` != ${BASE} ]; then
         TYPE=${JAVA}
-#        BASE=`basename ${BASE} .java`
     elif [ `basename ${BASE} .cs` != ${BASE} ]; then
         TYPE=${MONO}
-#        BASE=`basename ${BASE} .cs`
     elif [ `basename ${BASE} .cpp` != ${BASE} ]; then
         TYPE=${CPP}
-#        BASE=`basename ${BASE} .cpp`
     elif [ `basneame ${BASE} .c` != ${BASE} ]; then
         TYPE=${C}
-#        BASE=`basename ${BASE} .c`
     else
         TYPE=${UNKNOWN} 
-#        BASE=${BASE}
     fi
-    echo "type: ${TYPE} file: ${FILE}"
 }
 
 # Sit and wait for the queue to get populated.
