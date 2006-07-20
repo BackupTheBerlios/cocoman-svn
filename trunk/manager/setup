@@ -89,6 +89,19 @@ if [ ! -f manager/soapbox/bin/soapbox ]; then
 	exit 7
 fi
 echo ""
+# Install javarun into manager/javarun
+if [ ! -f manager/javarun/JavaRun.jar ]; then
+	CWD=`pwd`
+	JAVARUNPATH="${CWD}/manager/javarun"
+	pushd "source/javarun"
+	sh javarun.sh
+	mkdir -p ${JAVARUNPATH} 
+	cp JavaRun.jar "${CWD}/manager/javarun/"
+	popd > /dev/null
+fi
+echo ""
+
+
 
 echo "Setting permissions..."
 chmod -R g-r-w-x *
