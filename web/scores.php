@@ -355,8 +355,8 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
   
   <!--Scoreboard-->
   <table id="scoreboard" cellspacing="0" border="1">
-    <tr align="center">
     <thead>
+    <tr align="center">
       <th rowspan="2">Name</th>
       <?php
           for ($i = 1; $i <= $NUM_PROBLEMS; $i++) {
@@ -391,7 +391,7 @@ foreach ($ranked_user_ids as $ranked_user_id) {
     }
     printf("      <td>%s</td>", $person->name);
     for ($i = 1; $i <= $NUM_PROBLEMS; ++$i) {
-        printf("      <td align=\"center\" id=\"timecol\">%s</td><td align=\"right\" id=\"numcol\">%s</td>", 
+        printf("      <td align=\"center\" class=\"timecol\">%s</td><td align=\"right\" class=\"numcol\">%s</td>", 
         $person->problems[$i]->time, $person->problems[$i]->submissions );
     }
     printf("      <td>%s</td>", seconds_to_time($person->total_seconds()));
