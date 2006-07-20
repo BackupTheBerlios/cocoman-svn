@@ -7,6 +7,7 @@ o Find safer way for submit-registration.php to be able to write to users file -
 o Don't allow submissions when contest isn't going on.
 o Countdown till start time
 o Submission dialog automatically picks the problem you last submiteed
+o Check for sane names
 
 Done
 ----
