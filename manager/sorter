@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 # Bash script to finalize problem standings and
-# clean up the directories.
+# clean up the directories
 . conf/contest.conf
 PHP=/usr/bin/php
+
+if ( test -d "${ROOT}/over" ); then
+	echo "The contest has already been finalized, would you like to refinalize?"
+	echo "[y/N]"
+	read -n1 reply
+	if [ "${reply}" != "y" ]; then
+		exit
+	fi
+	rm -rf "${ROOT}/over"
+fi
 
 mkdir -p "${ROOT}/over"
 # Copy all submissions out of the tree and sort
