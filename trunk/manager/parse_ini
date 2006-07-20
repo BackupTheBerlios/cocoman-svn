@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Natan Zohar
+
+# Parse INI files and gain access to them with something like parse_ini section key
+# Example file.ini:
+
+# [section1]
+# var1 = somevalue
+# var2 = anothervalue
+# [section2]
+# var3 = lastvalue
+
+# options to parse_ini
+# setting g=anyvalue will print all the sections in file.ini
+# setting o=somesection will print all the keys in somesection in file.ini
+# setting s=section k=key will print out key in section in file.ini
+
+# example
+# ./parse_ini file.ini s="section1" k="var1"
+# will return somevalue
+
+
+awk '
+/\[.*\]/ { 
+	split($0, comment, ";"); 
+	section=comment[1];
+	gsub(/[\[\]]+/,"", section);
+};
+/=/ { 
+	split($0, comment, ";"); 
+	split(comment[1], pair, "=");
+	$gsub(/^[ \t]+|[ \t]+$/,"", pair[1]);
+	$gsub(/^[ \t]+|[ \t]+$/,"", pair[2]);
+	if (pair[1] && pair[2]) {
+		data[section,pair[1]]=pair[2];
+	}
+};
+
+END {
+	# Print all the sections in the file defined by g=
+	if (g) {
+		for (key in data) {
+			split(key, pair, SUBSEP);
+			sections[pair[1]] = 1;
+		}
+		for (section in sections) {
+			print section;
+		}
+	}
+	# Print all options in a section defined by o=
+	if (o) {
+		for (key in data) {
+			split(key, pair, SUBSEP);
+			if (pair[1] == o) {
+				print pair[2];
+			}
+		}
+	}
+
+
+		
+	# Print the value in section s= with key k=.
+	if (s && k) {
+		print data[s,k];
+	}
+}' $*
