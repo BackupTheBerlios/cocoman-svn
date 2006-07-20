@@ -70,18 +70,25 @@ function process_submission() {
 	$tempfile = $upload["tmp_name"];        
 	$filename = $user_id . "-" . $submission_time . $extension;
 	$filename_with_path = $dir . $_POST["progno"] . "/" . $filename;
-	copy($tempfile, $filename_with_path);
+	$result = copy($tempfile, $filename_with_path);
+	if ($result === false) {
+		$message = "ERROR: Could not copy submitted file to permanent location.";
+		return;
+	}
 	
-	if ($build_file = fopen($filename_with_path . ".make", "w")) {
-		if ($extension == '.java') {
-			fputs($build_file, sprintf("javac %s.java\n", $_POST["progno"]));
-		}
-		if ($extension == '.c') {
-			fputs($build_file, sprintf("gcc-3.0 -o a.out %s\n", $filename));
-		}
-		if ($extension == '.cpp') {
-			fputs($build_file, sprintf("g++ -o a.out %s\n", $filename));
-		}
+	$build_file = fopen($filename_with_path . ".make", "w");
+	if ($build_file === false) {
+		$message = "ERROR: Could not open build file.";
+		return;
+	}
+	if ($extension == '.java') {
+		fputs($build_file, sprintf("javac %s.java\n", $_POST["progno"]));
+	}
+	if ($extension == '.c') {
+		fputs($build_file, sprintf("gcc-3.0 -o a.out %s\n", $filename));
+	}
+	if ($extension == '.cpp') {
+		fputs($build_file, sprintf("g++ -o a.out %s\n", $filename));
 	}
 	
 	if ($queue_file = fopen($dir . "/queue", "a")) {
