@@ -76,7 +76,7 @@ build() {
 	if (! test -f $1); then
 		return 
 	fi
-        local BFILE GCPP GCC JAVAC MCS CPPFLAGS CFLAGS CSFLAGS
+        local BFILE GCPP GCC JAVAC MCS CPPFLAGS CFLAGS CSFLAGS CLOG
         BFILE=$1
 	# Declare our compilers
 	GCPP="g++"
@@ -102,9 +102,9 @@ build() {
         esac
 
 	echo "${COMPILE}"
-	LOG=`${COMPILE} 2>&1`
+	CLOG=`${COMPILE} 2>&1`
 	RET=$?
-	echo "${LOG}"
+	echo "${CLOG}"
 	return $RET
 }
 
@@ -178,7 +178,7 @@ compare() {
         esac
 
         # Build the file and send the output to the compile log.
-        build ${BASE} & 2>&1 ${LOG}
+        build ${BASE} > ${LOG} 
 
 	if [ $? != 0 ]; then
 		echo "${TIME},${ID},${NAME},${PROB},1,${LOG},Error Compiling"
