@@ -11,3 +11,4 @@ To Do
 * Make sure clean() in manager still works with new directories
 * Implement better system for web scripts being able to log things.
 * Make everything more robust when various configuration files/options are missing.
+* Get normal diff working correctly instead of needing our own custom one.
