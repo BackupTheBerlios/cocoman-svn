@@ -11,6 +11,7 @@ To Do
 * Have submit script write line in queue file instead of web server.
 * Create test suite for contest manager
 * Make sure clean() in manager still works with new directories
+* Implement better system for web scripts being able to log things.
 
 Done
 ----
