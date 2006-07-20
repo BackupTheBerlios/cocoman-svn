@@ -59,7 +59,7 @@ function process_one() {
 		fi
 	fi
 	
-	id=`"${ROOT}manager/genid"`
+	id=`"${ROOT}/manager/genid"`
 	if [ "$?" -ne "0" ]
 	then
 		status=5
@@ -67,7 +67,7 @@ function process_one() {
 		return
 	fi
 	
-	echo "${id}:${name}" >> "${ROOT}manager/conf/users.txt"
+	echo "${id}:${name}" >> "${ROOT}/manager/conf/users.txt"
 	if [ $? -ne 0 ]
 	then
 		status=8
@@ -81,23 +81,23 @@ function process_one() {
 
 while [ "1" -lt "2" ]
 do
-	# TODO check for existance of ${ROOT}temp_web/
-	for request in "${ROOT}temp_web/registration_request-"*
+	# TODO check for existance of ${ROOT}/temp_web/
+	for request in "${ROOT}/temp_web/registration_request-"*
 	do
 		process_one "${request}"
 		# TODO check for correct return value from process_one. process_one should write log entry if something bad happened, but it needs to check here to know if it should continue or not
-		echo "${status},${message},${id}" > "${ROOT}temp_web/registration_status-${random}"
+		echo "${status},${message},${id}" > "${ROOT}/temp_web/registration_status-${random}"
 		rm -f "${request}"
 		# TODO check result
 	done
 	
-	for request in "${ROOT}temp_web/registration_done-"*
+	for request in "${ROOT}/temp_web/registration_done-"*
 	do
 		random=`echo "${request}" | awk -F '-' '{print $2}'`
 		# TODO check returns of these "rm"s
-		rm -f "${ROOT}temp_web/registration_request-${random}"
-		rm -f "${ROOT}temp_web/registration_status-${random}"
-		rm -f "${ROOT}temp_web/registration_done-${random}"
+		rm -f "${ROOT}/temp_web/registration_request-${random}"
+		rm -f "${ROOT}/temp_web/registration_status-${random}"
+		rm -f "${ROOT}/temp_web/registration_done-${random}"
 	done
 	
 	sleep 2
