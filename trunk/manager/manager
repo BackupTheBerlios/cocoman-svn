@@ -23,6 +23,7 @@ bashexec() {
 
 	# Log for soapbox (off the NFS mount)
 	SOAPLOG="/tmp/soapbox.log"
+	rm -f $SOAPLOG
 
 	# Check if soapbox exists.
         SOAPBOXPATH="${ROOT}/manager/soapbox/"
@@ -32,6 +33,12 @@ bashexec() {
 	else 
 		SOAPBOX="" 
 	fi
+	
+	if [[ $TYPE == $JAVA ]]; then
+		SOAPBOX=""
+	fi
+
+	echo "$TYPE $JAVA $SOAPBOX" > output.test
 	
 	COMMAND="$SOAPBOX $*"
 	ERROUT=output.err
@@ -154,6 +161,8 @@ compare() {
 	TIME=`basename ${TIME} .cpp`
 	TIME=`basename ${TIME} .java`
 	TIME=`basename ${TIME} .cs`
+	#TODO: Check if a verifier exists in the problem directory and 
+	# choose which one to use based on existence.
 	VERIFY="${ROOT}/manager/mydiff"
 
 	OUTFILE=output.txt
@@ -292,9 +301,19 @@ poll() {
 			echo "Stopping the poll program from request."
 			break;
 		fi
+		process_log
 		process_submissions
 		empty_queue
 	done
+}
+
+# Copy temp_web/manager.log into logs/manager.log
+process_log() {
+    if ( test -s ${ROOT}/temp_web/manager.log ); then
+    	#echo "Copying manager.log over"
+        mv -f "${ROOT}/temp_web/manager.log" "${ROOT}/logs/temp_web.log"
+	cat "${ROOT}/logs/temp_web.log" >> "${ROOT}/logs/manager.log"
+    fi
 }
 
 # empties temp_web of files that were submitted in the format
@@ -335,7 +354,7 @@ process_submissions() {
 	fi
 
 	# If the problem number is valid
-	if !(( $PNUM > 0 && $PNUM < $NUM_PROBLEMS )); then
+	if !(( $PNUM > 0 && $PNUM <= $NUM_PROBLEMS )); then
 		VALID=0
 	fi
 
@@ -346,13 +365,12 @@ process_submissions() {
 		chmod 400 "${ROOT}/submissions/${PBLM}/${FILE}"
 		echo "$LINE" >> ${ROOT}/submissions/queue
 	else
-		echo "Invalid File ${s}" >> ${ROOT}/manager/logs/manager.log
+		echo "Invalid File ${s}" >> ${ROOT}/logs/manager.log
 	fi
 	
     done
     popd  > /dev/null
 }
-
 
 CONF_FILE=conf/contest.ini
 # Reads the variable out of CONF_FILE and evaluates it.
