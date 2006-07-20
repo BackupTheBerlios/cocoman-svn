@@ -29,7 +29,7 @@ class JavaRun {
                 if (curfile.isDirectory()) continue;
 //                Method mainMethod = Class.forName(classname).getDeclaredMethod("main", argTypes);
 //                  Method mainMethod = loadClass(contents[i]).getDeclaredMethod("main", argTypes);
-                  defined = findClass(contents[i]);
+                  defined = loadClass(contents[i]);
                   Method mainMethod = defined.getDeclaredMethod("main", argTypes);
                   mainMethod.setAccessible(true);
                 try {
@@ -52,7 +52,7 @@ class JavaRun {
    
 
     // Taken from Raymond DeCampo on http://www.thescripts.com/forum/thread15909.html 
-    static Class findClass(final String filename) throws
+    static Class loadClass(final String filename) throws
         ClassNotFoundException
         {
             ClassLoader loader = new ClassLoader()
