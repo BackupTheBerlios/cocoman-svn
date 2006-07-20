@@ -1,6 +1,5 @@
 <!--
-Authors:
-Daniel Benamy <dbenamy1@binghamton.edu>
+Author: Daniel Benamy <dbenamy1@binghamton.edu>
 License: To be determined
 -->
 

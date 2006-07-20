@@ -67,7 +67,7 @@ compare() {
         ID=`echo ${LINE} | awk -F ':' '{print $1}'`
         NAME=`echo ${LINE} | awk -F ':' '{print $2}'`
         echo "s/${ID}/${NAME}/g"
-    done < handles > user_translation.tmp
+    done < ${ROOT}/manager/users.txt > user_translation.tmp
     ID=`echo ${BASE} | awk -F '-' '{print $1}'`
     NAME=`echo ${BASE} | awk -F '-' '{print $1}' | sed -f user_translation.tmp`
     rm user_translation.tmp -f

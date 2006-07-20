@@ -4,12 +4,12 @@ require('logging.php');
 
 $NUM_PROBLEMS=5;
 $ROOT_DIR="logs/";
-$users_filename = '../submissions/handles';
+$users_filename = '../manager/users.txt';
 
 // Admin functions 
 // starts the poll on the machine
 function start_poll() {
-    $COMMAND = "../manager/poll > ../submissions/poll.log &";
+    $COMMAND = "../manager/poll > ../logs/poll.log &";
     $output = array();
     exec($COMMAND, $output);
 }

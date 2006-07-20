@@ -13,7 +13,7 @@ function process_submission() {
 	global $message;
 	global $user_id;
 	
-	$users_filename = '../submissions/handles';
+	$users_filename = '../manager/users.txt';
 	
 	// Read in existing user file
 	$users = file($users_filename);

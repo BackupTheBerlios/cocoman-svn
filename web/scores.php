@@ -6,7 +6,7 @@ require('logging.php');
 
 $NUM_PROBLEMS=5;
 $ROOT_DIR="logs/";
-$users_filename = '../submissions/handles';
+$users_filename = '../manager/users.txt';
 
 // More like a struct. Member variables get updated by Person
 class Problem {
@@ -156,7 +156,11 @@ function read_in_all_users() {
 	$people = array();
 	foreach ($users as $user_entry) {
 		$user_id = strtok($user_entry, ':');
-		$name = strtok("\n");
+/*		if (strlen($user_id) == 0) {
+			continue;
+		}*/
+		$name = strtok(':');
+		$name = rtrim($name);
 		if (array_key_exists($user_id, $people)) {
 			app_log(sprintf("ERROR: Users file contains 2 entries with user id %d", $user_id));
 			continue;

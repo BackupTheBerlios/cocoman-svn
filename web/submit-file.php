@@ -1,5 +1,5 @@
 <?php
-require('../web/logging.php');
+require('logging.php');
 //ini_set("include_path", ".:../"); doesn't fix copy so I prepended ../ to $dir
 
 // Processes the submission and fills in some variables
@@ -9,10 +9,11 @@ function process_submission() {
 	global $message;
 	global $user_id;
 	
+	$users_file = "../manager/users.txt";
 	$dir = "../submissions/";
 	$submission_time = date("H:i:s");
 	
-	if (!$users = file($dir . 'handles')) {
+	if (!$users = file($users_file)) {
 		$message = "Manager error: Opening users file failed.";
 		return;
 	}
@@ -91,7 +92,7 @@ function process_submission() {
 		fputs($build_file, sprintf("g++ -o a.out %s\n", $filename));
 	}
 	
-	if ($queue_file = fopen($dir . "/queue", "a")) {
+	if ($queue_file = fopen($dir . "queue", "a")) {
 		fputs($queue_file, sprintf("%s\n", $_POST["progno"] . "/" . $filename));
 	}
 	
