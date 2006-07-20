@@ -83,8 +83,26 @@ class Person {
 
 
 $times = file($ROOT_DIR.'/times.txt', 1); // TODO error checking
-$start_time = strtotime($times[0]);
-$contest_length_in_seconds = time_to_seconds($times[1]);
+// contest status- 0: hasn't started, 1: in progress, 2: finished
+if (count($times) < 2) { // leaving times.txt blank indicates contest hasn't started yet
+	$contest_status = 0;
+} else {
+	$start_time = strtotime($times[0]); // unix time format
+	$contest_length_in_seconds = time_to_seconds($times[1]);
+	$current_time = time(); // unix time format
+	if ($current_time < $start_time) {
+		$contest_status = 0;
+	} else {
+		$end_time = $start_time + $contest_length_in_seconds; // unix time format (seconds since epoch)
+		$seconds_left = $end_time - $current_time;
+		if ($seconds_left <= 0) {
+			$contest_status = 2;
+		} else {
+			$contest_status = 1;
+			$time_left = seconds_to_time($seconds_left);
+		}
+	}
+}
 
 // takes an elapsed time in the format hh:mm:ss (date format His) and converts 
 // it to seconds
@@ -203,8 +221,8 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
 //echo "<pre>"; print_r($problems_solved); print_r($total_times); print_r($user_ids); echo "</pre><br />";
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
 
 <!-- <html> -->
 <!-- <head> -->
@@ -221,16 +239,16 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
   <h1>ACM Coding Contest Scoreboard</h1>
   
   <p>
-    Time left in contest: 
     <?php
-    $end_time = $start_time + $contest_length_in_seconds; // unix time format (seconds since epoch)
-    $current_time = time(); // unix time format
-    $seconds_left = $end_time - $current_time;
-    if ($seconds_left > 0) {
-    	echo seconds_to_time($seconds_left);
+    if ($contest_status == 0) {
+    	echo "The contest has not yet started.";
+    } else if ($contest_status == 1) {
+		echo "Time left in contest: " . $time_left;
+	} else if ($contest_status == 2) {
+		echo "The contest is over. Thanks for participating!.";
     } else {
-    	echo "The contest is over. Thanks for participating!.";
-    	// TODO lock submissions?
+    	app_log("ERROR: \$contest_status is set to $contest_status which is an invalid value. (scoreboard)");
+    	echo "Error.";
     }
     ?>
   </p>
@@ -259,7 +277,6 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
     </thead>
     <tbody>
 <?php
-//foreach ($people as $user_id => $person) {
 $row= false;
 foreach ($ranked_user_ids as $ranked_user_id) {
     $person = $people[$ranked_user_id];
