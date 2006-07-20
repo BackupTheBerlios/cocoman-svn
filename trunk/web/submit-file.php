@@ -36,7 +36,7 @@ function process_submission() {
 	}
 	
 	$upload = $_FILES["program"];
-	$allowable_types = array("text/x-c++src", "text/x-csrc", "text/x-java", "text/plain", "application/octet-stream");
+	$allowable_types = array("text/x-c++src", "text/x-csrc", "text/x-java", "text/plain", "application/octet-stream", "text/x-csharp");
 	if ($upload["error"] != 0) { // TODO this doesn't seem to be working
 		$message = sprintf("An error occured while uploading your file. Error: %d", $upload["error"]);
 		return;
@@ -69,13 +69,11 @@ function process_submission() {
 		} else {
 			$extension = stristr($upload['name'], '.');
 		}
-	} else if ($_POST["lang"] == "java") {
-		$extension = '.java';
-	} else if ($_POST["lang"] == "c") {
-		$extension = '.c';
-	} else if ($_POST["lang"] == "cpp") {
-		$extension = '.cpp';
 	} else {
+		$extension = '.' . $_POST['lang'];
+	}
+	$allowable_extensions = array('.java', '.c', '.cpp', '.cs'); // TODO move to config file
+	if (!in_array($extension, $allowable_extensions)) {
 		$message = "Invalid language specified.";
 		return;
 	}
