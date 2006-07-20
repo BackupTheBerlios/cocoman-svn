@@ -78,8 +78,9 @@ class Person {
 }
 
 
-$start_time = file($ROOT_DIR.'/start', 1);
-$start_time = strtotime($start_time[0]);
+$times = file($ROOT_DIR.'/times.txt', 1); // TODO error checking
+$start_time = strtotime($times[0]);
+$contest_length_in_seconds = time_to_seconds($times[1]);
 
 // takes an elapsed time in the format hh:mm:ss (date format His) and converts 
 // it to seconds
@@ -190,6 +191,17 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
 
 <!-- <body> -->
   <h1>ACM Coding Contest Scoreboard</h1>
+  
+  <p>
+    Time left in contest: 
+    <?php
+    $end_time = $start_time + $contest_length_in_seconds; // unix time format (seconds since epoch)
+    $current_time = time(); // unix time format
+    $seconds_left = $end_time - $current_time;
+    echo seconds_to_time($seconds_left);
+    ?>
+  </p>
+  
   <table id="scoreboard" cellspacing="0" border="1">
     <tr align="center">
     <thead>
