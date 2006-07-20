@@ -7,7 +7,7 @@ require_once('logging.inc');
 require('contest_status.inc');
 require('time.inc');
 
-$NUM_PROBLEMS=5;
+$NUM_PROBLEMS=$num_problems;
 $ROOT_DIR = $contest_root . '/logs/';
 $users_filename = $contest_root . '/manager/conf/users.txt';
 
@@ -183,7 +183,7 @@ function process_specified_user() {
 	global $submission_result;
 	global $compile_log;
 	
-	if (!array_key_exists("id", $_GET)) { // Not showing anyone's submission status
+	if (!array_key_exists("id", $_GET) || $_GET["id"] == "") { // Not showing anyone's submission status
 		$show_submission_result = 0;
 		return;
 	}
