@@ -18,16 +18,16 @@ mkdir -p "${ROOT}/over"
 # Copy all submissions out of the tree and sort
 # them by ID to be made available later.
 cd "${ROOT}/submissions"
-for PROBLEM in *Problem*; do
+for PROBLEM in Problem*; do
     pushd ${PROBLEM}
-    for ext in ${ALLOWD_EXT[@]}; do
+    for ext in ${ALLOWED_EXT[@]}; do
         for i in *${ext}; do
             ID=`echo $i | awk -F '-' '{print $1}'`
             if (! test -f ${i}); then
                 continue
             fi
-            mkdir ../over/submitted/${ID}/${PROBLEM} -p
-            cp $i ../over/submitted/${ID}/${PROBLEM}
+            mkdir "${ROOT}/over/submitted/${ID}/${PROBLEM}" -p
+            cp $i "${ROOT}/over/submitted/${ID}/${PROBLEM}"
         done
     done
     popd
