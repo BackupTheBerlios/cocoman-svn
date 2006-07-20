@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 TIMEOUT=5
 DIR="/home/html-dev/under/acm/contest/submissions/"
+STOP_FILE="STOP"
 cd ${DIR}
+rm ${STOP_FILE} -f
+if [[ $1 == "stop" ]]; then
+    touch $STOP_FILE
+    exit
+fi
+echo "Starting the poll"
 while (sleep $TIMEOUT); do
+        echo "Another iteration"
+        if (test -f ${STOP_FILE}); then
+            echo "Quitting out."
+            break;
+        fi
 	empty_queue
 done

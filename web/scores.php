@@ -228,7 +228,7 @@ foreach ($ranked_user_ids as $ranked_user_id) {
     }
     printf("      <td>%s</td>", $person->name);
     for ($i = 1; $i <= $NUM_PROBLEMS; ++$i) {
-        printf("      <td align=\"center\">%s</td><td align=\"right\">%s</td>", 
+        printf("      <td align=\"center\" id=\"timecol\">%s</td><td align=\"right\" id=\"numcol\">%s</td>", 
         $person->problems[$i]->time, $person->problems[$i]->submissions );
     }
     printf("      <td>%s</td>", seconds_to_time($person->total_seconds()));
