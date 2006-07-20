@@ -9,3 +9,8 @@ leaving file blank indicates contest hasn't started yet
 All user ids have to be the same length.
 
 The directories in problems/ should be of the form "Problem1", "Problem2", etc.
+
+Installation
+------------
+
+Permissions...

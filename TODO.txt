@@ -1,22 +1,22 @@
 To Do
 -----
-o New directory layout- largly done but I think could still be improved a little
-o See if it's possible to do something so that users don't hit the case where the scoreboard refreshes while they're browsing for a file and when they select it it doesn't go in the box. (Is this browser specific?) // In response: perhaps a framed page is the way to fix it. I.E. frame the scoreboard and have it autorefresh, but do not have the submit part inside that frame.
-o Find safer way for submit-registration.php to be able to write to users file - have users file owned by apache account?
-o Submission dialog automatically picks the problem you last submiteed
-o Have more important output go to logs/manager.log (compiles, program runs, etc)
-o Rewrite the css and make the UI more friendly for use.
-o Implement C# support php script side and test it out manager side.
-o Test that programs are properly soapboxed (needs alot of testing)
-
-
+* See if it's possible to do something so that users don't hit the case where the scoreboard refreshes while they're browsing for a file and when they select it it doesn't go in the box. (Is this browser specific?) // In response: perhaps a framed page is the way to fix it. I.E. frame the scoreboard and have it autorefresh, but do not have the submit part inside that frame.
+* Find safer way for submit-registration.php to be able to write to users file - have users file owned by apache account?
+* Submission dialog automatically picks the problem you last submiteed
+* Have more important output go to logs/manager.log (compiles, program runs, etc)
+* Rewrite the css and make the UI more friendly for use.
+* Implement C# support php script side and test it out manager side.
+* Test that programs are properly soapboxed (needs alot of testing)
+* Restructure directories- add tempsubmit and scripts to move stuff out of there. php creates files there with 32 character names. other stuff on paper. change permissions...
+* Have submit script write line in queue file instead of web server.
+* Create test suite for contest manager
 
 Done
 ----
-o Remove the construction of the .make files from the php scripts. I think the shell scripts are better suited to be customized to a machine's setup or to try to figure out how to build stuff. // Done, check 'build' script inside manager/manager
-o Security - when running applications, executor now gives very little permissions to java files and soapbox will be responsible for watching c/cpp system calls. // implemented in executor.c by Drew.
-o More robust ids // implemented in genid in manager/ and setup for use.
-o Have submission system give the timestamp of the most recently processed submission.
-o Check for sane names
-o Countdown till start time
-o Don't allow submissions when contest isn't going on.
+* Remove the construction of the .make files from the php scripts. I think the shell scripts are better suited to be customized to a machine's setup or to try to figure out how to build stuff. // Done, check 'build' script inside manager/manager
+* Security - when running applications, executor now gives very little permissions to java files and soapbox will be responsible for watching c/cpp system calls. // implemented in executor.c by Drew.
+* More robust ids // implemented in genid in manager/ and setup for use.
+* Have submission system give the timestamp of the most recently processed submission.
+* Check for sane names
+* Countdown till start time
+* Don't allow submissions when contest isn't going on.
