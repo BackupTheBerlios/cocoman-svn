@@ -13,6 +13,7 @@ bashexec(){
 	# Bash script to run a command and find it's return code
 	# and if it timed out. Additionally, it uses soapbox if it is around
 	# to make sure programs aren't messing about with security.
+        local RET COMMAND ERROUT PID KPID
 
 	#Return Codes:
 	SUCCESS=0
@@ -79,6 +80,7 @@ build() {
 	if (! test -f $1); then
 		return 
 	fi
+        local BFILE GCPP GCC JAVAC MCS CPPFLAGS CFLAGS CSFLAGS
         BFILE=$1
 	# Declare our compilers
 	GCPP="g++"
@@ -142,6 +144,7 @@ clean() {
 
 # build and compare the problem to the test cases.
 compare() {
+        local FILE PROB BASE ID NAME TIME VERIFY OUTFILE LOG STATUS MESSAGE OUTPUT
 	FILE=$1
         PROB=`dirname $1`
         findext ${FILE}
@@ -252,6 +255,7 @@ compare() {
 
 # Empty our queue of received submissions and run compare on each one.
 empty_queue() {
+        local QUEUE
 	QUEUE=`cat queue 2>/dev/null`
 	if [ $? != 0 ]; then
 		return 
@@ -272,6 +276,7 @@ empty_queue() {
 # to either JAVA, C, CPP or CS (Also set these types
 # as integers, for later use.
 findext() {
+    local BASE
     C=0 # c
     CPP=1 # c++
     CS=2 # c#
