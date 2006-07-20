@@ -339,9 +339,8 @@ foreach ($ranked_user_ids as $ranked_user_id) {
       </div>
       </div>
       </td>
-      <td>
 <!-- Side Bar -->
-
+<td valign="top">
 <!--Submission status-->
 <?php
 if ($show_submission_result != 0) {
