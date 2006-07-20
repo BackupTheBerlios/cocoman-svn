@@ -54,3 +54,7 @@ cp -R "${ROOT}/logs" "${ROOT}/over"
 
 # Fix permissions on the files copied over
 chmod 644 "${ROOT}/over/logs/*
+chmod 755 "${ROOT}/over/testcases/"
+chmod 755 "${ROOT}/over/testcases/*"
+
+

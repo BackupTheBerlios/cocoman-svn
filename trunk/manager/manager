@@ -350,4 +350,6 @@ process_submissions() {
 }
 # Call our poll function with all passed arguments.
 # TODO: later on, fix this, so different arguments can be passed.
+
+#TODO: Create the problem directories, just in case.
 poll $*
