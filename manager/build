@@ -28,4 +28,5 @@ if [[ ${FILE} != ${CPP} ]]; then
     COMPILE="${GCPP} ${CPPFLAGS} ${FILE}"
 fi
 
+echo ${COMPILE}
 `${COMPILE}`
