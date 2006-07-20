@@ -35,7 +35,7 @@ echo ""
 echo ""
 
 echo "Making sure various files and directories exist..."
-if [ ! -d logs/compiles ]; then
+if [[  ( -e logs/compiles && ! -d logs/compiles ) ]]; then
 	echo "logs/compiles already exists but is not a directory. Figure out what's going on and then try again."
 	exit 4
 fi
@@ -60,6 +60,22 @@ if [ ! -e manager/mydiff ]; then
 	g++ "source/mydiff.cpp" -o "manager/mydiff"
 fi
 echo ""
+
+# Install soapbox into manager/soapbox and modify
+# soapbox executable to know where the library 
+# is kept.
+if [ ! -e manager/soapbox/bin/soapbox ]; then
+        CWD=`pwd`
+        SOAPBOXPATH="${CWD}/manager/soapbox/lib"
+        SEDLINE="s_/lib/_${SOAPBOXPATH}/_"
+        echo $SEDLINE
+        pushd "source/soapbox"
+        make clean
+        make
+        sed -i ${SEDLINE} soapbox.sh
+        make DESTDIR=${CWD}/manager/soapbox bindir=/bin install
+        popd
+fi
 
 echo "Setting permissions..."
 chmod -R g-r-w-x *
