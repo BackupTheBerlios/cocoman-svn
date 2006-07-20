@@ -2,8 +2,8 @@
 // Copyright 2006 Daniel Benamy <dbenamy1@binghamton.edu>
 // License to be determined
 
-require_once('logging.php');
-require('contest_status.php');
+require_once('logging.inc');
+require('contest_status.inc');
 
 $NUM_PROBLEMS=5;
 $ROOT_DIR="logs/";

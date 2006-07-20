@@ -2,7 +2,7 @@
 
 $times_file = 'logs/times.txt';
 
-require_once('logging.php');
+require_once('logging.inc');
 
 function process_contest_status() {
 	global $times_file;     // input
