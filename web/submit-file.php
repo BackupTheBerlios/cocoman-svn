@@ -13,7 +13,6 @@ function process_submission() {
 	global $contest_root;
 	
 	$users_file = $contest_root . 'manager/conf/users.txt';
-	$dir = $contest_root . 'submissions/';
 	$submission_time = date("H:i:s");
 	
 	if (!$users = file($users_file)) {
@@ -81,32 +80,18 @@ function process_submission() {
 		return;
 	}
 	
+       	$chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890';
+	$random_chars = '';
+	for ($i = 0; $i < 15; $i++) {
+		$random_chars .= $chars[mt_rand(0, strlen($chars) - 1)];
+	}
 	$tempfile = $upload["tmp_name"];        
-	$filename = $user_id . "-" . $submission_time . $extension;
-	$filename_with_path = $dir . $_POST["progno"] . "/" . $filename;
+	$filename = 'submission-' . $user_id . '-' . $submission_time . '-Problem' . $_POST['progno'] . '-' . $random_chars . $extension;
+	$filename_with_path = $contest_root . 'temp_web/' . $filename;
 	$result = copy($tempfile, $filename_with_path);
 	if ($result === false) {
-		$message = "ERROR: Could not copy submitted file to permanent location.";
+		$message = "ERROR: Could not copy submitted file to temp_web/.";
 		return;
-	}
-	
-	$build_file = fopen($filename_with_path . ".make", "w");
-	if ($build_file === false) {
-		$message = "ERROR: Could not open build file.";
-		return;
-	}
-	if ($extension == '.java') {
-		fputs($build_file, sprintf("javac %s.java\n", $_POST["progno"]));
-	}
-	if ($extension == '.c') {
-		fputs($build_file, sprintf("gcc-3.0 -o a.out %s\n", $filename));
-	}
-	if ($extension == '.cpp') {
-		fputs($build_file, sprintf("g++ -o a.out %s\n", $filename));
-	}
-	
-	if ($queue_file = fopen($dir . "queue", "a")) {
-		fputs($queue_file, sprintf("%s\n", $_POST["progno"] . "/" . $filename));
 	}
 	
 	$message = "The program was successfully uploaded. Thanks!";
