@@ -1,11 +1,10 @@
 To Do
 -----
-o New directory layout
+o Have submission system give the timestamp of the most recently processed submission.
+o Registration page.
+o Show time left in contest.
+o New directory layout- largly done but I think could still be improved a little
 o Security
 o More robust ids
 o Change handles filename to users
 o Put build directions in info file?
-o Have submission system give the timestamp of the most recently processed submission.
-o Registration page.
-o Show time of last processed submission.
-o Show time left in contest.
