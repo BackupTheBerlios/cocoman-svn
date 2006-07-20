@@ -15,3 +15,4 @@
 * Wrote setup script. (Dan)
 * Wrote installation instructions in README.txt (Dan)
 * Have submit-registration.php clean up registration_request if it times out.
+* Create test suite for contest manager
