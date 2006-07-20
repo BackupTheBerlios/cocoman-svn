@@ -1,5 +1,10 @@
 <?php
-//ini_set("include_path", ".:../"); doesn't fix copy so I prepended ../ to $dir
+/*
+Author: Daniel Benamy <dbenamy1@binghamton.edu>
+License: To be determined
+*/
+
+require('../web/logging.php');
 
 // Processes the submission and fills in some variables
 // Should not write anything out
@@ -49,25 +54,9 @@ function process_submission() {
 	$message = "You have been successfully registered. Your user id is $user_id.";
 }
 
-function get_ip() {
-	// TODO make this more robust. see user comments on http://php3.de/getenv
-	return($_SERVER['REMOTE_ADDR']);
-}
-
 process_submission();
 
-// Write entry to log file
-$log_filename = '../logs/manager.log'; // this isn't what is called the log
-// in a few other place. The other log just has the results of users' 
-// submissions. This refers to a general log where various events that are 
-// recorded.
-if (!$log = fopen($log_filename, 'ab')) {
-	$message = "Manager error: Error opening info file.";
-	return;
-}
-$time = date("H:i:s");
-fputs($log, sprintf("%s: %s attemped to register with name \"%s\". Result: %s\n", $time, get_ip(), $_GET['name'], $message));
-fclose($log);
+app_log(get_ip() . ' attemped to register with name "' . $_GET['name'] . '". Result: ' . $message);
 ?>
 
 
