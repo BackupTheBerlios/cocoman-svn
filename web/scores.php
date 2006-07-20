@@ -351,7 +351,7 @@ if (array_key_exists("id", $_GET)) {
   <hr />
   
   <div>
-    <form method="post" enctype="multipart/form-data" action="turnin.php">
+    <form method="post" enctype="multipart/form-data" action="submit-file.php">
     <u>Submit new file</u><br />
 <?php
 if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
