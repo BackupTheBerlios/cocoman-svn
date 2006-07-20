@@ -1,0 +1,100 @@
+#!/bin/bash
+# Copyright 2006 Daniel Benamy <dbenamy1@binghamton.edu>
+# License to be determined
+
+# See DESIGN.txt for info on how this works with the rest of the system.
+
+# 5 Error allocating id
+# 6 Invalid IP address
+# 7 IP Address not in allowable range
+# 8 Error writing new entry
+
+# TODO figure out directory of this script and work relative to that.
+# Current setup won't work if run from the wrong directory.
+. conf/contest.conf
+
+shopt -s nullglob
+
+function process_one() {
+	#echo "$request"
+	
+	random=`echo "${request}" | awk -F '-' '{print $2}'`
+	# TODO check exit code and log if error occurred
+	
+	id=""
+	
+	name=`cat "${request}" | awk -F ',' '{print $1}'`
+	# Make sure user name contains only letters, numbers, or space
+	echo "${name}" | grep "[^0-9A-Za-z ]"
+	if [ "$?" -eq 0 ]
+	then
+		status=3
+		message="Invalid name"
+		return
+	fi
+	# Make sure it's unique
+	cat ${ROOT}/manager/conf/users.txt | awk -F ':' '{print $2}' | grep "${name}"
+	if [ "$?" -eq "0" ]
+	then
+		status=4
+		message="Name not unique"
+		return
+	fi
+
+	ip=`cat "${request}" | awk -F ',' '{print $1}'`
+	# TODO Make sure ip address is valid
+	# Reg exp from http://www.regular-expressions.info/examples.html
+	#echo "${ip} | grep \b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b"
+	#echo $?
+	
+	# Make sure it's in allowable range if one is given
+	if [ -n "$ALLOWABLE_IPS" ]
+	then
+		echo $ip | grep ${ALLOWABLE_IPS}
+		if [ $? -ne 0 ]
+		then
+			status=7
+			message="Registration requested from IP address outside of allowed range"
+			return
+		fi
+	fi
+	
+	id=`"${ROOT}manager/genid"`
+	if [ "$?" -ne "0" ]
+	then
+		status=5
+		message="Error allocating id"
+		return
+	fi
+	
+	echo "${id}:${name}" >> "${ROOT}manager/conf/users.txt"
+	if [ $? -ne 0 ]
+	then
+		status=8
+		message="Error while adding user to users file"
+		return
+	fi
+	
+	status=0
+	message="Ok"
+}
+
+while [ "1" -lt "2" ]
+do
+	for request in "${ROOT}temp_web/registration_request-"*
+	do
+		process_one "${request}"
+		echo "${status},${message},${id}" > "${ROOT}temp_web/registration_status-${random}"
+		rm -f "${request}"
+	done
+	
+	for request in "${ROOT}temp_web/registration_done-"*
+	do
+		random=`echo "${request}" | awk -F '-' '{print $2}'`
+		rm -f "${ROOT}temp_web/registration_request-${random}"
+		rm -f "${ROOT}temp_web/registration_status-${random}"
+		rm -f "${ROOT}temp_web/registration_done-${random}"
+	done
+	
+	sleep 2
+done

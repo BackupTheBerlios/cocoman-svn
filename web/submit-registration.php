@@ -13,6 +13,8 @@ function process_submission() {
 	// Variable that will be used to display the page
 	global $message;
 	global $user_id;
+	global $contest_root;
+	global $success;
 	
 	$users_filename = $contest_root . 'manager/conf/users.txt';
 	
@@ -22,9 +24,8 @@ function process_submission() {
 	$allowable_characters = array_merge(range('a', 'z'), range('A', 'Z'));
 	$allowable_characters = array_merge($allowable_characters, range(0, 9));
 	$allowable_characters = array_merge($allowable_characters, array(' '));
-/*	echo "<pre>"; print_r(str_split($_GET['name'])); echo "</pre>";
-	echo "<pre>"; print_r($allowable_characters); echo "</pre>";*/
-	foreach(str_split($_GET['name']) as $character) {
+	for ($i = 0; $i < strlen($_GET['name']); $i++) {
+		$character = substr($_GET['name'], i, 1);
 		if (!in_array($character, $allowable_characters, true)) {
 			$message = "You requested a name that contains invalid characters. Please choose a different name.";
 			return;
@@ -50,33 +51,60 @@ function process_submission() {
 		return;
 	}
 	
-	// Find unique ID
-//	$possible_id = 1000;
-//	while (1) {
-//		if (!in_array($possible_id, $ids)) {
-//			$user_id = $possible_id;
-//			break;
-//		}
-//		++$possible_id;
-//	}
-
-        $output = array();
-        $genid = $contest_root . "manager/genid $users_filename";
-        $ret = exec($genid, $output);
-
-        $user_id = $output[0];
-		
-	// Append new entry to user file
-	$users_file = fopen($users_filename, 'ab');
+	// Put in registration request
+	$chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890';
+	$random_chars = '';
+	for ($i = 0; $i < 15; $i++) {
+		$random_chars .= $chars[mt_rand(0, strlen($chars) - 1)];
+	}
+	$registration_file = fopen($contest_root . 'temp_web/registration_request-' . $random_chars, 'w');
 	if ($users_file === false) {
-		$message = "ERROR: Opening users file for append failed.";
+		$message = "ERROR: Opening registration_request file failed.";
 		return;
 	}
-	fputs($users_file, $user_id . ':' . $_GET['name'] . "\n");
-	fclose($users_file);
+	fputs($registration_file, $_GET['name'] . ',' . get_ip() . "\n");
+	fclose($registration_file);
 	
-	$message = "You have been successfully registered. Your user id is $user_id.";
-        $success = 1;
+	// Wait for reply for 6 seconds
+	$start_time = time();
+	$reply_file = null;
+	while (1) { // TODO this loop is structured kinda funkily. Make it better?
+		sleep(1);
+		if (time() > $start_time + 6) {
+			$message = 'ERROR: There was no response from the backend to a registration request.';
+			return;
+		}
+		$reply_filename = $contest_root . 'temp_web/registration_status-' . $random_chars;
+		if (!is_readable($reply_filename)) {
+			continue;
+		}
+		$reply_file = fopen($reply_filename, 'r');
+		if ($reply_file === false) {
+			$message = 'ERROR: Something went wrong while trying to open the registration reply file.';
+			return;
+		}
+		break;
+	}
+	$reply = fgets($reply_file);
+	fclose($reply_file);
+	$status = strtok($reply, ',');
+	$status_message = strtok(',');
+	$user_id = strtok(',');
+	if ($status == 0) {
+		$message = "You have been successfully registered. Your user id is $user_id. Write this number down now! You may need it later to log in again.";
+        $success = true;
+	} else {
+		$message = 'ERROR: Registration error. Code ' . $status . ': ' . $status_message;
+		$success = false;
+	}
+	
+	// Acknowledge to backend that we saw the information if possible so it can clean up
+	$ack = fopen($contest_root . 'temp_web/registration_done-' . $random_chars, 'w');
+	if ($ack === false) {
+		// TODO log this
+	} else {
+		fclose($ack);
+	}
 }
 
 process_submission();
@@ -96,26 +124,18 @@ app_log(get_ip() . ' attemped to register with name "' . $_GET['name'] . '". Res
 
 <body>
   <p>
-    <?php 
-
-    if (isset($user_id)) {
-      echo "<h3> You have been successfully registered. </h3>";
-      echo "<h1> Your User ID is: $user_id </h1>";
-      echo "<h2> Write this number down now! You may need it later to login again. </h2>";
-    } else {
-      echo $message; 
-    }
-
+    <?php
+    	echo $message;
     ?>
   </p>
   <p>
     <?php
-  	if (isset($user_id)) {
-                echo "After you have written down your User ID, ";
-		echo '<a href="scoreboard.php?id=' . $user_id . '">';
-                echo "click here to continue</a>";
-	}
-	?>
+    if ($success) {
+    	echo "After you have written down your User ID, ";
+    	echo '<a href="scoreboard.php?id=' . $user_id . '">';
+    	echo "click here to continue</a>";
+    }
+    ?>
   </p>
   <hr />
   
