@@ -320,6 +320,16 @@ process_specified_user();
 
 <!-- <body> -->
   <h1>ACM Coding Contest Scoreboard</h1>
+
+<?php
+if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
+  $user_id = $_GET["id"];
+
+  echo "<h2>You are logged in as: ";
+  echo $people[$user_id]->name;
+  echo "</h2>";
+}
+?>
   
   <!--Contest Status-->
   <p>
@@ -416,27 +426,32 @@ if ($show_submission_result != 0) {
 ?>
 
   <hr />
-<!--  <div>
+<!--
+  <div>
     <form method="get" action="scoreboard.php">
       <u>View person's submission status</u><br />
       <label>User ID:</label><input name="id" type="text" />
       <input type="submit" value="Submit" />
     </form>
   </div>
-  <hr />-->
-  
+  <hr />
+-->
+
+
+<?php
+if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
+?>  
   <!--Submission form-->
   <div>
     <form method="post" enctype="multipart/form-data" action="submit-file.php">
-    <u>Submit new file</u><br />
+    <h3>Submit a solution</h3>
+
+
 <?php
-if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
     $user_id = $_GET["id"];
-    printf("User ID: <input type=\"text\" name=\"id\" value=\"%s\" /><br />", $user_id);
-} else {
-    echo "User ID: <input type=\"text\" name=\"id\" /><br />";
-}
+    printf("User ID: <input type=\"hidden\" name=\"id\" value=\"%s\" />", $user_id);
 ?>
+
     <label>Language:</label>
     <select name="lang">
       <option value="auto">Auto</option>
@@ -456,7 +471,15 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
     <input type="hidden" name="MAX_FILE_SIZE" value="102400" />
     <input type="submit" value="Submit" />
     </form>
+
   </div>
+
+<?php
+}
+?>
+
+
+
 
 <?php
 //echo "<hr /><pre>"; print_r($people); echo "</pre>";

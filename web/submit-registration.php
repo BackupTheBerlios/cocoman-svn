@@ -54,6 +54,7 @@ function process_submission() {
 	fclose($users_file);
 	
 	$message = "You have been successfully registered. Your user id is $user_id.";
+        $success = 1;
 }
 
 process_submission();
@@ -73,12 +74,24 @@ app_log(get_ip() . ' attemped to register with name "' . $_GET['name'] . '". Res
 
 <body>
   <p>
-    <?php echo $message; ?>
+    <?php 
+
+    if (isset($user_id)) {
+      echo "<h3> You have been successfully registered. </h3>";
+      echo "<h1> Your User ID is: $user_id </h1>";
+      echo "<h2> Write this number down now! You may need it later to login again. </h2>";
+    } else {
+      echo $message; 
+    }
+
+    ?>
   </p>
   <p>
     <?php
   	if (isset($user_id)) {
-		echo '<a href="scoreboard.php?id=' . $user_id . '">Scoreboard</a>';
+                echo "After you have written down your User ID, ";
+		echo '<a href="scoreboard.php?id=' . $user_id . '">';
+                echo "click here to continue</a>";
 	}
 	?>
   </p>
