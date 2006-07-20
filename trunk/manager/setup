@@ -25,6 +25,15 @@ while [ "${reply}" != "n" ]; do
 		#. Create a directory for each problem in problems/ of the form Problem1, Problem2, etc. They are case sensitive.
 		echo "Be sure to put at least one test case in each problem directory in problems/"
 		#. Also create Problem1, Problem2, etc directories in submissions/
+		
+		# We need to ask how many problems they want to use 
+		# (and update contest.conf to use this number)
+
+		# for i in `seq 1 $NUM_PROBLEMS`; do
+		# mkdir "problems/Problem${i}" -p
+		# mkdir "submissions/Problem${i}" -p
+		# done
+
 		break
 	else
 		echo ""
@@ -91,6 +100,7 @@ chmod o+r manager/conf/users.txt
 chmod o+r manager/conf/times.txt
 chmod o+r+x logs
 chmod 644 logs/log
+chmod o+x logs/compiles
 chmod o+r+w+x temp_web
 chmod o+r+x web
 chmod o+r web/*
