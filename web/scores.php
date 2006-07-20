@@ -95,9 +95,19 @@ function time_to_seconds($time) {
 function seconds_to_time($seconds) {
     $minutes = floor($seconds / 60);
     $seconds = $seconds % 60;
+    if ($seconds < 10) {
+        $seconds = "0".$seconds;
+    }
     $hours = floor($minutes / 60);
+    if ($hours < 10) {
+        $hours = "0".$hours;
+    }
     $minutes = $minutes % 60;
+    if ($minutes < 10) {
+        $minutes = "0".$minutes;
+    }
     $time = "$hours:$minutes:$seconds";
+//    $time = $hours."h".$minutes."m".$seconds."s";
     return $time;
 }
 
@@ -180,8 +190,9 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
 
 <!-- <body> -->
   <h1>ACM Coding Contest Scoreboard</h1>
-  <table border="1">
-    <tr>
+  <table id="scoreboard">
+    <tr align="center">
+    <thead>
       <th rowspan="2">Name</th>
       <?php
           for ($i = 1; $i <= $NUM_PROBLEMS; $i++) {
@@ -194,27 +205,38 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
     <?php
         for ($i = 1; $i <= $NUM_PROBLEMS; $i++) {
             echo "<td>Time</td>";
-            echo "<td>Submitted</td>";
+            echo "<td>Attempts</td>";
         }
     ?>
     <td>Total Time</td>
     <td>Solved</td>
     </tr>
+    </thead>
+    <tbody>
 <?php
 //foreach ($people as $user_id => $person) {
+$row= false;
 foreach ($ranked_user_ids as $ranked_user_id) {
     $person = $people[$ranked_user_id];
-    echo "    <tr>";
+    // change the color of alternating rows.
+    if ($row == true) {
+        echo "    <tr class=\"even\">";
+        $row = false;
+    } else {
+        echo "    <tr class=\"odd\">";
+        $row = true;
+    }
     printf("      <td>%s</td>", $person->name);
     for ($i = 1; $i <= $NUM_PROBLEMS; ++$i) {
-        printf("      <td>%s</td><td>%s</td>", 
-            $person->problems[$i]->time, $person->problems[$i]->submissions);
+        printf("      <td align=\"center\">%s</td><td align=\"right\">%s</td>", 
+        $person->problems[$i]->time, $person->problems[$i]->submissions );
     }
     printf("      <td>%s</td>", seconds_to_time($person->total_seconds()));
     printf("      <td>%s</td>", $person->total_problems_solved());
     echo "    </tr>";
 }
 ?>
+  </tbody>
   </table>
 
 <?php
