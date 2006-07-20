@@ -8,3 +8,4 @@ o Security
 o More robust ids
 o Change handles filename to users
 o Put build directions in info file?
+o See if it's possible to do something so that users don't hit the case where the scoreboard refreshes while they're browsing for a file and when they select it it doesn't go in the box. (Is this browser specific?)
