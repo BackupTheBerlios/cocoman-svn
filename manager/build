@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# test existence of file we are building.
+if (! test -f $1); then
+    exit
+fi
+
+#Declare our compiles
+JAVAC="javac"
+GCPP="g++"
+GCC="gcc"
+CPPFLAGS=
+CFLAGS=
+
+# Find out the file's type:
+FILE=`basename $1`
+JAVA=`basename ${FILE} .java`
+C=`basename ${FILE} .c`
+CPP=`basename ${FILE} .cpp`
+
+if [[ ${FILE} != ${JAVA} ]]; then
+    COMPILE="${JAVAC} ${FILE}"
+fi
+if [[ ${FILE} != ${C} ]]; then
+    COMPILE="${GCC} ${CFLAGS} ${FILE}"
+fi
+if [[ ${FILE} != ${CPP} ]]; then
+    COMPILE="${GCPP} ${CPPFLAGS} ${FILE}"
+fi
+
+`${COMPILE}`

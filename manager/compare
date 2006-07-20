@@ -43,9 +43,10 @@ else
 	EXEC="executor ./a.out"
 fi
 
-while read line; do
-        ${line} &> ${LOG}
-done < ${MAKE}
+build ${BASE} &> ${LOG}
+#while read line; do
+#        ${line} &> ${LOG}
+#done < ${MAKE}
 
 if [ $? != 0 ]; then
 	echo "${TIME},${ID},${NAME},${PROB},1,${LOG},Error Compiling"
