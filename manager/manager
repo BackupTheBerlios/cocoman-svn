@@ -205,7 +205,6 @@ compare() {
 		fi
 		${VERIFY} ${OUTFILE} ${OUTPUT} > /dev/null
 		RET=$?
-		echo $RET
 		if [ $RET != 0 ]; then
 			STATUS=2
 			MESSAGE="${INPUT}-Output is not as expected"
