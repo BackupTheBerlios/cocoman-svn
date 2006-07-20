@@ -8,7 +8,7 @@ require('contest_status.inc');
 require('time.inc');
 
 $NUM_PROBLEMS=5;
-$ROOT_DIR = $contest_root . 'manager/logs/';
+$ROOT_DIR = $contest_root . '/logs/';
 $users_filename = $contest_root . 'manager/conf/users.txt';
 
 // More like a struct. Member variables get updated by Person
