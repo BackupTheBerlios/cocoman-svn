@@ -173,7 +173,7 @@ compare() {
                 ;;
             $CS)
                 export MONO_SHARED_DIR=`pwd`/mono
-                EXEC="bashexec mono a.out"
+                EXEC="bashexec mono --debug a.out"
                 SOAPBOXARGS="-p ${MONO_SHARED_DIR}"
                 ;;
             *) 
