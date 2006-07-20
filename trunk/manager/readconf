@@ -25,5 +25,5 @@ read_var() {
 for option in `./parse_ini $CONF_FILE o=global`; do
   OPT="`echo $option | tr [:lower:] [:upper:]`"
   read_var $OPT;
-  export "${OPT}"="${VAR}"
+  export "${OPT}"="${!OPT}"
 done

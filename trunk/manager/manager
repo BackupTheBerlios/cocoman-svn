@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # Script for managing submissions from the web frontend.
+# Must be run from within manager/ at the moment. 
 # Natan Zohar
 
-. conf/contest.conf
+# All variables are now read out of the conf/contest.ini
+# So we no longer need to source contest.conf
+#. conf/contest.conf
 
 #TODO: Declare all variables that are local at top of function.
 
@@ -349,8 +352,43 @@ process_submissions() {
     done
     popd  > /dev/null
 }
+
+
+CONF_FILE=conf/contest.ini
+# Reads the variable out of CONF_FILE and evaluates it.
+
+readvar() {
+	local NAME 
+	NAME=$1
+	VAR=`echo "$1" | tr [A-Z] [a-z]`
+	VAR=`./parse_ini $CONF_FILE s=global k=$VAR`
+	eval ${NAME}="$VAR"
+}
+
+# Read the contents of CONF_FILE (which is in the .ini format)
+# and retrieve the variables named in  [global] and places them inside
+# the variable with the same name in bash.
+
+# Example:
+# Reads ROOT out of contest.ini and then sets $ROOT to be
+# what is set in contest.ini
+
+readconf() {
+# Reads all the options available in CONF_FILE's global section
+# and then sets us up to use them. (They are available as uppercase
+# variables.
+	local OPT VAR
+	for option in `./parse_ini $CONF_FILE o=global`; do
+		OPT="`echo $option | tr [:lower:] [:upper:]`"
+			readvar $OPT;
+	export "${OPT}"="${!OPT}"
+		done
+}
+
+# Read in our global variables from conf/contest.ini
 # Call our poll function with all passed arguments.
 # TODO: later on, fix this, so different arguments can be passed.
 
 #TODO: Create the problem directories, just in case.
+readconf
 poll $*
