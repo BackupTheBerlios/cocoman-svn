@@ -4,4 +4,4 @@
 $COMMAND = "../manager/poll stop";
 $output = array();
 exec($COMMAND, $output);
-}
+?>

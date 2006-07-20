@@ -10,9 +10,8 @@ if [[ $1 == "stop" ]]; then
 fi
 echo "Starting the poll"
 while (sleep $TIMEOUT); do
-        echo "Another iteration"
         if (test -f ${STOP_FILE}); then
-            echo "Quitting out."
+            echo "Stopping the poll program from request."
             break;
         fi
 	empty_queue
