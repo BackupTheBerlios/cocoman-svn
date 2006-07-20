@@ -63,12 +63,11 @@ function process_submission() {
 	
 	// Ok to upload file
 	if ($_POST["lang"] == "auto") {
-		if (strlen($upload['name']) < 5) {
-			$message = "Your file name is not long enough for auto language detection.";
+		if (strpos($upload['name'], '.') === false) {
+			$message = "File name doesn't have an extension so the type could not be automatically detected.";
 			return;
-		} else {
-			$extension = stristr($upload['name'], '.');
 		}
+		$extension = stristr($upload['name'], '.');
 	} else {
 		$extension = '.' . $_POST['lang'];
 	}
