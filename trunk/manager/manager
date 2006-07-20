@@ -181,9 +181,10 @@ compare() {
         case ${TYPE} in
             $JAVA)
                 mv ${BASE} ${PROB}.java
-                touch blankpolicyfile
-                ARGS="-Djava.security.manager -Djava.security.policy=blankpolicyfile"
-                EXEC="bashexec java ${ARGS} ${PROB}"
+#                touch blankpolicyfile
+#                ARGS="-Djava.security.manager -Djava.security.policy=blankpolicyfile"
+		JAVARUN="-jar ${ROOT}/manager/javarun/JavaRun.jar"
+                EXEC="bashexec java ${ARGS} ${JAVARUN}"
                 SOAPBOXARGS="-r ${JAVABIN}"
                 BASE=${PROB}.java
                 ;;
