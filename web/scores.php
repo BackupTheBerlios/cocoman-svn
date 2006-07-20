@@ -26,6 +26,7 @@ class Person {
     var $user_id;
     var $name;
     var $problems;
+    var $time_of_last_submission; // in 'His' format. empty string if no submissions processed
     var $last_status_code; // -1 if no submissions
     var $last_compile_log_filename;
     
@@ -37,18 +38,21 @@ class Person {
         for ($i = 1; $i <= $NUM_PROBLEMS; ++$i) {
             $this->problems["$i"] = new Problem($i);
         }
+        $this->time_of_last_submission = "";
         $this->last_status_code = -1;
         $this->last_compile_log_filename = "";
     }
     
     // Called each time a line is read from the log file about this person
     // problem is the problem number
-    // time is a string in the log file format of hhmmss (24 hour time)
+    // time is when this was submitted
+    //   it is a string in 'H:i:s' format (hh:mm:ss with 24 hour time).
     function submitted_problem($problem, $time, $status_code) {
         if ($this->problems[$problem]->time == "-") { // no working submission yet for this problem
             ++$this->problems[$problem]->submissions;
+            $this->time_of_last_submission = $time;
             if ($status_code == "0") {
-                $this->problems[$problem]->time = $time;
+                $this->problems[$problem]->time = time_from_start($time);
             }
             $this->last_status_code = $status_code;
         }
@@ -187,6 +191,7 @@ function process_submission_results() {
 	// "15" unknown error while executing program
 	// if status code is 1, there is another token before text which has the 
 	// filename of a log of the compile
+	// log file is assumed to be in chronological order
 	
 	$log = file($ROOT_DIR.'/log', 1);
 	if ($log === false) {
@@ -197,7 +202,6 @@ function process_submission_results() {
 	foreach ($log as $line) {        
 	//echo "tokenized log entry as:<br />"; echo "<pre>"; print_r($entry); echo "</pre>";
 		$time = strtok($line, ",");
-		$time = time_from_start($time);
 		$user_id = strtok(",");
 		$name = strtok(",");
 		$problem_number = substr(strtok(","), 7);
@@ -254,16 +258,17 @@ function process_specified_user() {
 	}
 	$specified_user = $people[$_GET['id']];
 	$show_submission_result = 1;
+	$last_processed = "Your most recent submission processed is the one submitted around $specified_user->time_of_last_submission. Result: ";
 	//$submission_result = "Your most recent submission's status is: ";
 	switch ($specified_user->last_status_code) {
 		case "-1":
 			$submission_result = "You haven't submitted anything yet or your submission hasn't been processed.";
 			return;
 		case "0":
-			$submission_result = "Submission ok!";
+			$submission_result = $last_processed . "Submission ok!";
 			return;
 		case "1":
-			$submission_result = "Compile failure.";
+			$submission_result = $last_processed . "Compile failure.";
 			$show_submission_result = 2;
 			$compile_log = file($specified_user->last_compile_log_filename, 1);
 			if ($compile_log === false) {
@@ -273,13 +278,13 @@ function process_specified_user() {
 			}
 			return;
 		case "2":
-			$submission_result = "Program failed test.";
+			$submission_result = $last_processed . "Program failed test.";
 			return;
 		case "3":
-			$submission_result = "Program timed out while running.";
+			$submission_result = $last_processed . "Program timed out while running.";
 			return;
 		case "4":
-			$submission_result = "Program crashed while running.";
+			$submission_result = $last_processed . "Program crashed while running.";
 			return;
 		case "5":
 			$submission_result = "Unknown error while running program.";
@@ -333,7 +338,7 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
   
   <!--Contest Time & Status-->
   <p>
-    The official time is <?php echo date('g:i:s a') ?>.<br />
+    The official time is <?php echo date('H:i:s') ?> (24 hour format).<br />
     <?php
     if ($contest_status == 0) {
     	echo "The contest has not yet started.";
@@ -427,18 +432,6 @@ if ($show_submission_result != 0) {
 ?>
 
   <hr />
-<!--
-  <div>
-    <form method="get" action="scoreboard.php">
-      <u>View person's submission status</u><br />
-      <label>User ID:</label><input name="id" type="text" />
-      <input type="submit" value="Submit" />
-    </form>
-  </div>
-  <hr />
--->
-
-
 
 <?php
 //echo "<hr /><pre>"; print_r($people); echo "</pre>";
