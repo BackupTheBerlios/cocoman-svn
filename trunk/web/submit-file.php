@@ -12,7 +12,7 @@ function process_submission() {
 	global $user_id;
 	global $contest_root;
 	
-	$users_file = $contest_root . 'manager/conf/users.txt';
+	$users_file = $contest_root . '/manager/conf/users.txt';
 	$submission_time = date("H:i:s");
 	
 	if (!$users = file($users_file)) {
@@ -84,7 +84,7 @@ function process_submission() {
 	}
 	$tempfile = $upload["tmp_name"];        
 	$filename = 'submission-' . $user_id . '-' . $submission_time . '-' . $_POST['progno'] . '-' . $random_chars . $extension;
-	$filename_with_path = $contest_root . 'temp_web/' . $filename;
+	$filename_with_path = $contest_root . '/temp_web/' . $filename;
 	$result = copy($tempfile, $filename_with_path);
 	if ($result === false) {
 		$message = "ERROR: Could not copy submitted file to temp_web/.";

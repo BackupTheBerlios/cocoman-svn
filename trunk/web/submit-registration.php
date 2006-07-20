@@ -16,7 +16,7 @@ function process_submission() {
 	global $contest_root;
 	global $success;
 	
-	$users_filename = $contest_root . 'manager/conf/users.txt';
+	$users_filename = $contest_root . '/manager/conf/users.txt';
 	
 	// TODO check to make sure _GET has name
 	
@@ -57,7 +57,7 @@ function process_submission() {
 	for ($i = 0; $i < 15; $i++) {
 		$random_chars .= $chars[mt_rand(0, strlen($chars) - 1)];
 	}
-	$registration_file = fopen($contest_root . 'temp_web/registration_request-' . $random_chars, 'w');
+	$registration_file = fopen($contest_root . '/temp_web/registration_request-' . $random_chars, 'w');
 	if ($users_file === false) {
 		$message = "ERROR: Opening registration_request file failed.";
 		return;
@@ -73,10 +73,10 @@ function process_submission() {
 		if (time() > $start_time + 6) {
 			$message = 'ERROR: There was no response from the backend to a registration request.';
                         // Clean up the file we created over here
-                        unlink($contest_root . 'temp_web/registration_request-' . $random_chars);
+                        unlink($contest_root . '/temp_web/registration_request-' . $random_chars);
 			return;
 		}
-		$reply_filename = $contest_root . 'temp_web/registration_status-' . $random_chars;
+		$reply_filename = $contest_root . '/temp_web/registration_status-' . $random_chars;
 		if (!is_readable($reply_filename)) {
 			continue;
 		}
