@@ -233,55 +233,55 @@ function process_specified_user() {
 	global $_GET;
 	global $people;
 	//?global $specified_user;
-	global $show_submission_status; // 0: no, 1: message, 2: message & compile log
-	global $submission_status;
+	global $show_submission_result; // 0: no, 1: message, 2: message & compile log
+	global $submission_result;
 	global $compile_log;
 	
 	if (!array_key_exists("id", $_GET)) { // Not showing anyone's submission status
-		$show_submission_status = 0;
+		$show_submission_result = 0;
 		return;
 	}
 	if (!array_key_exists($_GET["id"], $people)) {
-		$show_submission_status = 1;
-		$submission_status = "You are trying to display the status for an invalid user.";
+		$show_submission_result = 1;
+		$submission_result = "You are trying to display the status for an invalid user.";
 		app_log('A user at ' . get_ip() . ' tried to display the status of user ' . $_GET['id'] . ' which is an invalid user.');
 		return;
 	}
 	$specified_user = $people[$_GET['id']];
-	$show_submission_status = 1;
-	//$submission_status = "Your most recent submission's status is: ";
+	$show_submission_result = 1;
+	//$submission_result = "Your most recent submission's status is: ";
 	switch ($specified_user->last_status_code) {
 		case "-1":
-			$submission_status = "You haven't submitted anything yet or your submission hasn't been processed.";
+			$submission_result = "You haven't submitted anything yet or your submission hasn't been processed.";
 			return;
 		case "0":
-			$submission_status = "Submission ok!";
+			$submission_result = "Submission ok!";
 			return;
 		case "1":
-			$submission_status = "Compile failure.";
-			$show_submission_status = 2;
+			$submission_result = "Compile failure.";
+			$show_submission_result = 2;
 			$compile_log = file($specified_user->last_compile_log_filename, 1);
 			if ($compile_log === false) {
-				$submission_status = "Compile failure but compile log could not be read. Notify a proctor.";
-				$show_submission_status = 1;
+				$submission_result = "Compile failure but compile log could not be read. Notify a proctor.";
+				$show_submission_result = 1;
 				// TODO log
 			}
 			return;
 		case "2":
-			$submission_status = "Program failed test.";
+			$submission_result = "Program failed test.";
 			return;
 		case "3":
-			$submission_status = "Program timed out while running.";
+			$submission_result = "Program timed out while running.";
 			return;
 		case "4":
-			$submission_status = "Program crashed while running.";
+			$submission_result = "Program crashed while running.";
 			return;
 		case "5":
-			$submission_status = "Unknown error while running program.";
+			$submission_result = "Unknown error while running program.";
 			// TODO log
 			return;
 		default:
-			$submission_status = "Unknown error.";
+			$submission_result = "Unknown error.";
 			app_log(sprintf("ERROR: User %d has a last_status_code of %d which is invalid. (scoreboard status display)", $specified_user->user_id, $specified_user->last_status_code));
 			return;
 	}
@@ -296,6 +296,7 @@ rank_users();
 process_specified_user();
 
 ?>
+
 
 <!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
@@ -381,16 +382,16 @@ foreach ($ranked_user_ids as $ranked_user_id) {
 
 <!--Submission status-->
 <?php
-if ($show_submission_status != 0) {
+if ($show_submission_result != 0) {
 	echo "  <hr/>";
 	echo "  <h3>Submission Status</h3>";
-	if ($show_submission_status > 2) {
-		$submission_status = "Error";
+	if ($show_submission_result > 2) {
+		$submission_result = "Error";
 		// TODO log
 	}
-	if ($show_submission_status >= 1) {
-		printf("  <p>%s</p>", $submission_status);
-		if ($show_submission_status == 2) {
+	if ($show_submission_result >= 1) {
+		printf("  <p>%s</p>", $submission_result);
+		if ($show_submission_result == 2) {
 			echo "  <div>";
 			echo "    Compile log:<br />";
 			echo "    <pre>";
