@@ -14,7 +14,7 @@ function process_submission() {
 	global $message;
 	global $user_id;
 	
-	$users_filename = $contest_root . 'manager/users.txt';
+	$users_filename = $contest_root . 'manager/conf/users.txt';
 	
 	// TODO check to make sure _GET has name
 	

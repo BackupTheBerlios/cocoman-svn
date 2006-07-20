@@ -1,9 +1,9 @@
 <?php
 require_once('config.inc');
 
-$times_file = $contest_root . 'manager/logs/times.txt';
+$times_file = $contest_root . 'manager/conf/times.txt';
 
-ini_set("include_path", ".:../");
+//ini_set("include_path", ".:../");
 
 require_once('logging.inc');
 

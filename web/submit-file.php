@@ -12,7 +12,7 @@ function process_submission() {
 	global $user_id;
 	global $contest_root;
 	
-	$users_file = $contest_root . 'manager/users.txt';
+	$users_file = $contest_root . 'manager/conf/users.txt';
 	$dir = $contest_root . 'submissions/';
 	$submission_time = date("H:i:s");
 	
