@@ -2,6 +2,7 @@
 // Copyright 2006 Daniel Benamy <dbenamy1@binghamton.edu>
 // License to be determined
 
+ini_set('include_path', '.:../');
 require_once('logging.inc');
 require('contest_status.inc');
 
@@ -278,23 +279,10 @@ process_submission_results();
 rank_users();
 process_specified_user();
 
+
+// ***Output starts here***
+require('header.inc');
 ?>
-
-<!-- ***Output starts here*** -->
-
-<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
-
-<!-- <html> -->
-<!-- <head> -->
-<!--   <meta http-equiv="refresh" content="10" /> -->
-<!--   <title>ACM Coding Contest Scoreboard</title> -->
-<!--   <link rel="stylesheet" type="text/css" href="style.css" /> -->
-<!--   <style type="text/css"> -->
-<!--     th {text-align: center} -->
-<!--     td {text-align: center} -->
-<!--   </style> -->
-<!-- </head> -->
 
 <!-- <body> -->
   <h1>ACM Coding Contest Scoreboard</h1>
@@ -408,13 +396,8 @@ if ($show_submission_result != 0) {
 
 <?php
 //echo "<hr /><pre>"; print_r($people); echo "</pre>";
-?>
 
-<!--   <hr /> -->
-<!--   <p> -->
-<!--     <a href="http://validator.w3.org/check?uri=referer"><img -->
-<!--         src="http://www.w3.org/Icons/valid-xhtml10" -->
-<!--         alt="Valid XHTML 1.0 Transitional" height="31" width="88" /></a> -->
-<!--   </p> -->
-<!-- </body> -->
-<!-- </html> -->
+require('file-submission-form.inc');
+
+require('footer.inc');
+?>
