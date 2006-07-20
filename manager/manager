@@ -285,7 +285,7 @@ findext() {
         TYPE=${MONO}
     elif [ `basename ${BASE} .cpp` != ${BASE} ]; then
         TYPE=${CPP}
-    elif [ `basneame ${BASE} .c` != ${BASE} ]; then
+    elif [ `basename ${BASE} .c` != ${BASE} ]; then
         TYPE=${C}
     else
         TYPE=${UNKNOWN} 
