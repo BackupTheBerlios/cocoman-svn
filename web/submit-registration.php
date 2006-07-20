@@ -16,8 +16,9 @@ function process_submission() {
 	$users_filename = '../submissions/handles';
 	
 	// Read in existing user file
-	if (!$users = file($users_filename)) {
-		$message = "Manager error: Opening users file failed.";
+	$users = file($users_filename);
+	if ($users === false) {
+		$message = "ERROR: Opening users file failed.";
 		return;
 	}
 	$ids = array();
@@ -44,8 +45,9 @@ function process_submission() {
 	}
 		
 	// Append new entry to user file
-	if (!$users_file = fopen($users_filename, 'ab')) {
-		$message = "Manager error: Opening users file for append failed.";
+	$users_file = fopen($users_filename, 'ab');
+	if ($users_file === false) {
+		$message = "ERROR: Opening users file for append failed.";
 		return;
 	}
 	fputs($users_file, $user_id . ':' . $_GET['name'] . "\n");

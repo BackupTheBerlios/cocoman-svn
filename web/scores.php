@@ -129,8 +129,10 @@ function time_from_start($time) {
 // ***Program flow starts here (sorta)***
 
 // Read all registered users in from the users file
-if (!$users = file($users_filename)) {
-	echo "Manager error: Opening users file failed.";
+$users = file($users_filename);
+if ($users === false) {
+	app_log("ERROR: Opening users file failed.");
+	echo "ERROR: Opening users file failed.";
 	exit;
 }
 $people = array();
@@ -159,6 +161,11 @@ foreach ($users as $user_entry) {
 // filename of a log of the compile
 
 $log = file($ROOT_DIR.'/log', 1);
+if ($log === false) {
+	app_log("ERROR: Opening submission results log file failed.");
+	echo "ERROR: Opening submission results log file failed.";
+	exit;
+}
 foreach ($log as $line) {        
 //echo "tokenized log entry as:<br />"; echo "<pre>"; print_r($entry); echo "</pre>";
 
