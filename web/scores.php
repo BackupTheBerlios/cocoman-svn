@@ -331,8 +331,9 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
 }
 ?>
   
-  <!--Contest Status-->
+  <!--Contest Time & Status-->
   <p>
+    The official time is <?php echo date('g:i:s a') ?>.<br />
     <?php
     if ($contest_status == 0) {
     	echo "The contest has not yet started.";
