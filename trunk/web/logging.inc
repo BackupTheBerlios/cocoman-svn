@@ -16,7 +16,7 @@ function get_ip() {
 // If log can't be opened, echos an error and exits
 function app_log($message) {
 	global $contest_root;
-	$log_filename = $contest_root . 'temp_web/manager.log';
+	$log_filename = $contest_root . '/temp_web/manager.log';
 	//$log_filename = $contest_root . 'manager/logs/manager.log'; // this isn't what is called the log
 	// in a few other place. The other log just has the results of users' 
 	// submissions. This refers to a general log where various events that are 
