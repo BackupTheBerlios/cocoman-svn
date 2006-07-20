@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace Drew
 {
@@ -6,11 +7,11 @@ namespace Drew
   {
     static void Main(string[] args)
     {
-      //try {
-        System.IO.FileInfo fi = new System.IO.FileInfo("somefile");
-      //} catch (System.IO.IOException e) {
-        //Console.WriteLine(e.Message);
-      //}
+        using (StreamWriter sw = new StreamWriter("somefile")) 
+        {
+            // Add some text to the file.
+            sw.Write("made a new file.");
+        }
     }
   }
 }
