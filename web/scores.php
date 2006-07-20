@@ -323,7 +323,7 @@ process_specified_user();
     } else if ($contest_status == 1) {
 		echo "Time left in contest: " . $time_left;
 	} else if ($contest_status == 2) {
-		echo "The contest is over. Thanks for participating!.";
+		echo "The contest is over. Thanks for participating!";
     } else {
     	app_log("ERROR: \$contest_status is set to $contest_status which is an invalid value. (scoreboard)");
     	echo "Error.";
