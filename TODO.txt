@@ -9,6 +9,7 @@ To Do
 * Implement better system for web scripts being able to log things.
 * Make everything more robust when various configuration files/options are missing.
 * Get normal diff working correctly instead of needing our own custom one.
+* remove NUM_PROBLEMS from scoreboard.php add to config.inc
 
 * See if it's possible to do something so that users don't hit the case where the scoreboard refreshes while they're browsing for a file and when they select it it doesn't go in the box. (Is this browser specific?) // In response: perhaps a framed page is the way to fix it. I.E. frame the scoreboard and have it autorefresh, but do not have the submit part inside that frame. Dan: I tried to solve this problem by having javascript code refresh the page instead of the meta thingy but check a variable first which hopefully gets modified when a user clicks on browse. It's worked in Firefox 1.5, Epiphany ?, and Mozilla ? (in the South Pod). It doesn't detect the click in the old version of Konq in the SP. A more annoying problem is that the JS refresh causes the page to scroll to the top. If the scores take up a full screen and someone is trying to watch their submission status they will keep having to scroll down. Also once refreshing is disabled, it can't be reenabled without refreshing the page manually. I may try the frame idea when I have time.
 * logs/compiles is -x, so no one can read it, but it needs to be readable by web so the user can see his compile problems.
