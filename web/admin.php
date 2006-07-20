@@ -9,14 +9,14 @@ $users_filename = '../manager/users.txt';
 // Admin functions 
 // starts the poll on the machine
 function start_poll() {
-    $COMMAND = "../manager/poll > ../logs/poll.log &";
+    $COMMAND = "../manager/manager> ../logs/poll.log &";
     $output = array();
     exec($COMMAND, $output);
 }
 
 // stops the poller.
 function stop_poll() {
-    $COMMAND = "../manager/poll stop";
+    $COMMAND = "../manager/manager stop";
     $output = array();
     exec($COMMAND, $output);
 }
