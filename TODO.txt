@@ -6,7 +6,6 @@ o Find safer way for submit-registration.php to be able to write to users file -
 o Don't allow submissions when contest isn't going on.
 o Countdown till start time
 o Submission dialog automatically picks the problem you last submiteed
-o Check for sane names
 
 Done
 ----
@@ -14,3 +13,4 @@ o Remove the construction of the .make files from the php scripts. I think the s
 o Security - when running applications, executor now gives very little permissions to java files and soapbox will be responsible for watching c/cpp system calls. // implemented in executor.c by Drew.
 o More robust ids // implemented in genid in manager/ and setup for use.
 o Have submission system give the timestamp of the most recently processed submission.
+o Check for sane names

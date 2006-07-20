@@ -15,6 +15,21 @@ function process_submission() {
 	
 	$users_filename = '../manager/users.txt';
 	
+	// TODO check to make sure _GET has name
+	
+	// Make sure requested name is sane
+	$allowable_characters = array_merge(range('a', 'z'), range('A', 'Z'));
+	$allowable_characters = array_merge($allowable_characters, range(0, 9));
+	$allowable_characters = array_merge($allowable_characters, array(' '));
+/*	echo "<pre>"; print_r(str_split($_GET['name'])); echo "</pre>";
+	echo "<pre>"; print_r($allowable_characters); echo "</pre>";*/
+	foreach(str_split($_GET['name']) as $character) {
+		if (!in_array($character, $allowable_characters, true)) {
+			$message = "You requested a name that contains invalid characters. Please choose a different name.";
+			return;
+		}
+	}
+	
 	// Read in existing user file
 	$users = file($users_filename);
 	if ($users === false) {
