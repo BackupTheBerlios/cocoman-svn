@@ -7,7 +7,7 @@ require_once('logging.inc');
 require('contest_status.inc');
 require('time.inc');
 
-$NUM_PROBLEMS=5;
+$NUM_PROBLEMS=3;
 $ROOT_DIR = $contest_root . '/logs/';
 $users_filename = $contest_root . 'manager/conf/users.txt';
 
@@ -250,6 +250,7 @@ require('header.inc');
 
 <!-- <body> -->
   <h1>ACM Coding Contest Scoreboard</h1>
+  <h2><a href="problems">View Problem Statements</a></h2>
 
 <?php
 if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
