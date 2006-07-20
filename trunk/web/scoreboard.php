@@ -7,7 +7,7 @@ require_once('logging.inc');
 require('contest_status.inc');
 require('time.inc');
 
-$NUM_PROBLEMS=3;
+$NUM_PROBLEMS=5;
 $ROOT_DIR = $contest_root . '/logs/';
 $users_filename = $contest_root . 'manager/conf/users.txt';
 
@@ -232,7 +232,7 @@ function process_specified_user() {
 			app_log(sprintf("ERROR: User %d has a last_status_code of %d which is invalid. (scoreboard status display)", $specified_user->user_id, $specified_user->last_status_code));
 			break;
 	}
-        $submission_result = "<h3>" . $submission_result . "</h3>";
+        $submission_result = "<span>" . $submission_result . "</span>";
 }
 
 // ***Program flow starts here***
@@ -247,8 +247,13 @@ process_specified_user();
 // ***Output starts here***
 require('header.inc');
 ?>
-
+<div id="main">  
+  <table border="0" width="100%">
+    <tr>
+      <td valign="top" align="left">
 <!-- <body> -->
+  <div id="content">
+<!-- title and login name -->
   <h1>ACM Coding Contest Scoreboard</h1>
   <h2><a href="problems">View Problem Statements</a></h2>
 
@@ -262,43 +267,45 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
 }
 ?>
   
+
   <!--Contest Time & Status-->
   <p>
     The official time is <?php echo date('H:i:s') ?> (24 hour format).<br />
     <?php
     if ($contest_status == 0) {
-    	echo "The contest has not yet started.";
+	echo "The contest has not yet started.";
     } else if ($contest_status == 3) {
-        echo "Time until contest start: " . $time_left;
+	echo "Time until contest start: " . $time_left;
     } else if ($contest_status == 1) {
-        echo "Time left in contest: " . $time_left;
+	echo "Time left in contest: " . $time_left;
     } else if ($contest_status == 2) {
-        echo "The contest is over. Thanks for participating!";
+	echo "The contest is over. Thanks for participating!";
     } else {
-    	app_log("ERROR: \$contest_status is set to $contest_status which is an invalid value. (scoreboard)");
-    	echo "Error.";
+	app_log("ERROR: \$contest_status is set to $contest_status which is an invalid value. (scoreboard)");
+	echo "Error.";
     }
     ?>
   </p>
   
   <!--Scoreboard-->
-  <table id="scoreboard" cellspacing="0" border="1">
+  <div id="scoreboard">
+  <table cellspacing="0" border="1">
     <thead>
     <tr align="center">
       <th rowspan="2">Name</th>
       <?php
-          for ($i = 1; $i <= $NUM_PROBLEMS; $i++) {
-              printf("<th colspan=\"2\">Problem %s</th>\n", $i);
-          }
+	  for ($i = 1; $i <= $NUM_PROBLEMS; $i++) {
+	      printf("<th colspan=\"2\">Problem %s</th>\n", $i);
+	  }
       ?>
       <th colspan="2">Total</th>
     </tr>
     <tr>
     <?php
-        for ($i = 1; $i <= $NUM_PROBLEMS; $i++) {
-            echo "<td>Time</td>";
-            echo "<td>Attempts</td>";
-        }
+	for ($i = 1; $i <= $NUM_PROBLEMS; $i++) {
+	    echo "<td>Time</td>";
+	    echo "<td>Attempts</td>";
+	}
     ?>
     <td>Total Time</td>
     <td>Solved</td>
@@ -311,16 +318,16 @@ foreach ($ranked_user_ids as $ranked_user_id) {
     $person = $people[$ranked_user_id];
     // change the color of alternating rows.
     if ($row == true) {
-        echo "    <tr class=\"even\">";
-        $row = false;
+	echo "    <tr class=\"even\">";
+	$row = false;
     } else {
-        echo "    <tr class=\"odd\">";
-        $row = true;
+	echo "    <tr class=\"odd\">";
+	$row = true;
     }
     printf("      <td>%s</td>", $person->name);
     for ($i = 1; $i <= $NUM_PROBLEMS; ++$i) {
-        printf("      <td align=\"center\" class=\"timecol\">%s</td><td align=\"right\" class=\"numcol\">%s</td>", 
-        $person->problems[$i]->time, $person->problems[$i]->submissions );
+	printf("      <td align=\"center\" class=\"timecol\">%s</td><td align=\"right\" class=\"numcol\">%s</td>", 
+	$person->problems[$i]->time, $person->problems[$i]->submissions );
     }
     printf("      <td>%s</td>", seconds_to_time($person->total_seconds()));
     printf("      <td>%s</td>", $person->total_problems_solved());
@@ -329,11 +336,15 @@ foreach ($ranked_user_ids as $ranked_user_id) {
 ?>
   </tbody>
   </table>
+      </td>
+      <td>
+<!-- Side Bar -->
 
 <!--Submission status-->
 <?php
 if ($show_submission_result != 0) {
-	echo "  <hr/>";
+	echo "<div class=\"sidebar\">"; // put this in here, so it doesn't display if user isn't selected.
+	echo "<div id=\"result-box\">";
 	echo "  <h3>Submission Status</h3>";
 	if ($show_submission_result > 2) {
 		$submission_result = "Error";
@@ -343,12 +354,24 @@ if ($show_submission_result != 0) {
 		printf("  <p>%s</p>", $submission_result);
 		if ($show_submission_result == 2) {
 			echo "  <div>";
-			echo "    Compile log:<br />";
+			
+			echo "<div class=\"overlay\" id=\"codebox\">";
+//			echo "    Compile log:<br />";
+			echo "<p align=\"center\">
+			<a href=\"#\" onclick=\"show('codebox')\">Close</a>
+			</p>";
 			echo "    <pre>";
 			foreach ($compile_log as $line) {
 				echo htmlentities($line);
 			}
 			echo "    </pre>";
+			echo "<hr /><p align=\"center\">
+			<a href=\"#\" onclick=\"show('codebox')\">Close</a>
+			</p>";
+			echo "</div>";
+			echo "<a href=\"#\" onclick=\"return show('codebox')\">";
+			echo "Show Compile Log</a>";
+//			echo "    </pre>";
 			echo "  </div>";
 		}
 	}
@@ -356,13 +379,27 @@ if ($show_submission_result != 0) {
 	echo "  <i>Please note that it may take a couple of minutes for your ";
 	echo "  submissions to be processed.</i>";
 	echo "</p>";
+	echo "</div>";
+	echo "</div>";
 }
 ?>
 
+<!-- Submit file form -->
+<?php
+echo "<div class=\"sidebar\">";
+require('file-submission-form.inc');
+echo "</div>";
+?>
+      </td>
+    </tr>
+  </table>
+
+  </div>
+ </div>
+
+
 <?php
 //echo "<hr /><pre>"; print_r($people); echo "</pre>";
-
-require('file-submission-form.inc');
-
 require('footer.inc');
 ?>
+

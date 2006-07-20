@@ -8,16 +8,18 @@
 
   <!-- from: http://grizzlyweb.com/webmaster/javascripts/refresh.asp 
   Define multiple JavaScript code blocks, where each JavaScript version block redefines the same function.  Only the last version block that is supported by the browser will be used. -->
+  <object>
   <noscript>
   <!--
       We have the "refresh" meta-tag in case the user's browser does
       not correctly support JavaScript or has JavaScript disabled.
   -->
-  <meta http-equiv="refresh" content="10" />
+<!--  <meta http-equiv="refresh" content="10" /> -->
   
   </noscript>
+  </object>
   
-  <script language="JavaScript">
+  <script type="text/javascript" language="JavaScript">
   <!--
   var sURL = unescape(window.location.pathname);
   
@@ -32,7 +34,7 @@
   
   function doLoad()
   {
-      setTimeout("checkRefresh()", 10 * 1000);
+      setTimeout("checkRefresh()", 30 * 1000);
   }
   
   function refresh()
@@ -48,10 +50,23 @@
       refreshActive = false;
       document.getElementById('refreshStatus').innerHTML = "<i>Auto-refreshing disabled</i>";
   }
+
+  function show(boxid) {
+      if (document.getElementById) 
+          box = document.getElementById(boxid).style;
+      else if (document.all) 
+          box = document.all[boxid];
+      
+      if (box.visibility == "visible" || box.visibility == "show") {
+          box.visibility = "hidden";
+      } else {
+          box.visibility = "visible";
+      }
+  }
   //-->
   </script>
   
-  <script language="JavaScript1.1">
+  <script type="text/javascript" language="JavaScript1.1">
   <!--
   function refresh()
   {
@@ -64,7 +79,7 @@
   //-->
   </script>
   
-  <script language="JavaScript1.2">
+  <script type="text/javascript" language="JavaScript1.2">
   <!--
   function refresh()
   {

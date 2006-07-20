@@ -1,10 +1,9 @@
 <?php
 if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
 ?>  
-  <hr />
   
   <!--Submission form-->
-  <div>
+  <div id="box">
     <form method="post" enctype="multipart/form-data" action="submit-file.php">
     <h3>Submit a solution</h3>
 
@@ -29,7 +28,7 @@ if (array_key_exists("id", $_GET) && array_key_exists($_GET["id"], $people)) {
         }
     ?>
     </select><br />
-    <label>Source file:</label><input type="file" name="program" onFocus="clickedBrowse()" onClick="clickedBrowse()" /><br />
+    <label>Source file:</label><input type="file" name="program" onfocus="clickedBrowse()" onclick="clickedBrowse()" /><br />
     <div id="refreshStatus"></div>
     <input type="hidden" name="MAX_FILE_SIZE" value="102400" />
     <input type="submit" value="Submit" />
