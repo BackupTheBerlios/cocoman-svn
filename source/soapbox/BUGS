@@ -1,0 +1,66 @@
+Soapbox BUGS
+
+ + read() and write() not implemented yet.
+    - /dev/null access is a work-around, for now
+
+ + mknod() prints empty payload
+ + utime() prints NULL as payload (Should create a smart function to create string)
+   'Smart' function now shows dates, but either mtime or atime is wrong ??
+
+ + rewrite() has a problem with non-existing paths with multiple levels.
+
+ + fopen() should work like open() or creat() (and mode should be evaluated!)
+
+ + Following functions are not implemented yet.
+
+	//static int (*_real_fchmod)    (int, mode_t);
+	//static int (*_real_fchown)    (int, uid_t, gid_t);
+	//static FILE (*_real_fopen)    (const char *, const char *);
+	//static FILE (*_real_fdopen)   (int, const char *);
+	//static FILE (*_real_freopen)  (const char *, const char *, FILE *);
+
+   There are 2 ways to implement these:
+     + read out /proc/self/fd/<fd> and resolving link
+     + keep an internal array of fd's when they're opened (and update when freopen ?)
+
+   I would like to implement the second option.
+
+ + If a (hard)link is already present inside one of the allowed paths,
+   a program can write to an outside file (unfixable unless we don't
+   allow to write files that has a linkcount of >1 ?)
+
+ + A problem with install causes stupid messages to appear:
+   (install program should be fixed ? reported upstream)
+
+	soapbox: Attempt to mkdir("/var", 0755).
+	soapbox: Attempt to mkdir("/var", 0755).
+	...
+
+   This is due to the fact that the actual libc call does more than the system call.
+   So install expects a lot from the libc call and don't care about useless
+   (or already executed) libc calls. If we use ptrace(), this won't bother us any longer.
+
+ + If you're using soapbox for building packages, beware that prior to rpm 4.1 ldd was used
+   to find requires of binaries/libraries. Due to the fact that ldd will also report the
+   preloaded libraries, soapbox will be required for each package that is build using rpm < 4.1
+   and soapbox. Newer rpm versions use objdump to find requires. You can work around this problem
+   by fixing the macros.
+
+
+Problems that are not investigated yet
+
+ + Building kernel-packages fails for some operations (not necessarily due to permissions)
+
+
+Application bugs that soapbox triggers
+
+ + Building screem with soapbox triggers a bug somewhere. (reported upstream)
+
+	scrollkeeper-update -p /var/tmp/root-screem-0.7.0/var/scrollkeeper -o /var/tmp/root-screem-0.7.0/usr/share/omf/screem
+	Could not create directory /var/tmp/root-screem-0.7.0/var/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/dev:/de.....:/dev:/dev:/dev: : File name too long
+	make[5]: *** [install-data-hook-omf] Segmentation fault
+
+    This is a bug in scrollkeeper-update where return codes are not properly checked
+    It segfaults, if you do:
+
+		rm -rf /var/scrollkeeper; soapbox scrollkeeper -d /var/scrollkeeper

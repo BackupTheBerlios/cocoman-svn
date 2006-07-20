@@ -1,0 +1,36 @@
+Placeholder
+
+HOW DOES IT WORK
+
+See the homepage for some more information:
+
+	http://dag.wieers.com/home-made/soapbox/
+
+
+EXAMPLES
+
+	I made some examples to demonstrate the use, you can (safely) run this:
+
+		### Run successful
+		make SOAPBOXPATH="/var/tmp" test
+
+		### Halt on the first attempt
+		make SOAPBOXACTION="halt" test
+
+		### Return error, and notify user
+		make SOAPBOXACTION="err" test
+
+		### Return warning, fake succesful run and notify user
+		make SOAPBOXACTION="warn" test
+
+
+ENVIRONMENT VARIABLES
+
+	LD_PRELOAD
+
+	SOAPBOXPATH
+	SOAPBOXLOG
+	SOAPBOXACTION
+	SOAPBOXDEBUG
+
+//	SOAPBOXCONF

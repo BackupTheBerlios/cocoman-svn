@@ -1,0 +1,18 @@
+Soapbox TODO items
+
+
+ + Soapbox could check for SOAPBOXACTION
+    - if it contains "redir=/new/path", redirect writes/changes to /new/path
+    - probably something for a new project that extends soapbox (the way we know it)
+
+
+ + A manpage
+
+
+ + Use ptrace to actually trap system calls, check if they may be executed,
+   and log the action (if not allowed).
+
+   treesbox is the test implementation, that is no longer required to be a library.
+
+
+Also see BUGS ;-)

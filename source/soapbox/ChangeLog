@@ -1,0 +1,108 @@
+v0.3.1
+ - Release shipped the actual binaries (Denis Morel)
+
+v0.3.0
+ - Improved dirname() to be string-safe
+ - Added str_cut(), to copy and cut a string before referencing
+ - Replaced str_cut() by strndup()
+ - Implemented __xmknod() libc function (used by mknod command)
+ - Implemented utimes() libc function (exported but never encountered)
+ - Added sb_log for debugging and log purposes
+ - Don't unsetenv() environment variables (daisy-chaining soapboxes should be possible)
+ - Makefile now contains version info and converts soapbox.sh and soapbox.spec
+ - Make soapbox.sh display version
+ - Implemented lchown() libc function
+ - Implemented remove() libc function
+ - Fixed static vars and functions (Koblinger Egmont)
+
+v0.2.1
+ - Make open() and open64() print out correct flags when O_CREAT is disabled
+ - Another audit of the code by Peter Leurs and some suggestions (ie. use snprintf)
+ - When allocating strings, tail it with a \0 for that feeling of safety
+ - Global variables are now defined static
+ - Improved sb_die so it handles multiple arguments, eg. sb_die(stderr, "%s: %s", fn, err)
+ - Added some checks for return codes
+
+v0.2.0
+ - Created sb_die so code is cleaner
+ - Moved the glibc function-definitions to top of code (ouside each function)
+ - Moved the dlsym-calls to _init() (outside each function)
+ - Fixed a possible segfault in the action-handling
+   (we were using a 'known' symbolname 'err', now using enum)
+ - Make it build on older gcc (< 3.0) versions
+
+v0.1.2
+ - Yet another fix to rewrite() for R_LINK
+ - A fix for non-existing files
+ - Display permissions with file-type info
+ - Added more debugging output (real invocations are printed too)
+ - I might have to rethink the debugging priority,
+   because now it defaults rapidly to too much info
+
+v0.1.1
+ - Fixed a leftover free() in rewrite()
+ - Cleaned up 'Symbols not found error'
+ - Fixed chmod() still using rpath
+ - open() and open64() now removing the O_CREAT from flags when opening O_RDONLY
+
+v0.1.0
+ - Added -- option to force start of command
+ - More fixes to rename() and rmdir() wrt symlinks
+ - Changed order of rewrite() and debug in each overloaded function
+ - Implemented mkfifo() libc function
+ - Audit of the code by Christophe Devriese
+ - Christophe Devriese found some possible buffer overflows
+ - Christophe Devriese fixed a bug in has_access()
+
+v0.0.12
+ - Implemented creat() and creat64() libc functions
+ - Fixed remaining problems with argument list of open() and open64()
+ - Added str_flags() for conversion van open() flags to strings
+ - Added '|' delimiter for open() flags
+ - Cleaned up rewrite() function and added debug8 information about filetypes
+ - Added -c option to soapbox script, to add current working directory
+ - Changed debugging priority a bit (could be changed in the future once more)
+    -d 8 will print file-type info
+    -d 16 will print general debug info
+ - Made -d option bitwise (from 0 until 31)
+
+v0.0.11
+ - Debug output clean-ups (file permissions or %04o now)
+ - Spaces between arguments in debug-output
+ - SOAPBOXPATH fixes in soapbox script (cannot be polluted)
+ - Let soapbox script detect when no command argument is given
+ - Added symlink-detection and dirname() to rewrite()
+ - Fixed unlink() and symlink() for symbolic links
+
+v0.0.10
+ - Fixed the access to /dev/null as O_RDRW instead of O_RDONLY
+ - Made -d option bitwise (from 0 until 15)
+ - Added -s option to soapbox script, to add a bunch of 'safe' paths
+ - Added ',' and ';' as a path delimiter
+ - Fixed a fprintf that should have been strcat in debug-output for open()
+
+v0.0.9
+ - Uncommented a commented fprintf debug message for mkdir()
+ - Added SOAPBOXDEBUG for runtime debugging
+ - Removed -DDEBUG option
+ - Added '-d' switch for the soapbox script
+    -d 1 will print command + args
+    -d 2 will print libc functions
+    -d 4 will print internal functions
+    -d 8 will print general debug info
+ - Numbered the different debug-messages
+
+v0.0.8
+ - Added SOAPBOXLOG for logging to an external file instead of stderr.
+ - Action halt now really halts the process successfully.
+ - Cleaned up the test-suite (make test)
+ - Added shellscript and configfile for easy testing
+
+v0.0.7
+ - Reimplemented rewrite()
+ - Rewrite path happens in the overloaded libc function and keep original
+ - Rewrite path as a seperate function rewrite()
+
+v0.0.6
+ - Added debugging flag, use -DDEBUG
+ - Implemented overloading using dlopen() and dlsym()
