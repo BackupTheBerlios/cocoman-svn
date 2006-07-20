@@ -16,6 +16,11 @@
 
 
 
+int status = 0;
+
+
+
+
 volatile char inputFileName[1025] = {0};
 
 char * stdoutLog;
@@ -99,19 +104,19 @@ void spawnChild(const char * filename, int index)
       if (pipe(fd1) < 0)
       {
         printf("Error: pipe() failed\n");
-        exit(8);
+        exit(255);
       }
 
       if (pipe(fd2) < 0)
       {
         printf("Error: pipe() failed\n");
-        exit(9);
+        exit(255);
       }
 
       if (pipe(p2c) < 0)
       {
         printf("Error: pipe() failed\n");
-        exit(10);
+        exit(255);
       }
       
 
@@ -122,7 +127,7 @@ void spawnChild(const char * filename, int index)
       if (pid < 0)
       {
         printf ("Error: Could not fork.\n");
-        exit(11);
+        exit(255);
       }
       else if (pid > 0)
       {
@@ -207,7 +212,7 @@ void spawnChild(const char * filename, int index)
           printf ("Error: Could not overlay %s\n", filename);
         }
 
-        exit(12);
+        exit(255);
       }	
 }
 
@@ -276,7 +281,7 @@ void sigchld_handler (int signo)
     else
     {
       printf("Error: Could not find child in table\n");
-      exit(12);
+      exit(255);
     }
   }
 }
@@ -478,12 +483,12 @@ int main (int argc, char ** argv)
   if (stat(execname,&tmpstat) != 0)
   {
     printf("Specified executable file does not exist\n");
-    exit(3);
+    exit(255);
   }
   if (stat((char*)inputFileName,&tmpstat) != 0)
   {
     printf("Input file does not exist\n");
-    exit(3);
+    exit(255);
   }
 
 
@@ -544,7 +549,7 @@ int main (int argc, char ** argv)
     if (pollRetryOnSignal(fds,numfds,polltimems) < 0)
     {
       printf("poll() failed\n");
-      exit(7);
+      exit(255);
     }
 
     //Set poll time to the standard value
@@ -663,7 +668,7 @@ int main (int argc, char ** argv)
 
                 childIsAlive = 0;
 
-                exit(1);              
+                exit(3);              
               }
             }
 
@@ -725,6 +730,13 @@ int main (int argc, char ** argv)
   //Close both ends of the self pipe
   close(selfpipe[0]);
   close(selfpipe[1]);
+
+
+
+
+  //Check for abnormal termination
+
+
 
 
 

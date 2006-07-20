@@ -18,15 +18,17 @@ while [ true ]; do
         let "ID=$RANDOM % $MOD"
     done
 
+    if (! test -f ${USER_FILE}); then
+	echo $ID
+	break
+    fi
+    
     #Check if the ID is in use.
     grep $ID $USER_FILE
 
-    if (! test -f ${USER_FILE}); then
-	break	
-    fi
+	if [ $? == 1 ]; then
+	    echo $ID
+	    break 
+	fi
 
-    if [ $? == 1 ]; then
-        echo $ID
-        break 
-    fi
 done
