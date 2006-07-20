@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Generates a user ID that is Between MOD and LOWER
-# The ID must not already be in handles.
+# The ID must not already be in users.txt.
 ID=$RANDOM
 ID=0
 MOD=10000 # Change to reflect the number of digits you want.
@@ -13,7 +13,7 @@ while [ true ]; do
     done
 
     #Check if the ID is in use.
-    grep $ID handles
+    grep $ID users.txt
 
     if [ $? == 1 ]; then
         echo $ID
