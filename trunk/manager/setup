@@ -59,23 +59,26 @@ fi
 if [ ! -e manager/mydiff ]; then
 	g++ "source/mydiff.cpp" -o "manager/mydiff"
 fi
-echo ""
-
 # Install soapbox into manager/soapbox and modify
 # soapbox executable to know where the library 
 # is kept.
-if [ ! -e manager/soapbox/bin/soapbox ]; then
-        CWD=`pwd`
-        SOAPBOXPATH="${CWD}/manager/soapbox/lib"
-        SEDLINE="s_/lib/_${SOAPBOXPATH}/_"
-        echo $SEDLINE
-        pushd "source/soapbox" > /dev/null
-        make clean
-        make
-        sed -i ${SEDLINE} soapbox.sh
-        make DESTDIR=${CWD}/manager/soapbox bindir=/bin install
-        popd > /dev/null
+if [ ! -f manager/soapbox/bin/soapbox ]; then
+	CWD=`pwd`
+	SOAPBOXPATH="${CWD}/manager/soapbox/lib"
+	SEDLINE="s_/lib/_${SOAPBOXPATH}/_"
+	echo $SEDLINE
+	pushd "source/soapbox" > /dev/null
+	make clean
+	make
+	sed -i ${SEDLINE} soapbox.sh
+	make DESTDIR=${CWD}/manager/soapbox bindir=/bin install
+	popd > /dev/null
 fi
+if [ ! -f manager/soapbox/bin/soapbox ]; then
+	echo "Couldn't install soapbox. Exiting."
+	exit 7
+fi
+echo ""
 
 echo "Setting permissions..."
 chmod -R g-r-w-x *
