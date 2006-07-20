@@ -293,7 +293,6 @@ process_submissions() {
     DIR="${ROOT}/temp_web"
     pushd ${DIR} > /dev/null
     for s in $(ls | grep submission); do
-	echo $s
 	ID=`echo "${s}" | awk -F '-' '{print $2}'`
 	TIME=`echo "${s}" | awk -F '-' '{print $3}'`
 	PNUM=`echo "${s}" | awk -F '-' '{print $4}' | sed 's/[^0-9]*//g'`
@@ -325,7 +324,6 @@ process_submissions() {
 	fi
 
 	if (( VALID )); then
-		echo "Allowed Submission"
 		# TODO make sure destination file doesn't exist
 		cat "${s}" > "${ROOT}/submissions/${PBLM}/${FILE}"
 		rm -f "${s}"
