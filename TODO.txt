@@ -7,7 +7,7 @@ To Do
 * Rewrite the css and make the UI more friendly for use.
 * Implement C# support php script side and test it out manager side.
 * Test that programs are properly soapboxed (needs alot of testing)
-* Restructure directories- add tempsubmit and scripts to move stuff out of there. php creates files there with 32 character names. other stuff on paper. change permissions...
+* Restructure directories- add tempsubmit and scripts to move stuff out of there. php creates files there with 32 character names. other stuff on paper. change permissions... // With permissions, it turns out the setuid bit on directories makes it so that files created inside that dir are automatically owned by that user.group. In conjuction with umask, you can have it so that the php script will automatically upload files of mask 700 to that dir and have the submit dir be 733 or something.
 * Have submit script write line in queue file instead of web server.
 * Create test suite for contest manager
 
