@@ -190,7 +190,7 @@ array_multisort($problems_solved, $total_times, $ranked_user_ids);
 
 <!-- <body> -->
   <h1>ACM Coding Contest Scoreboard</h1>
-  <table id="scoreboard">
+  <table id="scoreboard" cellspacing="0" border="1">
     <tr align="center">
     <thead>
       <th rowspan="2">Name</th>
