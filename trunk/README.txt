@@ -1,3 +1,5 @@
+CoCoMan is written by Natan Zohar <nnzohar@acm.org> and Daniel Benamy <dbenamy@optonline.net> and is released under the GPLv2.
+
 Installation
 ------------
 These instructions make some assumptions about how the system is to be set up. The user that our build system is running as is builduser. The user the web server that's serving the interface is running as, is webuser. The web server is also used by untrusted users so the build system needs to be running as a seperate user and there needs to be careful communication between the two. If your set up is different, these directions might not exactly apply to you.
