@@ -33,7 +33,7 @@ function process_one() {
 		return
 	fi
 	# Make sure it's unique
-	cat ${ROOT}/manager/conf/users.txt | awk -F ':' '{print $2}' | grep "${name}"
+	cat "${ROOT}/manager/conf/users.txt" | awk -F ':' '{print $2}' | grep "${name}"
 	if [ "$?" -eq "0" ]
 	then
 		status=4

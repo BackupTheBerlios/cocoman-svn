@@ -80,8 +80,8 @@ if [ ! -f manager/soapbox/bin/soapbox ]; then
 	pushd "source/soapbox" > /dev/null
 	make clean
 	make
-	sed -i ${SEDLINE} soapbox.sh
-	make DESTDIR=${CWD}/manager/soapbox bindir=/bin install
+	sed -i "${SEDLINE}" soapbox.sh
+	make DESTDIR="${CWD}/manager/soapbox" bindir=/bin install
 	popd > /dev/null
 fi
 if [ ! -f manager/soapbox/bin/soapbox ]; then

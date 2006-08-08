@@ -29,9 +29,9 @@ $(SPEC):
 	cat $(SPEC).in | sed -e 's|@@VERSION@@|$(VERSION)|' > $(SPEC)
 
 install: all
-	install -d -m0755 $(DESTDIR)$(libdir) $(DESTDIR)$(bindir)
-	install -m0755 $(LIB) $(DESTDIR)$(libdir)
-	install -m0755 $(BIN) $(DESTDIR)$(bindir)/soapbox
+	install -d -m0755 "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
+	install -m0755 "$(LIB)" "$(DESTDIR)$(libdir)"
+	install -m0755 "$(BIN)" "$(DESTDIR)$(bindir)/soapbox"
 
 clean:
 	rm -f $(LIB) $(BIN) $(SPEC)

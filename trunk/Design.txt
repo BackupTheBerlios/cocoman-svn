@@ -10,5 +10,19 @@ Web script puts a file in temp_web with a name "submission-<user id>-<time>-Prob
 -chown <build user>:<build user>
 -chmod 400
 -mv to submissions directory and strip out the "-<random chars>"
-It then continues as before... TODO
+-Put an entry for the file in queue
+Then for each entry in the queue:
+* Deletes manager/testing/.
+* Copies the file (*?) into testing/build/.
+* Copies the appropriate test cases into testing/cases.
+* Builds the program logging the process to log/compiles/<filename (without extension?)>.log.
+* Run the test cases on the resulting program using the appropriate security mechanism.
+* Writes to logs/log (and ouputs) a line "time,id,name,problem #,status,message" where status and message are one of:
+  0:  <Test case basename>- Success
+  2:  <Test case basename>- Ouput not as expected
+  4:  <Test case basename>- Program crashed
+  3:  <Test case basename>- Program timed out
+  15: <Test case basename>- Unknown error
+-Once all the entries in the queue have been processed, they are moved to finished and queue is deleted.
 
+The manager script also copies anything from temp_web/manager.log into logs/manager.log and removes the temp one.
