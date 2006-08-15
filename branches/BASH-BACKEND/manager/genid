@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Generates a user ID that is Between MOD and LOWER
+# The ID must not already be in users.txt.
+ID=$RANDOM
+ID=0
+MOD=10000 # Change to reflect the number of digits you want.
+LOWER=1000
+
+if [ $# == 1 ]; then
+    USER_FILE=$1
+else
+    USER_FILE=conf/users.txt
+fi
+
+while [ true ]; do
+    #Generate our ID.
+    while [ "$ID" -le $LOWER ]; do
+        let "ID=$RANDOM % $MOD"
+    done
+
+    if (! test -f ${USER_FILE}); then
+	echo $ID
+	break
+    fi
+    
+    #Check if the ID is in use.
+    grep $ID $USER_FILE
+
+	if [ $? == 1 ]; then
+	    echo $ID
+	    break 
+	fi
+
+done

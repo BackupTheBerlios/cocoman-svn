@@ -1,0 +1,413 @@
+#!/usr/bin/env bash
+# Script for managing submissions from the web frontend.
+# Must be run from within manager/ at the moment. 
+# Natan Zohar
+
+# All variables are now read out of the conf/contest.ini
+# So we no longer need to source contest.conf
+#. conf/contest.conf
+
+#TODO: Declare all variables that are local at top of function.
+
+# Bash script to run a command and find it's return code
+# and if it timed out. Additionally, it uses soapbox if it is around
+# to make sure programs aren't messing about with security.
+bashexec() {
+        local RET COMMAND ERROUT PID KPID SOAPBOXPATH SOAPLOG
+
+	#Return Codes:
+	SUCCESS=0
+	CRASHED=1
+	TIMEDOUT=2
+	SOAPED=3
+
+	# Log for soapbox (off the NFS mount)
+	SOAPLOG="/tmp/soapbox.log"
+	rm -f $SOAPLOG
+
+	# Check if soapbox exists.
+        SOAPBOXPATH="${ROOT}/manager/soapbox/"
+	export SOAPBOXLIBPATH="${SOAPBOXPATH}/lib/libsoapbox.so"
+	if [[ -x "${SOAPBOXPATH}/bin/soapbox" && -e "${SOAPBOXLIBPATH}" ]]; then
+		SOAPBOX="${SOAPBOXPATH}/bin/soapbox -s -f -l ${SOAPLOG} ${SOAPBOXARGS}"
+	else 
+		SOAPBOX="" 
+	fi
+	
+	if [[ $TYPE == $JAVA ]]; then
+		SOAPBOX=""
+	fi
+
+	echo "$TYPE $JAVA $SOAPBOX" > output.test
+	
+	COMMAND="$SOAPBOX $*"
+	ERROUT=output.err
+
+	# Run the command
+	${COMMAND} 2> ${ERROUT}&
+	PID=$!
+
+        # Start the timeout timer (TIMEOUT is defined at top of file).
+	sleep $TIMEOUT && kill $PID 2> /dev/null&
+        KPID=$!
+	# Wait for the process to end or be killed.
+	wait $PID 2> /dev/null
+	RET=$?
+        # kill the backgrounded process if it isn't already dead
+        # because it is stopping us from returning.
+        kill $KPID 2> /dev/null
+
+	#Check security on the program (perhaps it wasn't soapboxed properly)
+	if ( test -s ${SOAPLOG} ); then
+		return $SOAPED
+	fi
+	# Output the return value into output.ret (for debugging purposes)
+	echo ${RET} >> output.ret
+	#Check for errors:
+	case $RET in 
+		0)  # Successfully returned.
+		return $SUCCESS;;
+
+		1) # Java exception
+		if ( test -s ${ERROUT} ); then
+		    return $CRASHED;
+		fi
+		;;
+
+		127) # Execution finished really early (wait returned 127)
+		return $SUCCESS;;
+
+		139) # Crashed (Segfault) 
+		return $CRASHED;;
+
+		143) # Received a kill signal.
+		return $TIMEDOUT;;
+
+		*) # Default
+		return $SUCCESS;;
+
+	esac
+}
+
+# build the submitted file, (takes file.ext as an argument)
+build() {
+	# test existence of file we are building.
+	if (! test -f $1); then
+		return 
+	fi
+        local BFILE GCPP GCC JAVAC MCS CPPFLAGS CFLAGS CSFLAGS CLOG
+        BFILE=$1
+	# Declare our compilers
+	GCPP="g++"
+	GCC="gcc"
+	JAVAC="javac"
+	MCS="mcs"
+	CPPFLAGS=
+	CFLAGS=
+	CSFLAGS=
+
+	# Find out the file's type and set compile line.
+        case ${TYPE} in
+            $JAVA)
+                COMPILE="${JAVAC} ${BFILE}" ;;
+            $C)
+                COMPILE="${GCC} ${CFLAGS} ${BFILE} -o a.out" ;;
+            $CPP)
+                COMPILE="${GCPP} ${CPPFLAGS} ${BFILE} -o a.out" ;;
+            $CS)
+                COMPILE="${MCS} ${CSFLAGS} ${BFILE} -out:a.out" ;;
+            *)
+                break ;;
+        esac
+
+	echo "${COMPILE}"
+	CLOG=`${COMPILE} 2>&1`
+	RET=$?
+	echo "${CLOG}"
+	return $RET
+}
+
+# Clean up the whole contest directory, i.e. move old files out into a new one.
+clean() {
+	DATE=`date +%F`
+	# Create a directory for all the information from this contest.
+	mkdir "${ROOT_DIR}/old/${DATE}" -p
+	cd "${ROOT_DIR}/old/${DATE}"
+	mkdir manager manager/logs submissions problems
+	if [ $# == 0 ]; then
+		return
+	fi
+}
+
+
+# build and compare the problem to the test cases.
+compare() {
+        local FILE PROB BASE ID NAME TIME VERIFY INFILE OUTFILE LOG STATUS MESSAGE OUTPUT
+	FILE=$1
+        PROB=`dirname $1`
+        findext ${FILE}
+	BASE=`basename ${FILE}`
+	while read LINE
+	do
+		ID=`echo ${LINE} | awk -F ':' '{print $1}'`
+		NAME=`echo ${LINE} | awk -F ':' '{print $2}'`
+		echo "s/${ID}/${NAME}/g"
+	done < ${ROOT}/manager/conf/users.txt > user_translation.tmp
+	ID=`echo ${BASE} | awk -F '-' '{print $1}'`
+	NAME=`echo ${BASE} | awk -F '-' '{print $1}' | sed -f user_translation.tmp`
+	rm user_translation.tmp -f
+	TIME=`echo ${BASE} | awk -F '-' '{print $2}'`
+	TIME=`basename ${TIME} .c`
+	TIME=`basename ${TIME} .cpp`
+	TIME=`basename ${TIME} .java`
+	TIME=`basename ${TIME} .cs`
+	#TODO: Check if a verifier exists in the problem directory and 
+	# choose which one to use based on existence.
+	VERIFY="${ROOT}/manager/mydiff"
+
+	OUTFILE=output.txt
+
+	LOG="${ROOT}/logs/compiles/${BASE}.log"
+	TESTING="${ROOT}/manager/testing"
+
+	rm ${TESTING} -rf
+	mkdir ${TESTING}/cases -p
+	mkdir ${TESTING}/build/mono -p
+	cp ${FILE}* ${TESTING}/build
+	cp ${ROOT}/problems/${PROB}/*output ${TESTING}/cases
+	cp ${ROOT}/problems/${PROB}/*input ${TESTING}/cases
+	cd ${TESTING}/build
+
+        case ${TYPE} in
+            $JAVA)
+                mv ${BASE} ${PROB}.java
+#                touch blankpolicyfile
+#                ARGS="-Djava.security.manager -Djava.security.policy=blankpolicyfile"
+		JAVARUN="-jar ${ROOT}/manager/javarun/JavaRun.jar"
+                EXEC="bashexec java ${ARGS} ${JAVARUN}"
+                SOAPBOXARGS="-r ${JAVABIN}"
+                BASE=${PROB}.java
+                ;;
+            $CS)
+                export MONO_SHARED_DIR=`pwd`/mono
+                EXEC="bashexec mono a.out"
+                SOAPBOXARGS="-p ${MONO_SHARED_DIR}"
+                ;;
+            *) 
+                EXEC="bashexec ./a.out"
+                SOAPBOXARGS=""
+                ;;
+        esac
+
+        # Build the file and send the output to the compile log.
+        build ${BASE} > ${LOG} 
+
+	if [ $? != 0 ]; then
+		echo "${TIME},${ID},${NAME},${PROB},1,${LOG},Error Compiling"
+		return 1	
+	fi
+
+
+	# Run test cases on the submission
+	STATUS=0
+	MESSAGE=Success
+	for INPUT in ../cases/*.input; do
+		OUTPUT=`basename ${INPUT} .input`.output
+		OUTPUT="../cases/$OUTPUT"
+                INFILE=`basename ${INPUT}`
+		${EXEC} < ${INPUT} > ${OUTFILE}
+		RET=$?
+		if [ $RET == 1 ]; then
+			STATUS=4
+			MESSAGE="${INFILE}-Program crashed"
+			break
+		fi
+		if [ $RET == 2 ]; then
+			STATUS=3
+			MESSAGE="${INFILE}-Program timed out"
+			break
+		fi 
+		if [ $RET != 0 ]; then
+			STATUS=15
+			MESSAGE="${INFILE}-Unknown Error"
+			break
+		fi
+		${VERIFY} ${OUTFILE} ${OUTPUT} > /dev/null
+		RET=$?
+		if [ $RET != 0 ]; then
+			STATUS=2
+			MESSAGE="${INFILE}-Output is not as expected"
+			break
+		fi
+	done
+	echo "${TIME},${ID},${NAME},${PROB},${STATUS},${MESSAGE}"
+}
+
+# Empty our queue of received submissions and run compare on each one.
+empty_queue() {
+        local QUEUE
+	QUEUE=`cat queue 2>/dev/null`
+	if [ $? != 0 ]; then
+		return 
+	fi
+	for item in $QUEUE; do
+		echo "Looking at $item"
+		OUTPUT=`compare $item`
+		echo $OUTPUT >> ${ROOT}/logs/log
+		echo $OUTPUT
+	done
+
+	# Move the contents of the queue to the finished pile.
+	cat queue >> finished 
+	rm queue -f
+}
+
+# Find the ext of passed in argument and set TYPE 
+# to either JAVA, C, CPP or CS (Also set these types
+# as integers, for later use.
+findext() {
+    local BASE
+    C=0 # c
+    CPP=1 # c++
+    CS=2 # c#
+    JAVA=3 # java
+    UNKNOWN=15
+    BASE=`basename $*`
+    
+    if [ `basename ${BASE} .java` != ${BASE} ]; then
+        TYPE=${JAVA}
+    elif [ `basename ${BASE} .cs` != ${BASE} ]; then
+        TYPE=${CS}
+    elif [ `basename ${BASE} .cpp` != ${BASE} ]; then
+        TYPE=${CPP}
+    elif [ `basename ${BASE} .c` != ${BASE} ]; then
+        TYPE=${C}
+    else
+        TYPE=${UNKNOWN} 
+    fi
+}
+
+# Sit and wait for the queue to get populated.
+poll() {
+	DIR="${ROOT}/submissions/"
+	cd ${DIR}
+	rm ${STOP_FILE} -f
+	if [[ $1 == "stop" ]]; then
+		touch $STOP_FILE
+		return 
+	fi
+	echo "Starting the poll"
+	while (sleep $INTERVAL); do
+		if (test -f ${STOP_FILE}); then
+			echo "Stopping the poll program from request."
+			break;
+		fi
+		process_log
+		process_submissions
+		empty_queue
+	done
+}
+
+# Copy temp_web/manager.log into logs/manager.log
+process_log() {
+    if ( test -s ${ROOT}/temp_web/manager.log ); then
+    	#echo "Copying manager.log over"
+        mv -f "${ROOT}/temp_web/manager.log" "${ROOT}/logs/temp_web.log"
+	cat "${ROOT}/logs/temp_web.log" >> "${ROOT}/logs/manager.log"
+    fi
+}
+
+# empties temp_web of files that were submitted in the format
+# submission-<user id>-<time>-Problem<Num>-randomchars.ext
+# and places them in the queue, as well in their respective 
+# directories in submissions/
+
+process_submissions() {
+    local GROUP USER ID TIME PNUM EXT FILE PBLM CMD LINE DIR
+    GROUP=`id -ng`
+    USER=`id -nu`
+    DIR="${ROOT}/temp_web"
+    pushd ${DIR} > /dev/null
+    for s in $(ls | grep submission); do
+	ID=`echo "${s}" | awk -F '-' '{print $2}'`
+	TIME=`echo "${s}" | awk -F '-' '{print $3}'`
+	PNUM=`echo "${s}" | awk -F '-' '{print $4}' | sed 's/[^0-9]*//g'`
+	EXT=`echo "${s}" | awk -F '.' '{print $NF}'`
+	FILE="${ID}-${TIME}.${EXT}"
+	PBLM="Problem${PNUM}"
+	LINE="${PBLM}/${FILE}"
+	VALID=0
+
+	# Is the ext in the valid list.
+	for ext in ${ALLOWED_EXT[*]}; do
+		if [[ $EXT == $ext ]]; then
+			VALID=1
+			break;
+		fi
+	done
+
+	#TODO: Check possible time
+	
+	# Is the user id only a set of digits
+	if ( echo $ID | grep [^0-9] > /dev/null ); then
+		echo "Invalid User ID"
+		VALID=0
+	fi
+
+	# If the problem number is valid
+	if !(( $PNUM > 0 && $PNUM <= $NUM_PROBLEMS )); then
+		VALID=0
+	fi
+
+	if (( VALID )); then
+		# TODO make sure destination file doesn't exist
+		cat "${s}" > "${ROOT}/submissions/${PBLM}/${FILE}"
+		rm -f "${s}"
+		chmod 400 "${ROOT}/submissions/${PBLM}/${FILE}"
+		echo "$LINE" >> ${ROOT}/submissions/queue
+	else
+		echo "Invalid File ${s}" >> ${ROOT}/logs/manager.log
+	fi
+	
+    done
+    popd  > /dev/null
+}
+
+CONF_FILE=conf/contest.ini
+# Reads the variable out of CONF_FILE and evaluates it.
+
+readvar() {
+	local NAME 
+	NAME=$1
+	VAR=`echo "$1" | tr [A-Z] [a-z]`
+	VAR=`./parse_ini $CONF_FILE s=global k=$VAR`
+	eval ${NAME}="$VAR"
+}
+
+# Read the contents of CONF_FILE (which is in the .ini format)
+# and retrieve the variables named in  [global] and places them inside
+# the variable with the same name in bash.
+
+# Example:
+# Reads ROOT out of contest.ini and then sets $ROOT to be
+# what is set in contest.ini
+
+readconf() {
+# Reads all the options available in CONF_FILE's global section
+# and then sets us up to use them. (They are available as uppercase
+# variables.
+	local OPT VAR
+	for option in `./parse_ini $CONF_FILE o=global`; do
+		OPT="`echo $option | tr [:lower:] [:upper:]`"
+			readvar $OPT;
+	export "${OPT}"="${!OPT}"
+		done
+}
+
+# Read in our global variables from conf/contest.ini
+# Call our poll function with all passed arguments.
+# TODO: later on, fix this, so different arguments can be passed.
+
+#TODO: Create the problem directories, just in case.
+readconf
+poll $*

@@ -1,0 +1,26 @@
+* Remove the construction of the .make files from the php scripts. I think the shell scripts are better suited to be customized to a machine's setup or to try to figure out how to build stuff. // Done, check 'build' script inside manager/manager
+* Security - when running applications, executor now gives very little permissions to java files and soapbox will be responsible for watching c/cpp system calls. // implemented in executor.c by Drew.
+* More robust ids // implemented in genid in manager/ and setup for use.
+* Have submission system give the timestamp of the most recently processed submission.
+* Check for sane names
+* Countdown till start time
+* Don't allow submissions when contest isn't going on.
+* Moved logs directory into manager. Hopefully updated everything that referenced it.
+* Created config.inc which has a contest directory setting. Started changing php scripts so that all file accesses are relative to that setting. I think I got all the important ones.
+* Created a directory temp_web_log and changed the php logger script to write to a log in there. This is so the web server user doesn't need to be able to write to the manager directory.
+* Find safer way for submit-registration.php to be able to write to users file - have users file owned by apache account? - See DESIGN.txt
+* Restructure directories- add tempsubmit and scripts to move stuff out of there. php creates files there with 32 character names. other stuff on paper. change permissions... // With permissions, it turns out the setuid bit on directories makes it so that files created inside that dir are automatically owned by that user.group. In conjuction with umask, you can have it so that the php script will automatically upload files of mask 700 to that dir and have the submit dir be 733 or something.
+* Have submit script write line in queue file instead of web server.
+* Implemented a method of not refreshing file submission form while browse dialog is open. See TODO.txt for more details. (Dan)
+* Wrote setup script. (Dan)
+* Wrote installation instructions in README.txt (Dan)
+* Have submit-registration.php clean up registration_request if it times out.
+* Create test suite for contest manager
+* Fix the scoreboard's sort function, the test2/ scoreboard is not sorting participants properly.
+* Make it so manager.log in temp_web gets merged with manager.log 
+  inside manager/logs. 
+* Implement C# support php script side and test it out manager side.
+* Clean the configuration files, so they are used by both bash and php. (I
+  wrote a script to read ini style files in bash, so just need to finalize our
+  configuration)
+* Move NUM_PROBLEMS from scoreboard.php to config.inc

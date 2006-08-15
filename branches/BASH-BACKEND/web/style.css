@@ -1,0 +1,112 @@
+body {
+	background-color: #dadada;
+	// background-color: pink;
+
+}
+
+img {
+border: 0;
+}
+
+.sidebar {
+float: right;
+clear: both;
+}
+
+#main {
+/*	font-size: small;*/
+/*	//	background-color: #dadada; */
+/*	//	border: 2px solid black; */
+padding: 10px;
+}
+
+#content {
+/*	margin-right: 250px*/
+}
+
+#scoreboard {
+	font-size: smaller;
+	/*margin-top: 10px;*/
+	/*margin-right: 250px;*/
+	margin-bottom: 10px;
+	/*margin-left: 250px;*/
+}
+
+#scoreboard table {
+border: 1;
+padding: 0;
+width: 75%;
+       background-color: black;
+}
+
+#scoreboard thead td {
+	background-color: #467aa7;
+}
+
+#scoreboard thead th {
+	background-color: #467aa7;
+}
+
+#scoreboard thead {
+color:#ffffff;
+}
+
+#scoreboard tr.odd td {
+	background-color: #eee;
+}
+
+#scoreboard tr.even td {
+	background-color: #aabadd;
+}
+
+
+
+#box {
+width: 220px;
+border: 2px solid black;
+	background-color: #f5f5f5;
+padding: 10px;
+	 margin-bottom: 10px;
+}
+
+#result-box {
+border: 2px dashed red;
+width: 220px; 
+       background-color: #fff0f0;
+padding: 10px;
+	 margin-bottom: 10px;
+}
+
+#box-header {
+	border-bottom: 2px solid #dddddd;
+margin: 0px;
+}
+
+#result-box-header {
+	border-bottom: 2px solid red;
+margin: 0px;
+}
+
+#footer {
+clear: both
+}
+
+.overlay {
+border:solid 2px #666666;
+width:100%;
+padding:1px;
+position:absolute;
+visibility:hidden;
+top:0px;
+left:0px;
+background-color:#ffffff;
+layer-background-color:#ffffff;
+}
+
+.right {
+float: right;
+}
+
+.left {
+float: left;
+}

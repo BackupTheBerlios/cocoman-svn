@@ -1,0 +1,14 @@
+Inside here will be source code that will be used to test the capabilities of the submission system. 
+
+What we need:
+For each language, we need a piece of code that tries to:
+- execute a random command from the system
+- create, delete, move files around
+- fork or create new processes
+- use the internet/open sockets
+- runs and doesn't output anything
+- hangs idle
+- crashes or throw an exception
+
+And then we need to create a 'queue' file that contains all these 
+files and tells the poll'er to run it.
