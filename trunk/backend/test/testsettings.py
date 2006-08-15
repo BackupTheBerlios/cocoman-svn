@@ -23,7 +23,6 @@ class TestSettings(unittest.TestCase):
                       + " to use. Please remove it.")
         settings = Settings()
         settings.save('cocoman.conf')
-#        settings.save()
         assert(os.path.isfile('cocoman.conf') is True)
         os.rm('cocoman.conf')
 
@@ -31,7 +30,14 @@ class TestSettings(unittest.TestCase):
         """Tests that reading a non existant settings file will throw an exception"""
         settings = Settings()
         self.assertRaises(IOError, settings.load, "nonexistantfilethatwouldneverappear")
-        
+    
+    def testSingletonness(self):
+        s1 = Settings()
+        s1.set_root('aaaaa')
+        s2 = Settings()
+        self.assertEquals(s2.get_root(), 'aaaaa')
+
+
 def suite():
     # TODO
     pass
