@@ -3,21 +3,21 @@
 # Licensed under the GPLv2
 
 
+# TODO Figure out a better way to share these amongst instances
+_root = None
+_poll_interval = None
+_execution_timeout = None
+_java_binary = None
+_number_of_problems = None
+_allowed_languages = []
+_allowed_ips = []
+_initialized = True
+
 class Settings:
     """Use the singleton pattern - all users of the class must be referring to 
     the same instance.
     """
-    
     __initialized = False
-    def __init__(self):
-        self._root = None
-        self._poll_interval = None
-        self._execution_timeout = None
-        self._java_binary = None
-        self._number_of_problems = None
-        self._allowed_languages = []
-        self._allowed_ips = []
-        self._initialized = True
     
     def __setattr__(self, attr, value):
         if attr[0] == '_':
@@ -56,10 +56,12 @@ class Settings:
         pass
     
     def get_root(self):
-        return self._root 
+        global _root
+        return _root 
     
     def set_root(self, path):
-        self._root = path 
+        global _root
+        _root = path 
     
     def get_poll_interval(self):
         pass
