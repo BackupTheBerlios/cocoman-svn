@@ -1,2 +1,6 @@
 class Settings:
-    pass
+    def __init__(self, file_name):
+        pass
+    
+    def save(self):
+        pass
