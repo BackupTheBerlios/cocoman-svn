@@ -7,18 +7,50 @@ class Settings:
     """Use the singleton pattern - all users of the class must be referring to 
     the same instance.
     """
-
+    
+    __initialized = False
     def __init__(self):
         """Class constructor"""
         # these are just temporary variable names, taken from the function names
-        self.__root = None
-        self.__poll_interval = None
-        self.__execution_timeout = None
-        self.__java_binary = None
-        self.__number_of_problems = None
-        self.__allowed_languages = []
-        self.__allowed_ips = []
+        self._root = None
+        self._poll_interval = None
+        self._execution_timeout = None
+        self._java_binary = None
+        self._number_of_problems = None
+        self._allowed_languages = []
+        self._allowed_ips = []
+        self._initialized = True
 
+    def __setattr__(self, attr, value):
+        if attr[0] == '_':
+            # variable is private, so we try finding it in our dict.
+            self.__dict__[attr] = value
+            return
+
+        # try finding the corresponding set_ function for the variable.
+        try:
+            func = getattr(self, "set_%s" % (attr))
+        except AttributeError:
+            raise AttributeError("'Settings' object has no attribute '%s'" % (attr))
+
+        return func(value)
+
+    def __getattr__(self, attr):
+        if attr in self.__dict__:
+            return self.__dict__[attr]
+
+        # If we are trying to find a function that doesn't exist, we raise an exception
+        if attr.find('get_') == 0 or attr.find('set_') == 0:
+            raise AttributeError
+
+        # We try finding a corresponding function for the variable
+        try:
+            func = getattr(self, "get_%s" % (attr))
+        except:
+            raise AttributeError("'Settings' object has no attribute '%s'" % (attr))
+
+        return func()
+            
 
     def load(self, file_name):
         pass
@@ -27,10 +59,10 @@ class Settings:
         pass
 
     def get_root(self):
-        pass
+        return self._root 
 
     def set_root(self, path):
-        pass
+        self._root = path 
 
     def get_poll_interval(self):
         pass
@@ -84,3 +116,10 @@ class Settings:
 
     def set_number_of_problems(self, number_of_problems):
         pass
+
+if __name__ == "__main__":
+    s = Settings()
+    s.root = 'test'
+    print s.root
+#    s.test = 'blah'
+    s.g
