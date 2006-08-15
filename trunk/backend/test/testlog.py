@@ -9,38 +9,39 @@ from settings import Settings
 import log
 from log import debug1, log1, log_build, log_to_frontend
 import random
+import shutil
+
 
 class TestLog(unittest.TestCase):
     
     def setUp(self):
         self.settings = Settings()
         self.settings.root = relativePathToScript
+        self.log_dir = os.path.join(self.settings.root, 'log')
+        self.user_log_file = os.path.join(self.log_dir, 'cocoman.log')
+        shutil.rmtree(self.log_dir, True)
+        os.mkdir(self.log_dir)
     
+    def tearDown(self):
+        shutil.rmtree(self.log_dir, True)
+
     def testDebugOn(self):
         log.debug_on = True
-        log_dir = os.path.join(self.settings.root, 'log')
-        log_file_name = os.path.join(log_dir, 'cocoman.log')
-        try:
-            os.remove(log_file_name)
-        except:
-            pass
         debug1("testing debug 1")
-        log_file = file(log_file_name)
+        log_file = file(self.user_log_file)
         lines = log_file.readlines()
+        log_file.close()
         self.assertEqual(lines[-1].strip(), 'debug1: testing debug 1')
-        os.remove(log_file_name)
-        os.rmdir(log_dir)
-    
+        debug1("hello world")
+        log_file = file(self.user_log_file)
+        lines = log_file.readlines()
+        log_file.close()
+        self.assertEqual(lines[-1].strip(), 'debug1: hello world')
+   
     def testDebugOff(self):
         log.debug_on = False
-        log_file_name = os.path.join(self.settings.root, 'log')
-        log_file_name = os.path.join(log_file_name, 'cocoman.log')
-        try:
-            os.remove(log_file_name)
-        except:
-            pass
         debug1("testing debug 1")
-        self.assertRaises(IOError, open, log_file_name)
+        self.assertRaises(IOError, open, self.user_log_file)
 
 
 def suite():
