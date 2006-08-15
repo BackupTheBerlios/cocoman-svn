@@ -18,8 +18,8 @@ class TestLog(unittest.TestCase):
     
     def testDebugOn(self):
         log.debug_on = True
-        log_file_name = os.path.join(self.settings.root, 'log')
-        log_file_name = os.path.join(log_file_name, 'cocoman.log')
+        log_dir = os.path.join(self.settings.root, 'log')
+        log_file_name = os.path.join(log_dir, 'cocoman.log')
         try:
             os.remove(log_file_name)
         except:
@@ -29,6 +29,7 @@ class TestLog(unittest.TestCase):
         lines = log_file.readlines()
         self.assertEqual(lines[-1].strip(), 'debug1: testing debug 1')
         os.remove(log_file_name)
+        os.rmdir(log_dir)
     
     def testDebugOff(self):
         log.debug_on = False
