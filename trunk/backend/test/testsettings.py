@@ -22,6 +22,7 @@ class TestSettings(unittest.TestCase):
             self.fail("A file already exists with the same name the test was going"
                       + " to use. Please remove it.")
         settings = Settings('cocoman.conf')
+        settings.save()
         assert(os.path.isfile('cocoman.conf') is True)
         os.rm('cocoman.conf')
 
