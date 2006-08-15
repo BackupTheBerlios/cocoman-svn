@@ -15,8 +15,8 @@ class TestSettings(unittest.TestCase):
 ##        pass
     
     def testCreateSettingsFile(self):
-        """I'm not sure if this is really a good test because it tests an 
-        implementation detail and not the interface.
+        """Tests that instantiating and saving a Settings creates the settings 
+        file if it doesn't exist.
         """
         if os.path.isfile('cocoman.conf'):
             self.fail("A file already exists with the same name the test was going"
