@@ -33,9 +33,9 @@ class TestSettings(unittest.TestCase):
     
     def testSingletonness(self):
         s1 = Settings()
-        s1.set_root('aaaaa')
+        s1.root = 'aaaaa'
         s2 = Settings()
-        self.assertEquals(s2.get_root(), 'aaaaa')
+        self.assertEquals(s2.root, 'aaaaa')
 
 def suite():
     # TODO
