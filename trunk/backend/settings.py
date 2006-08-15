@@ -8,6 +8,18 @@ class Settings:
     the same instance.
     """
 
+    def __init__(self):
+        """Class constructor"""
+        # these are just temporary variable names, taken from the function names
+        self.__root = None
+        self.__poll_interval = None
+        self.__execution_timeout = None
+        self.__java_binary = None
+        self.__number_of_problems = None
+        self.__allowed_languages = []
+        self.__allowed_ips = []
+
+
     def load(self, file_name):
         pass
 

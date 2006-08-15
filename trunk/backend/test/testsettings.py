@@ -37,7 +37,6 @@ class TestSettings(unittest.TestCase):
         s2 = Settings()
         self.assertEquals(s2.get_root(), 'aaaaa')
 
-
 def suite():
     # TODO
     pass
