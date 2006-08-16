@@ -17,7 +17,7 @@ def log1(message):
     create_log_dir_if_missing()
     log_file_name = os.path.join(settings.root, 'log')
     log_file_name = os.path.join(log_file_name, 'cocoman.log')
-    log_file = file(log_file_name, "a")
+    log_file = open(log_file_name, "a")
     if debug_on:
         message = 'log1:   ' + message + '\n'
     else:
@@ -33,7 +33,7 @@ def debug1(message):
         create_log_dir_if_missing()
         log_file_name = os.path.join(settings.root, 'log')
         log_file_name = os.path.join(log_file_name, 'cocoman.log')
-        log_file = file(log_file_name, "a")
+        log_file = open(log_file_name, "a")
         log_file.write('debug1: ' + message + '\n')
         log_file.close()
 
@@ -41,7 +41,12 @@ def log_build(source_file_name, message):
     pass
 
 def log_to_frontend(message):
-    pass
+    create_log_dir_if_missing()
+    log_file_name = os.path.join(settings.root, 'log')
+    log_file_name = os.path.join(log_file_name, 'log')
+    log_file = open(log_file_name, "a")
+    log_file.write(message + '\n')
+    log_file.close()
 
 def create_log_dir_if_missing():
     log_dir = os.path.join(settings.root, 'log')

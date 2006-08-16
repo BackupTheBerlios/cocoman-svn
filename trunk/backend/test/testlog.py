@@ -19,6 +19,7 @@ class TestLog(unittest.TestCase):
         self.settings.root = relativePathToScript
         self.log_dir = os.path.join(self.settings.root, 'log')
         self.user_log_file = os.path.join(self.log_dir, 'cocoman.log')
+        self.frontend_log_file = os.path.join(self.log_dir, 'log')
         shutil.rmtree(self.log_dir, True)
         os.mkdir(self.log_dir)
     
@@ -58,6 +59,13 @@ class TestLog(unittest.TestCase):
         lines = log_file.readlines()
         log_file.close()
         self.assertEqual(lines[-1].strip(), 'testing log1')
+    
+    def testLogToFrontend(self):
+        log_to_frontend('memememememe')
+        log_file = open(self.frontend_log_file)
+        lines = log_file.readlines()
+        log_file.close()
+        self.assertEqual(lines[-1].strip(), 'memememememe')
 
 
 def suite():
