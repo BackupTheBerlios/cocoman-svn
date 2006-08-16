@@ -66,6 +66,16 @@ class TestLog(unittest.TestCase):
         lines = log_file.readlines()
         log_file.close()
         self.assertEqual(lines[-1].strip(), 'memememememe')
+    
+    def testLogBuild(self):
+        log_build('submission-7192-1420-Problem2-wpcuwnct.cpp', "I am a compiler!\nCompile is nice.")
+        build_log_file = os.path.join(self.log_dir, 'compiles')
+        build_log_file = os.path.join(build_log_file, 'submission-7192-1420-Problem2-wpcuwnct.log')
+        log_file = open(build_log_file)
+        lines = log_file.readlines()
+        log_file.close()
+        self.assertEqual(lines[0].strip(), 'I am a compiler!')
+        self.assertEqual(lines[1].strip(), 'Compile is nice.')
 
 
 def suite():

@@ -38,7 +38,20 @@ def debug1(message):
         log_file.close()
 
 def log_build(source_file_name, message):
-    pass
+    create_log_dir_if_missing()
+    compile_log_dir = os.path.join(settings.root, 'log')
+    compile_log_dir = os.path.join(compile_log_dir, 'compiles')
+    if not os.path.exists(compile_log_dir):
+        os.mkdir(compile_log_dir)
+    assert(type(source_file_name) == str)
+    assert(len(source_file_name) > 0)
+    last_period_index = source_file_name.rfind('.') # -1 if not found
+    base_name = source_file_name[0:last_period_index]
+    log_file_name = os.path.join(compile_log_dir, base_name + '.log')
+    assert(not os.path.exists(log_file_name))
+    log_file = open(log_file_name, "w")
+    log_file.write(message + '\n')
+    log_file.close()
 
 def log_to_frontend(message):
     create_log_dir_if_missing()
