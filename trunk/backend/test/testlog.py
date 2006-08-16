@@ -42,6 +42,22 @@ class TestLog(unittest.TestCase):
         log.debug_on = False
         debug1("testing debug 1")
         self.assertRaises(IOError, open, self.user_log_file)
+    
+    def testLog1DebugOn(self):
+        log.debug_on = True
+        log1("testing log1")
+        log_file = open(self.user_log_file)
+        lines = log_file.readlines()
+        log_file.close()
+        self.assertEqual(lines[-1].strip(), 'log1:   testing log1')
+    
+    def testLog1DebugOff(self):
+        log.debug_on = False
+        log1("testing log1")
+        log_file = open(self.user_log_file)
+        lines = log_file.readlines()
+        log_file.close()
+        self.assertEqual(lines[-1].strip(), 'testing log1')
 
 
 def suite():

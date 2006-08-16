@@ -1,0 +1,49 @@
+#   			Settings.py - Copyright Daniel Benamy, Natan Zohar
+# 
+# Licensed under the GPLv2
+
+
+from settings import Settings
+import os
+
+debug_on = False
+settings = Settings()
+
+def log1(message):
+    """Writes a message to the user log file (cocoman.log). If debug_on is True
+    the message will be prefixed with 'log1:   ' so the content lines up with the
+    debug messages.
+    """
+    create_log_dir_if_missing()
+    log_file_name = os.path.join(settings.root, 'log')
+    log_file_name = os.path.join(log_file_name, 'cocoman.log')
+    log_file = file(log_file_name, "a")
+    if debug_on:
+        message = 'log1:   ' + message + '\n'
+    else:
+        message = message + '\n'
+    log_file.write(message)
+    log_file.close()
+
+def debug1(message):
+    """If debug_on is True, writes lines to the user log file (cocoman.log) 
+    prefixed with 'debug1: '. If debug_on is False, does nothing.
+    """
+    if debug_on:
+        create_log_dir_if_missing()
+        log_file_name = os.path.join(settings.root, 'log')
+        log_file_name = os.path.join(log_file_name, 'cocoman.log')
+        log_file = file(log_file_name, "a")
+        log_file.write('debug1: ' + message + '\n')
+        log_file.close()
+
+def log_build(source_file_name, message):
+    pass
+
+def log_to_frontend(message):
+    pass
+
+def create_log_dir_if_missing():
+    log_dir = os.path.join(settings.root, 'log')
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
