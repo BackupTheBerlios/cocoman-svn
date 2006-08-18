@@ -16,49 +16,54 @@ class Settings:
     """Use the singleton pattern - all users of the class must be referring to 
     the same instance.
     """
-    __initialized = False
+    __setfuncs__ = {}
+    __getfuncs__ = {}
     shared_attrs = {}
     def __init__(self):
-        self._root = None
-        self._poll_interval = None
-        self._execution_timeout = None
-        self._java_binary = None
-        self._number_of_problems = None
-        self._allowed_languages = []
-        self._allowed_ips = []
-        self._initialized = True
-
         self.__dict__ = self.shared_attrs
+
+        self.root = None
+        self.poll_interval = None
+        self.execution_timeout = None
+        self.java_binary = None
+        self.number_of_problems = None
+        self.allowed_languages = []
+        self.allowed_ips = []
+
+        self.__register_funcs__()
+
+    def __register_funcs__(self):
+        # Register the __setattr__ functions
+        self.__setfuncs__['root'] = self.set_root
+        self.__setfuncs__['poll_interval'] = self.set_poll_interval
+        self.__setfuncs__['execution_timeout'] = self.set_execution_timeout
+        self.__setfuncs__['java_binary'] = self.set_java_binary
+        self.__setfuncs__['number_of_problems'] = self.set_number_of_problems
+        self.__setfuncs__['allowed_ips'] = self.set_allowed_ips
+        
+        # Register the __getattr__ functions
+        self.__getfuncs__['root'] = self.get_root
+        self.__getfuncs__['poll_interval'] = self.get_poll_interval
+        self.__getfuncs__['execution_timeout'] = self.get_execution_timeout
+        self.__getfuncs__['java_binary'] = self.get_java_binary
+        self.__getfuncs__['number_of_problems'] = self.get_number_of_problems
+        self.__getfuncs__['allowed_languages'] = self.get_allowed_languages
+        self.__getfuncs__['allowed_ips'] = self.get_allowed_ips
+
     
     def __setattr__(self, attr, value):
-        if attr[0] == '_':
-            # variable is private, so we try finding it in our dict.
-            self.__dict__[attr] = value
-            return
-        
-        # try finding the corresponding set_ function for the variable.
         try:
-            func = getattr(self, "set_%s" % (attr))
-        except AttributeError:
-            raise AttributeError("'Settings' object has no attribute '%s'" % (attr))
-        
-        return func(value)
+            func = self.__setfuncs__[attr]
+            func(value)
+        except KeyError:
+            self.__dict__[attr] = value
     
     def __getattr__(self, attr):
-        if attr in self.__dict__:
-            return self.__dict__[attr]
-        
-        # If we are trying to find a function that doesn't exist, we raise an exception
-        if attr.find('get_') == 0 or attr.find('set_') == 0:
-            raise AttributeError
-        
-        # We try finding a corresponding function for the variable
         try:
-            func = getattr(self, "get_%s" % (attr))
-        except:
-            raise AttributeError("'Settings' object has no attribute '%s'" % (attr))
-        
-        return func()
+            func = self.__getfuncs__[attr]
+            return func()
+        except KeyError:
+            return self.__dict__[attr]
     
     def load(self, file_name):
         parser = ConfigParser.ConfigParser()
@@ -84,12 +89,10 @@ class Settings:
         parser.write(open(file_name, 'w'))
     
     def get_root(self):
-        global _root
-        return _root 
+        return self.root 
     
     def set_root(self, path):
-        global _root
-        _root = path 
+        self.__dict__['root'] = path 
     
     def get_poll_interval(self):
         pass
