@@ -1,23 +1,34 @@
 #   			Settings.py - Copyright Daniel Benamy, Natan Zohar
 # 
 # Licensed under the GPLv2
+import ConfigParser
 
-
+KEYS = ['root', 
+        'poll_interval', 
+        'execution_timeout', 
+        'java_binary', 
+        'number_of_problems',
+        'allowed_languages',
+        'allowed_ips',
+    ]
 # TODO Figure out a better way to share these amongst instances
-_root = None
-_poll_interval = None
-_execution_timeout = None
-_java_binary = None
-_number_of_problems = None
-_allowed_languages = []
-_allowed_ips = []
-_initialized = True
-
 class Settings:
     """Use the singleton pattern - all users of the class must be referring to 
     the same instance.
     """
     __initialized = False
+    shared_attrs = {}
+    def __init__(self):
+        self._root = None
+        self._poll_interval = None
+        self._execution_timeout = None
+        self._java_binary = None
+        self._number_of_problems = None
+        self._allowed_languages = []
+        self._allowed_ips = []
+        self._initialized = True
+
+        self.__dict__ = self.shared_attrs
     
     def __setattr__(self, attr, value):
         if attr[0] == '_':
@@ -50,10 +61,27 @@ class Settings:
         return func()
     
     def load(self, file_name):
-        pass
+        parser = ConfigParser.ConfigParser()
+        parser.read(file_name)
+        for key in KEYS:
+            try:
+                setattr(self, key, parser.get("global", key))
+            except ConfigParser.NoOptionError, e:
+                print "%s option not found in %s" % (key, file_name)
+        self._file_name = file_name
+
     
     def save(self, file_name=None):
-        pass
+        parser = ConfigParser.ConfigParser()
+        parser.add_section('global')
+        for key in KEYS:
+            parser.set('global', key, getattr(self, key))
+        if not file_name:
+            try:
+                file_name = self._file_name
+            except AttributeError:
+                raise IOError("save(): No file specified to save configuration to")
+        parser.write(open(file_name, 'w'))
     
     def get_root(self):
         global _root
@@ -95,7 +123,7 @@ class Settings:
     def set_number_of_problems(self, number_of_problems):
         pass
 
-    def get_allowed_lanuguages(self):
+    def get_allowed_languages(self):
         """The language must match the first part of the class name of the 
         support class for that language (eg "C" for "CSupport", "Cpp" for 
         "CppSupport").
@@ -119,7 +147,7 @@ class Settings:
 
 if __name__ == "__main__":
     s = Settings()
+    s.load('contest.ini')
+    s.save('contest.ini.sav')
     s.root = 'test'
     print s.root
-#    s.test = 'blah'
-    s.g
