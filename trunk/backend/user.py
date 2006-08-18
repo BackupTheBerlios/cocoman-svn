@@ -3,6 +3,10 @@
 # Licensed under the GPLv2
 
 
+class InvalidUserIdError(Exception):
+    pass
+
+
 class User:
     """This class is an abstraction of an entry in the users file. The file will 
     be read on any 'get' call and the most recent value returned. If the users 
