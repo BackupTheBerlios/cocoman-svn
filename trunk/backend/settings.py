@@ -130,27 +130,26 @@ class Settings:
         """The language must match the first part of the class name of the 
         support class for that language (eg "C" for "CSupport", "Cpp" for 
         "CppSupport").
+        Returns a sequence of strings.
         """
-        pass
+        return self.allowed_languages
     
-    def add_allowed_lanuguage(self, language):
+    def add_allowed_language(self, language):
+        """The language must match the first part of the class name of the 
+        support class for that language (eg "C" for "CSupport", "Cpp" for 
+        "CppSupport").
+        """
+        if language not in self.allowed_languages:
+            self.allowed_languages.append(language)
+    
+    def remove_allowed_language(self, language):
         """The language must match the first part of the class name of the 
         support class for that language (eg "C" for "CSupport", "Cpp" for 
         "CppSupport").
         """
         pass
-    
-    def remove_allowed_lanuguage(self, language):
-        """The language must match the first part of the class name of the 
-        support class for that language (eg "C" for "CSupport", "Cpp" for 
-        "CppSupport").
-        """
-        pass
-    
 
-if __name__ == "__main__":
-    s = Settings()
-    s.load('contest.ini')
-    s.save('contest.ini.sav')
-    s.root = 'test'
-    print s.root
+
+settings = Settings()
+settings.load('cocoman.conf')
+# TODO Create the file if it doesn't exist

@@ -3,8 +3,9 @@
 # Licensed under the GPLv2
 
 
+from languagesupport import LanguageSupport
+
+
 class CppSupport (LanguageSupport):
-
-    pass
-
-
+    def get_supported_extensions(self):
+        return ['cpp', 'cxx']
