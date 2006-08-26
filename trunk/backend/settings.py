@@ -65,6 +65,8 @@ class Settings:
         for key in KEYS:
             try:
                 setattr(self, key, parser.get("global", key))
+            except ConfigParser.NoSectionError, e:
+                print "global section not found in config file."
             except ConfigParser.NoOptionError, e:
                 print "%s option not found in %s" % (key, file_name)
         self._file_name = file_name
