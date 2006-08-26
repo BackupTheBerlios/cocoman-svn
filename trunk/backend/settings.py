@@ -162,6 +162,5 @@ class Settings:
         pass
 
 
-##settings = Settings()
+settings = Settings()
 ##settings.save('cocoman.ini')
-# TODO Create the file if it doesn't exist
