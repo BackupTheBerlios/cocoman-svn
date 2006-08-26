@@ -19,48 +19,26 @@ KEYS = ['root',
     ]
 
 class Settings:
-    __setfuncs__ = {}
-    __getfuncs__ = {}
-    def __init__(self):
-        self.root = ""
-        self.poll_interval = 5
-        self.execution_timeout = 30
-        self.java_binary = ""
-        self.number_of_problems = 1
-        self.allowed_languages = []
-        self.allowed_ips = []
-        self.__register_funcs__()
     
-    def __register_funcs__(self):
-        # Register the __setattr__ functions
-        self.__setfuncs__['root'] = self.set_root
-        self.__setfuncs__['poll_interval'] = self.set_poll_interval
-        self.__setfuncs__['execution_timeout'] = self.set_execution_timeout
-        self.__setfuncs__['java_binary'] = self.set_java_binary
-        self.__setfuncs__['number_of_problems'] = self.set_number_of_problems
-        self.__setfuncs__['allowed_ips'] = self.set_allowed_ips
-        
-        # Register the __getattr__ functions
-        self.__getfuncs__['root'] = self.get_root
-        self.__getfuncs__['poll_interval'] = self.get_poll_interval
-        self.__getfuncs__['execution_timeout'] = self.get_execution_timeout
-        self.__getfuncs__['java_binary'] = self.get_java_binary
-        self.__getfuncs__['number_of_problems'] = self.get_number_of_problems
-        self.__getfuncs__['allowed_languages'] = self.get_allowed_languages
-        self.__getfuncs__['allowed_ips'] = self.get_allowed_ips
+    def __init__(self):
+        self._root = ""
+        self._poll_interval = 5
+        self._execution_timeout = 30
+        self._java_binary = ""
+        self._number_of_problems = 1
+        self._allowed_languages = []
+        self._allowed_ips = []
     
     def __setattr__(self, attr, value):
-        try:
-            func = self.__setfuncs__[attr]
-            func(value)
-        except KeyError:
+        if attr[0] != '_':
+            exec "self.set_%s(value)" % attr
+        else:
             self.__dict__[attr] = value
     
     def __getattr__(self, attr):
-        try:
-            func = self.__getfuncs__[attr]
-            return func()
-        except KeyError:
+        if attr[0] != '_':
+            exec "self.get_%s(value)" % attr
+        else:
             return self.__dict__[attr]
     
     def load(self, file_name):
@@ -101,39 +79,39 @@ class Settings:
         parser.write(open(file_name, 'w'))
     
     def get_root(self):
-        return self.root 
+        return self._root 
     
     def set_root(self, path):
         self.__dict__['root'] = path 
     
     def get_poll_interval(self):
-        return self.poll_interval
+        return self._poll_interval
     
     def set_poll_interval(self, seconds):
         pass
     
     def get_execution_timeout(self):
-        return self.execution_timeout
+        return self._execution_timeout
     
     def set_execution_timeout(self, seconds):
         pass
     
     def get_java_binary(self):
-        return self.java_binary
+        return self._java_binary
     
     def set_java_binary(self, path):
         pass
     
     def get_allowed_ips(self):
         """ips can contain one '*' as a wildcard (eg 192.168.*)."""
-        return self.allowed_ips
+        return self._allowed_ips
     
     def set_allowed_ips(self, ips):
         """ips can contain one '*' as a wildcard (eg 192.168.*)."""
         pass
     
     def get_number_of_problems(self):
-        return self.number_of_problems
+        return self._number_of_problems
     
     def set_number_of_problems(self, number_of_problems):
         pass
@@ -144,7 +122,7 @@ class Settings:
         "CppSupport").
         Returns a sequence of strings.
         """
-        return self.allowed_languages
+        return self._allowed_languages
     
     def add_allowed_language(self, language):
         """The language must match the first part of the class name of the 
@@ -152,7 +130,7 @@ class Settings:
         "CppSupport").
         """
         if language not in self.allowed_languages:
-            self.allowed_languages.append(language)
+            self._allowed_languages.append(language)
     
     def remove_allowed_language(self, language):
         """The language must match the first part of the class name of the 
