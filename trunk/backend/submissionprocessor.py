@@ -24,8 +24,11 @@ class SubmissionProcessor:
         for language in settings.get_allowed_languages():
             support_class = language + 'Support'
             module_name = support_class.lower()
-            module = __import__(module_name)
-            language_support = module.__dict__[support_class]()
+            try:
+                module = __import__(module_name)
+                language_support = module.__dict__[support_class]()
+            except ImportError:
+                raise UnhandledExtensionError
             for new_extension in language_support.get_supported_extensions():
                 if new_extension in self.supported_extensions.keys():
                     raise DuplicateExtentionSupportError
