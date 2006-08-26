@@ -8,11 +8,6 @@ import unittest
 from settings import Settings
 
 class TestSettings(unittest.TestCase):
-##    def setUp(self):
-##        pass
-##    
-##    def tearDown(self):
-##        pass
     
     def testCreateSettingsFile(self):
         """Tests that instantiating and saving a Settings creates the settings 
@@ -24,18 +19,29 @@ class TestSettings(unittest.TestCase):
         settings = Settings()
         settings.save('cocoman.conf')
         assert(os.path.isfile('cocoman.conf') is True)
-        os.rm('cocoman.conf')
+        os.remove('cocoman.conf')
 
     def testReadNonExistantSettingsFile(self):
         """Tests that reading a non existant settings file will throw an exception"""
         settings = Settings()
         self.assertRaises(IOError, settings.load, "nonexistantfilethatwouldneverappear")
     
-    def testSingletonness(self):
-        s1 = Settings()
-        s1.root = 'aaaaa'
-        s2 = Settings()
-        self.assertEquals(s2.root, 'aaaaa')
+    def testReadSetting(self):
+        s = Settings()
+        value = s.root
+    
+    def testWriteThenReadSetting(self):
+        s = Settings()
+        s.root = "/hello/world"
+        self.assertEqual(s.root, "/hello/world")
+
+    def testReadingNonExistantSetting(self):
+        self.assertRaises(AttributeError, self._readNonExistantSetting)
+    
+    def _readNonExistantSetting(self):
+        settings = Settings()
+        value = settings.pie
+
 
 def suite():
     # TODO
