@@ -132,7 +132,7 @@ class Settings:
         support class for that language (eg "C" for "CSupport", "Cpp" for 
         "CppSupport").
         """
-        if language not in self.allowed_languages:
+        if language not in self._allowed_languages:
             self._allowed_languages.append(language)
     
     def remove_allowed_language(self, language):
@@ -140,7 +140,7 @@ class Settings:
         support class for that language (eg "C" for "CSupport", "Cpp" for 
         "CppSupport").
         """
-        pass
+        self._allowed_languages.remove(language)
 
 
 settings = Settings()
