@@ -6,6 +6,10 @@
 from settings import settings
 
 
+class UnhandledExtensionError(Exception):
+    pass
+
+
 class SubmissionProcessor:
     
     # A dictionary of file extension strings to instances of the class that 
@@ -15,7 +19,7 @@ class SubmissionProcessor:
     def load_language_support(self):
         """Throws:
         DuplicateExtentionSupportError
-        UnhandledExtentionError
+        UnhandledExtensionError
         """
         for language in settings.get_allowed_languages():
             support_class = language + 'Support'
