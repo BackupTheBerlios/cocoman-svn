@@ -14,9 +14,9 @@ class TestLanguageSupport(unittest.TestCase):
     def setUp(self):
         self.language_support = LanguageSupport()
     
-    def testRunOneCommand(self):
-        output = self.language_support._run_commands_capture_output([["echo", "doody on my head"]])
-        self.assertEqual(output, "doody on my head")
+##    def testRunOneCommand(self):
+##        output = self.language_support._run_commands_capture_output([["echo", "doody on my head"]])
+##        self.assertEqual(output, "doody on my head")
 
 
 if __name__ == "__main__":
