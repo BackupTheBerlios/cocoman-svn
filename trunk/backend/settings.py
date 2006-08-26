@@ -1,6 +1,7 @@
 #   			Settings.py - Copyright Daniel Benamy, Natan Zohar
 # 
 # Licensed under the GPLv2
+
 import ConfigParser
 
 KEYS = ['root', 
@@ -11,27 +12,21 @@ KEYS = ['root',
         'allowed_languages',
         'allowed_ips',
     ]
-# TODO Figure out a better way to share these amongst instances
+
 class Settings:
-    """Use the singleton pattern - all users of the class must be referring to 
-    the same instance.
-    """
     __setfuncs__ = {}
     __getfuncs__ = {}
     shared_attrs = {}
     def __init__(self):
-        self.__dict__ = self.shared_attrs
-
-        self.root = None
-        self.poll_interval = None
-        self.execution_timeout = None
-        self.java_binary = None
-        self.number_of_problems = None
+        self.root = ""
+        self.poll_interval = 5
+        self.execution_timeout = 30
+        self.java_binary = ""
+        self.number_of_problems = 1
         self.allowed_languages = []
         self.allowed_ips = []
-
         self.__register_funcs__()
-
+    
     def __register_funcs__(self):
         # Register the __setattr__ functions
         self.__setfuncs__['root'] = self.set_root
@@ -49,7 +44,6 @@ class Settings:
         self.__getfuncs__['number_of_problems'] = self.get_number_of_problems
         self.__getfuncs__['allowed_languages'] = self.get_allowed_languages
         self.__getfuncs__['allowed_ips'] = self.get_allowed_ips
-
     
     def __setattr__(self, attr, value):
         try:
@@ -74,7 +68,6 @@ class Settings:
             except ConfigParser.NoOptionError, e:
                 print "%s option not found in %s" % (key, file_name)
         self._file_name = file_name
-
     
     def save(self, file_name=None):
         parser = ConfigParser.ConfigParser()
@@ -125,7 +118,7 @@ class Settings:
     
     def set_number_of_problems(self, number_of_problems):
         pass
-
+    
     def get_allowed_languages(self):
         """The language must match the first part of the class name of the 
         support class for that language (eg "C" for "CSupport", "Cpp" for 
