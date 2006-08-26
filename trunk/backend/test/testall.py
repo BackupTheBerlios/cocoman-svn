@@ -1,6 +1,6 @@
-"""This script searched for any module in this directory with the name test in 
-it. Then it looks for any classes in those modules that inherits from TestCase 
-and compiles a suite of all of them. Finally, it runs the suite.
+"""This script searched through all the modules in this directory for classes
+that inherits from TestCase, compiles a test suite of all of them, and runs the 
+suite.
 
 """
 
