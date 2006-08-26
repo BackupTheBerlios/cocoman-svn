@@ -30,16 +30,19 @@ class Settings:
         self._allowed_ips = []
     
     def __setattr__(self, attr, value):
-        if attr[0] != '_':
+        if attr in KEYS:
             exec "self.set_%s(value)" % attr
         else:
             self.__dict__[attr] = value
     
     def __getattr__(self, attr):
-        if attr[0] != '_':
-            exec "self.get_%s(value)" % attr
+        if attr in KEYS:
+            exec "self.get_%s()" % attr
         else:
-            return self.__dict__[attr]
+            try:
+                return self.__dict__[attr]
+            except KeyError:
+                raise AttributeError
     
     def load(self, file_name):
         """If file_name doesn't exist, raises an IOError."""
