@@ -43,9 +43,5 @@ class TestSettings(unittest.TestCase):
         value = settings.pie
 
 
-def suite():
-    # TODO
-    pass
-
 if __name__ == "__main__":
     unittest.main()

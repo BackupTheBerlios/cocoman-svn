@@ -5,8 +5,8 @@ relativePathToScript = os.path.split(sys.argv[0])[0]
 relativePathToParent = os.path.join(relativePathToScript, "..")
 sys.path.append(relativePathToParent)
 import unittest
-from settings import settings
-from submissionprocessor import SubmissionProcessor
+from settings import settings, Settings
+from submissionprocessor import SubmissionProcessor, UnhandledExtensionError
 
 
 class TestSubmissionProcessor(unittest.TestCase):
@@ -16,11 +16,11 @@ class TestSubmissionProcessor(unittest.TestCase):
     def testLoadLanguageSupport(self):
         settings.add_allowed_language('Cpp')
         self.submission_processor.load_language_support()
+    
+    def testInvalidLanguage(self):
+        settings.add_allowed_language('Bob')
+        self.assertRaises(UnhandledExtensionError, self.submission_processor.load_language_support())
 
-
-def suite():
-    # TODO
-    pass
 
 if __name__ == "__main__":
     unittest.main()

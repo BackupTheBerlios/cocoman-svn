@@ -78,9 +78,5 @@ class TestLog(unittest.TestCase):
         self.assertEqual(lines[1].strip(), 'Compile is nice.')
 
 
-def suite():
-    # TODO
-    pass
-
 if __name__ == "__main__":
     unittest.main()

@@ -19,9 +19,5 @@ class TestLanguageSupport(unittest.TestCase):
         self.assertEqual(output, "doody on my head")
 
 
-def suite():
-    # TODO
-    pass
-
 if __name__ == "__main__":
     unittest.main()
