@@ -2,7 +2,12 @@
 # 
 # Licensed under the GPLv2
 
+"""
+All users of Settings should use the instance created in this file called settings.
+"""
+
 import ConfigParser
+import os
 
 KEYS = ['root', 
         'poll_interval', 
@@ -16,7 +21,6 @@ KEYS = ['root',
 class Settings:
     __setfuncs__ = {}
     __getfuncs__ = {}
-    shared_attrs = {}
     def __init__(self):
         self.root = ""
         self.poll_interval = 5
@@ -60,22 +64,35 @@ class Settings:
             return self.__dict__[attr]
     
     def load(self, file_name):
+        """If file_name doesn't exist, raises an IOError."""
+        if not os.path.exists(file_name):
+            raise IOError("Tried to load settings from a file that doesn't exist.")
         parser = ConfigParser.ConfigParser()
         parser.read(file_name)
+        self._file_name = file_name
         for key in KEYS:
             try:
                 setattr(self, key, parser.get("global", key))
             except ConfigParser.NoSectionError, e:
-                print "global section not found in config file."
+                print "The config file doesn't have the necessary section. Using defaults." # TODO Log
+                return
             except ConfigParser.NoOptionError, e:
-                print "%s option not found in %s" % (key, file_name)
-        self._file_name = file_name
+                print "The config file doesn't have a setting for %s. Using default." % key # TODO Log
     
     def save(self, file_name=None):
+        """If the file_name argument is provided, the settings will be saved 
+        to that file. If not, the settings will be saved to the file they were 
+        loaded from. If file_name is not provided and the settings were never 
+        loaded, an IOError will be raised. An IOError can also be raised if 
+        something goes wrong while trying to save (eg the user doesn't have
+        permission to write to the file).
+        
+        """
         parser = ConfigParser.ConfigParser()
         parser.add_section('global')
         for key in KEYS:
-            parser.set('global', key, getattr(self, key))
+            exec "value = self.get_%s()" % key
+            parser.set('global', key, value)
         if not file_name:
             try:
                 file_name = self._file_name
@@ -90,33 +107,33 @@ class Settings:
         self.__dict__['root'] = path 
     
     def get_poll_interval(self):
-        pass
+        return self.poll_interval
     
     def set_poll_interval(self, seconds):
         pass
     
     def get_execution_timeout(self):
-        pass
+        return self.execution_timeout
     
     def set_execution_timeout(self, seconds):
         pass
     
     def get_java_binary(self):
-        pass
+        return self.java_binary
     
     def set_java_binary(self, path):
         pass
     
     def get_allowed_ips(self):
         """ips can contain one '*' as a wildcard (eg 192.168.*)."""
-        pass
+        return self.allowed_ips
     
     def set_allowed_ips(self, ips):
         """ips can contain one '*' as a wildcard (eg 192.168.*)."""
         pass
     
     def get_number_of_problems(self):
-        pass
+        return self.number_of_problems
     
     def set_number_of_problems(self, number_of_problems):
         pass
@@ -145,6 +162,6 @@ class Settings:
         pass
 
 
-settings = Settings()
-settings.load('cocoman.conf')
+##settings = Settings()
+##settings.save('cocoman.ini')
 # TODO Create the file if it doesn't exist
