@@ -4,6 +4,7 @@
 
 
 from settings import settings
+from logging import debug, info, warning
 
 
 class UnhandledExtensionError(Exception):
@@ -34,8 +35,8 @@ class SubmissionProcessor:
                     raise DuplicateExtentionSupportError
                 else:
                     self.supported_extensions[new_extension] = language_support
-        print("Loaded support for the following extensions: " 
-                + str(self.supported_extensions.keys()).strip('[]')) #TODO log this
+        info("Loaded support for the following extensions: " 
+                + str(self.supported_extensions.keys()).strip('[]'))
 
     def process_submission(self, file_name, problem_number):
         pass

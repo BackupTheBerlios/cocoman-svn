@@ -7,6 +7,10 @@ sys.path.append(relativePathToParent)
 import unittest
 from settings import settings
 from submissionprocessor import SubmissionProcessor, UnhandledExtensionError
+##import logging
+##logging.basicConfig(level=logging.DEBUG, 
+##                        format='%(levelname)-8s %(message)s', 
+##                        stream=sys.stderr)
 
 
 class TestSubmissionProcessor(unittest.TestCase):
