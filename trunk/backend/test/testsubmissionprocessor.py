@@ -23,7 +23,7 @@ class TestSubmissionProcessor(unittest.TestCase):
     
     def testInvalidLanguage(self):
         settings.add_allowed_language('Bob')
-        self.assertRaises(UnhandledExtensionError, self.submission_processor.load_language_support())
+        self.assertRaises(UnhandledExtensionError, self.submission_processor.load_language_support)
 
 
 if __name__ == "__main__":
