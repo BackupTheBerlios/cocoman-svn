@@ -28,7 +28,9 @@ class TestSettings(unittest.TestCase):
     
     def testReadSetting(self):
         s = Settings()
-        value = s.root
+        for setting in [ 'root', 'poll_interval', 'execution_timeout', 'java_binary', 'number_of_problems' ]:
+            value = getattr(s, setting)
+        
     
     def testWriteThenReadSetting(self):
         s = Settings()

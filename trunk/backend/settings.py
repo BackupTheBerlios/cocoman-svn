@@ -26,23 +26,19 @@ class Settings:
         self._execution_timeout = 30
         self._java_binary = ""
         self._number_of_problems = 1
+
         self._allowed_languages = []
         self._allowed_ips = []
-    
-    def __setattr__(self, attr, value):
-        if attr in KEYS:
-            exec "self.set_%s(value)" % attr
-        else:
-            self.__dict__[attr] = value
-    
-    def __getattr__(self, attr):
-        if attr in KEYS:
-            exec "self.get_%s()" % attr
-        else:
-            try:
-                return self.__dict__[attr]
-            except KeyError:
-                raise AttributeError
+
+        self.register_attributes()
+
+    def register_attributes(self):
+        self.root = property(self.get_root, self.set_root)
+        self.poll_interval = property(self.get_poll_interval, self.set_poll_interval)
+        self.execution_timeout = property(self.get_execution_timeout, self.set_execution_timeout)
+        self.java_binary = property(self.get_java_binary, self.set_java_binary)
+        self.number_of_problems = property(self.get_number_of_problems, self.set_number_of_problems)
+
     
     def load(self, file_name):
         """If file_name doesn't exist, raises an IOError."""
