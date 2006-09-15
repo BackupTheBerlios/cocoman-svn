@@ -6,6 +6,12 @@
 class InvalidUserIdError(Exception):
     pass
 
+class InvalidNameError(Exception):
+    pass
+
+
+def create_user(name):
+    pass
 
 class User:
     """This class is an abstraction of an entry in the users file. The file will 
@@ -13,9 +19,6 @@ class User:
     file doesn't contain an entry with the instance's user id on instantiation 
     or any time a get method is called, an InvalidUserIdError is thrown.
     """
-    def create_user(name):
-        pass
-
     def __init__(self, user_id):
         pass
 

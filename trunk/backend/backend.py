@@ -6,6 +6,7 @@
 import os
 from settings import settings
 import logging
+import user
 
 
 class Backend:
@@ -15,6 +16,7 @@ class Backend:
         # request is read until its done file is processed. Each item is a tuple
        # containing (random chars, time of request).
         self.open_registrations = []
+        self.request_prefix = 'registration_request-'
     
     def setup(self):
         pass
@@ -32,11 +34,11 @@ class Backend:
                               (registration_dir, e))
             for entry in dir_contents:
                 # New requests
-                if entry.startswith(request_prefix):
+                if entry.startswith(self.request_prefix):
                     self._process_registration_request(entry)
                 
                 # Cleanup - TODO
-                for open_request in open_requests:
+                for open_request in self.open_registrations:
                     pass
                     # if find done file with those chars
                     # delete all 3 prefixes with those chars
@@ -49,18 +51,17 @@ class Backend:
         pass
 
     def _process_registration_request(self, request_filename):        
-        def RegistrationError(Exception):
+        class RegistrationError(Exception):
             def __init__(self, status_code, message, random_chars, user_id=0):
                 self.status_code = status_code
                 self.message = message
                 self.random_chars = random_chars
                 self.user_id = user_id
         
-        request_prefix = 'registration_request-'
         try:
             logging.debug("Processing registration request file '%s'." %
                           request_filename)
-            random_chars = request_filename[len(request_prefix):]
+            random_chars = request_filename[len(self.request_prefix):]
             
             try:
                 request_file = open(request_filename)
@@ -86,7 +87,7 @@ class Backend:
             try:
                 new_user = user.create_user(request[0])
                 new_user.ip = request[1]
-            except user.InvalidName, e:
+            except user.InvalidNameError, e:
                 logging.error("Registration request file '%s' contained"
                               " an invalid name (%s). Skipping this "
                               "file." % (request_filename, e))
