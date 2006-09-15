@@ -77,7 +77,8 @@ class Backend:
                 logging.error("Registration request file '%s' doesn't "
                               "have enough sections. Skipping this "
                               "file." % request_filename)
-                raise RegistrationError(11, "Registration request error", random_chars)
+                raise RegistrationError(11, "Registration request error", 
+                                        random_chars)
             if len(request) > 2:
                 logging.warn("Registration request file '%s' has too "
                               "many sections. Ignoring the extra ones."
@@ -95,7 +96,8 @@ class Backend:
             except IOError, e:
                 logging.error("There was an error creating user '%s': "
                               "%s." % (request[0], e))
-                raise RegistrationError(13, "Could not create user", random_chars)
+                raise RegistrationError(13, "Could not create user", 
+                                        random_chars)
                 
             logging.info("Created user %s." % new_user)
             
