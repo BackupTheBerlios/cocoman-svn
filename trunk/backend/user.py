@@ -3,30 +3,102 @@
 # Licensed under the GPLv2
 
 
+import os
+from settings import settings
+import random
+random.seed()
+
+
 class InvalidUserIdError(Exception):
     pass
 
 class InvalidNameError(Exception):
+    # TODO Add reason
     pass
 
 
 def create_user(name):
-    pass
+    """Creates a new User. Writes an entry in users.txt for the new user. 
+    Exceptions:
+    If the specified name contains any characters other than letters, numbers, 
+    or spaces, raises an InvalidNameError.
+    If another user exists with this name, raises a NameAlreadyExistsError.
+    
+    """
+    # TODO Validate name
+    try:
+        file = open(User.users_file)
+        lines = file.readlines()
+    except IOError, e:
+        logging.critical("There was an error opening the users file (%s). The "
+                      "error is: %s." % (User.users_file, e))
+    file.close()
+    ids = []
+    names = []
+    for line in files:
+        entry = line.split(':')
+        if len(entry) != 2:
+            logging.error("There is an invalid entry in the users file: %s. "
+                      "Skipping this entry." % line)
+        ids.append(entry[0])
+        names.append(entry[1])
+    if name in names:
+        raise NameAlreadyExistsError()
+    id = randint(1000, 9999)
+    while str(id) in ids:
+        id = random.randint(1000, 9999)
+    try:
+        file = open(User.users_file, 'a')
+        file.write("%s:%s\n" % (id, name))
+    except IOError, e:
+        logging.critical("There was an error opening the users file (%s). The "
+                      "error is: %s." % (User.users_file, e))
+    file.close()
+    return User(id)
 
-class User:
+
+class User(object):
     """This class is an abstraction of an entry in the users file. The file will 
     be read on any 'get' call and the most recent value returned. If the users 
     file doesn't contain an entry with the instance's user id on instantiation 
     or any time a get method is called, an InvalidUserIdError is thrown.
     """
+    
+    users_file = os.path.join(settings.root, 'manager', 'conf', 'users.txt')
+    
     def __init__(self, user_id):
-        pass
-
+        self._id = user_id
+        self.id = property(self.get_id)
+        self.name = property(self.get_name, self.set_name)
+        self.ip = property(self.get_ip, self.set_ip) # TODO kill this?
+        try:
+            file = open(self.users_file)
+            lines = file.readlines()
+        except IOError, e:
+            logging.critical("There was an error opening the users file (%s). The "
+                          "error is: %s." % (User.users_file, e))
+        file.close()
+        ids = []
+        for line in files:
+            entry = line.split(':')
+            if len(entry) != 2:
+                logging.error("There is an invalid entry in the users file: %s. "
+                          "Skipping this entry." % line)
+            ids.append(entry[0])
+        if self._id not in ids:
+            raise InvalidUserIdError()
+    
     def get_id(self):
-        pass
-
+        return self._id
+    
     def get_name(self):
+        "dummy"
+    
+    def set_name(self, name):
         pass
-
-
-
+    
+    def get_ip(self):
+        "0.0.0.0"
+    
+    def set_ip(self, ip):
+        pass
