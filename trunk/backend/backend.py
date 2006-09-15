@@ -53,6 +53,7 @@ class Backend:
     def _process_registration_request(self, request_filename):        
         class RegistrationError(Exception):
             def __init__(self, status_code, message, random_chars, user_id=0):
+                Exception.__init__(self)
                 self.status_code = status_code
                 self.message = message
                 self.random_chars = random_chars
