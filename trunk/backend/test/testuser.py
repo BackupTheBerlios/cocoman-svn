@@ -23,6 +23,7 @@ class TestUser(unittest.TestCase):
     def testCreateUser(self):
         bob = create_user('bob')
         assert isinstance(bob, User)
+        self.assertEquals(bob.name, 'bob')
 
 if __name__ == "__main__":
     unittest.main()
