@@ -94,9 +94,6 @@ class User(object):
     
     def __init__(self, user_id):
         self._id = user_id
-        self.id = property(self.get_id)
-        self.name = property(self.get_name, self.set_name)
-        self.ip = property(self.get_ip, self.set_ip) # TODO kill this?
         try:
             file = open(self.users_file)
             lines = file.readlines()
@@ -118,7 +115,7 @@ class User(object):
         return self._id
     
     def get_name(self):
-        "dummy"
+        return "dummy"
     
     def set_name(self, name):
         pass
@@ -128,3 +125,7 @@ class User(object):
     
     def set_ip(self, ip):
         pass
+    
+    id = property(get_id)
+    name = property(get_name, set_name)
+    ip = property(get_ip, set_ip) # TODO kill this?
