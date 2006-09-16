@@ -9,6 +9,7 @@ from settings import settings
 import logging
 import user
 from optparse import OptionParser
+import time
 
 
 class Backend:
@@ -39,12 +40,14 @@ class Backend:
         self.request_prefix = 'registration_request-'
         
         while True:
+            time.sleep(5) # TODO Make this run after the rest of the loop
             try:
                 dir_contents = os.listdir(registration_dir)
             except OSError, e:
                 logging.error("There was an error reading the 'temp_web' " \
                               "directory (%s). The error was: %s" % \
                               (registration_dir, e))
+                continue
             for entry in dir_contents:
                 # New requests
                 if entry.startswith(self.request_prefix):
