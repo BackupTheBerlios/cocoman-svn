@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #   			Settings.py - Copyright Daniel Benamy, Natan Zohar
 # 
 # Licensed under the GPLv2
@@ -7,23 +8,35 @@ import os
 from settings import settings
 import logging
 import user
+from optparse import OptionParser
 
 
 class Backend:
 
     def __init__(self):
+        usage = 'usage: %prog [options] <mode>'
+        parser = OptionParser(usage)
+        parser.add_option("-r", "--root", dest="root", default=".",
+                          help="Specify the root of the cocoman installation "
+                               "(defaults to the current directory)")
+        (options, args) = parser.parse_args()
+        settings.root = options.root
+        if len(args) == 0:
+            parser.error('You must specify a mode.')
+        modes = {'registration': self.process_registrations}
+        if args[0] not in modes.keys():
+            parser.error('You specified an illegal mode.')
+        modes[args[0]]()
+        assert False, "Execution should never reach here."
+    
+    def process_registrations(self):
+        """Doesn't return."""
         # A list of open registrations. A registration is open from when the 
         # request is read until its done file is processed. Each item is a tuple
        # containing (random chars, time of request).
         self.open_registrations = []
-        self.request_prefix = 'registration_request-'
-    
-    def setup(self):
-        pass
-
-    def process_registrations(self):
-        """Doesn't return."""
         registration_dir = settings.root + 'temp_web'
+        self.request_prefix = 'registration_request-'
         
         while True:
             try:
@@ -131,3 +144,7 @@ class Backend:
             logging.error("There was an error writing status "
                           "file '%s' for user %s. The error was: %s."
                           % (status_file_name, user_id, e))
+
+
+if __name__ == '__main__':
+    app = Backend()
