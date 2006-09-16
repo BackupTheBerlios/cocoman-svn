@@ -40,7 +40,7 @@ class Backend:
         self.request_prefix = 'registration_request-'
         
         while True:
-            time.sleep(5) # TODO Make this run after the rest of the loop
+            time.sleep(1) # TODO Make this run after the rest of the loop
             try:
                 dir_contents = os.listdir(registration_dir)
             except OSError, e:
