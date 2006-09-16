@@ -8,16 +8,10 @@ from threading import Thread
 import subprocess
 from subprocess import Popen, PIPE, STDOUT
 
-class ExecutionTimedOutError(Exception):
-    pass
-
-
-class FailedTestError(Exception):
-    pass
-
 
 class CompileFailedError(Exception):
-    pass
+    def __init__(self, compile_log):
+        self.compile_log = compile_log
 
 
 class LanguageSupport:
@@ -36,7 +30,7 @@ class LanguageSupport:
         """
         raise NotImplementedError
 
-    def build(self, source_file_name):
+    def compile(self, source_file_name):
         """Throws:
         CompileFailedError
         """

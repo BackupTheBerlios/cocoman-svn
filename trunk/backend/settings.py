@@ -29,16 +29,7 @@ class Settings:
 
         self._allowed_languages = []
         self._allowed_ips = []
-
-        self.register_attributes()
-
-    def register_attributes(self):
-        self.root = property(self.get_root, self.set_root)
-        self.poll_interval = property(self.get_poll_interval, self.set_poll_interval)
-        self.execution_timeout = property(self.get_execution_timeout, self.set_execution_timeout)
-        self.java_binary = property(self.get_java_binary, self.set_java_binary)
-        self.number_of_problems = property(self.get_number_of_problems, self.set_number_of_problems)
-
+    
     
     def load(self, file_name):
         """If file_name doesn't exist, raises an IOError."""
@@ -137,6 +128,12 @@ class Settings:
         "CppSupport").
         """
         self._allowed_languages.remove(language)
+
+    root = property(get_root, set_root)
+    poll_interval = property(get_poll_interval, set_poll_interval)
+    execution_timeout = property(get_execution_timeout, set_execution_timeout)
+    java_binary = property(get_java_binary, set_java_binary)
+    number_of_problems = property(get_number_of_problems, set_number_of_problems)
 
 
 settings = Settings()
