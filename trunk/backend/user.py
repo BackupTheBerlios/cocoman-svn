@@ -7,14 +7,31 @@ import os
 from settings import settings
 import random
 random.seed()
+import logging
 
 
-class InvalidUserIdError(Exception):
-    pass
+class UserError(Exception):
+    def __init__(self, message):
+        self.message = message
+    
+    def __str__(self):
+        return self.message
+    
+class UserCreationError(UserError):
+    def __init__(self, message=None):
+        UserError.__init__(self, message or 'Could not create user')
 
-class InvalidNameError(Exception):
+class InvalidNameError(UserCreationError):
     # TODO Add reason
     pass
+
+class InvalidUserIdError(UserError):
+    def __init__(self, id=None, message=None):
+        if message is None:
+            message = 'Invalid user id'
+            if id is not None:
+                message = message + ': %s' % id
+        UserError.__init__(self, message)
 
 
 def create_user(name):
@@ -22,20 +39,29 @@ def create_user(name):
     Exceptions:
     If the specified name contains any characters other than letters, numbers, 
     or spaces, raises an InvalidNameError.
-    If another user exists with this name, raises a NameAlreadyExistsError.
+    If another user exists with this name, raises a TODO.
     
     """
     # TODO Validate name
+    
     try:
-        file = open(User.users_file)
-        lines = file.readlines()
+        users_file = None
+        users_file = open(User.users_file)
     except IOError, e:
         logging.critical("There was an error opening the users file (%s). The "
                       "error is: %s." % (User.users_file, e))
-    file.close()
+        raise UserCreationError()
+    try:
+        lines = users_file.readlines()
+    except IOError, e:
+        logging.critical("There was an error reading the users file (%s). The "
+                      "error is: %s." % (User.users_file, e))
+        raise UserCreationError()
+    users_file.close()
+    
     ids = []
     names = []
-    for line in files:
+    for line in lines:
         entry = line.split(':')
         if len(entry) != 2:
             logging.error("There is an invalid entry in the users file: %s. "
@@ -44,7 +70,7 @@ def create_user(name):
         names.append(entry[1])
     if name in names:
         raise NameAlreadyExistsError()
-    id = randint(1000, 9999)
+    id = random.randint(1000, 9999)
     while str(id) in ids:
         id = random.randint(1000, 9999)
     try:
@@ -79,14 +105,14 @@ class User(object):
                           "error is: %s." % (User.users_file, e))
         file.close()
         ids = []
-        for line in files:
+        for line in lines:
             entry = line.split(':')
             if len(entry) != 2:
                 logging.error("There is an invalid entry in the users file: %s. "
                           "Skipping this entry." % line)
-            ids.append(entry[0])
+            ids.append(int(entry[0]))
         if self._id not in ids:
-            raise InvalidUserIdError()
+            raise InvalidUserIdError(user_id)
     
     def get_id(self):
         return self._id
