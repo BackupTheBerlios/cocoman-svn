@@ -129,7 +129,7 @@ class User(object):
         return self._name
     
     def set_name(self, name):
-        pass
+        raise NotImplementedError()
     
     id = property(get_id)
     name = property(get_name, set_name)
