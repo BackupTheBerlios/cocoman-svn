@@ -94,28 +94,39 @@ class User(object):
     
     def __init__(self, user_id):
         self._id = user_id
+        self.__read_my_entry()
+    
+    def __read_my_entry(self):
         try:
             file = open(self.users_file)
+        except IOError, e:
+            logging.critical("There was an error opening the users file (%s). The "
+                          "error is: %s." % (User.users_file, e))
+            raise UserError('Error opening users file')
+        try:
             lines = file.readlines()
         except IOError, e:
             logging.critical("There was an error opening the users file (%s). The "
                           "error is: %s." % (User.users_file, e))
+            raise UserError('Error reading users file')
         file.close()
-        ids = []
         for line in lines:
             entry = line.split(':')
             if len(entry) != 2:
                 logging.error("There is an invalid entry in the users file: %s. "
                           "Skipping this entry." % line)
-            ids.append(int(entry[0]))
-        if self._id not in ids:
-            raise InvalidUserIdError(user_id)
+                continue
+            if int(entry[0]) == self._id:
+                self._name = entry[1].strip('\n')
+                return
+        raise InvalidUserIdError(user_id)
     
     def get_id(self):
         return self._id
     
     def get_name(self):
-        return "dummy"
+        self.__read_my_entry()
+        return self._name
     
     def set_name(self, name):
         pass
