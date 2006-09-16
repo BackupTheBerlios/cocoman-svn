@@ -36,7 +36,7 @@ class Backend:
         # request is read until its done file is processed. Each item is a tuple
        # containing (random chars, time of request).
         self.open_registrations = []
-        registration_dir = settings.root + 'temp_web'
+        registration_dir = os.path.join(settings.root, 'temp_web')
         self.request_prefix = 'registration_request-'
         
         while True:
