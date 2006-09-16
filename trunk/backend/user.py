@@ -120,12 +120,5 @@ class User(object):
     def set_name(self, name):
         pass
     
-    def get_ip(self):
-        "0.0.0.0"
-    
-    def set_ip(self, ip):
-        pass
-    
     id = property(get_id)
     name = property(get_name, set_name)
-    ip = property(get_ip, set_ip) # TODO kill this?
