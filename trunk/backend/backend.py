@@ -20,8 +20,13 @@ class Backend:
         parser.add_option("-r", "--root", dest="root", default=".",
                           help="Specify the root of the cocoman installation "
                                "(defaults to the current directory)")
+        parser.add_option("-d", "--debug", action="store_true", dest="debug", 
+                          default=False, help="Enable debug mode")
         (options, args) = parser.parse_args()
         settings.root = options.root
+        if options.debug:
+            logging.basicConfig(level=logging.DEBUG,
+                                format='%(levelname)-8s %(message)s')
         if len(args) == 0:
             parser.error('You must specify a mode.')
         modes = {'registration': self.process_registrations}
@@ -51,7 +56,8 @@ class Backend:
             for entry in dir_contents:
                 # New requests
                 if entry.startswith(self.request_prefix):
-                    self._process_registration_request(entry)
+                    registration_file = os.path.join(registration_dir, entry)
+                    self._process_registration_request(registration_file)
                 
                 # Cleanup - TODO
                 for open_request in self.open_registrations:
