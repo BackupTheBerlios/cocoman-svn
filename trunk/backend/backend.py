@@ -41,22 +41,22 @@ class Backend:
         # request is read until its done file is processed. Each item is a tuple
        # containing (random chars, time of request).
         self.open_registrations = []
-        registration_dir = os.path.join(settings.root, 'temp_web')
+        self.registration_dir = os.path.join(settings.root, 'temp_web')
         self.request_prefix = 'registration_request-'
         
         while True:
             time.sleep(1) # TODO Make this run after the rest of the loop
             try:
-                dir_contents = os.listdir(registration_dir)
+                dir_contents = os.listdir(self.registration_dir)
             except OSError, e:
                 logging.error("There was an error reading the 'temp_web' " \
                               "directory (%s). The error was: %s" % \
-                              (registration_dir, e))
+                              (self.registration_dir, e))
                 continue
             for entry in dir_contents:
                 # New requests
                 if entry.startswith(self.request_prefix):
-                    registration_file = os.path.join(registration_dir, entry)
+                    registration_file = os.path.join(self.registration_dir, entry)
                     self._process_registration_request(registration_file)
                 
                 # Cleanup - TODO
@@ -84,7 +84,9 @@ class Backend:
         try:
             logging.debug("Processing registration request file '%s'." %
                           request_filename)
-            random_chars = request_filename[len(self.request_prefix):]
+            only_file = os.path.split(request_filename)[1]
+            random_chars = only_file[len(self.request_prefix):]
+            logging.debug('random chars: %s' % random_chars)
             
             try:
                 request_file = open(request_filename)
@@ -145,9 +147,10 @@ class Backend:
             # TODO Add check for file already existing
             status_file_name = 'registration_status-%s' % \
                                random_chars
+            status_file_name = os.path.join(self.registration_dir, 
+                                            status_file_name)
             status_file = open(status_file_name, 'w')
-            status_file.write("%s,%s,%s,%s" % (status_code, message, 
-                                               random_chars, user_id))
+            status_file.write("%s,%s,%s\n" % (status_code, message, user_id))
             status_file.close()
         except IOError, e:
             logging.error("There was an error writing status "
