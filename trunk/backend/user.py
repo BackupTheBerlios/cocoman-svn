@@ -44,18 +44,19 @@ def create_user(name):
     """
     # TODO Validate name
     
+    user_filename = os.path.join(settings.root, User.users_filename)
     try:
         users_file = None
-        users_file = open(User.users_file)
+        users_file = open(user_filename)
     except IOError, e:
         logging.critical("There was an error opening the users file (%s). The "
-                      "error is: %s." % (User.users_file, e))
+                      "error is: %s." % (user_filename, e))
         raise UserCreationError()
     try:
         lines = users_file.readlines()
     except IOError, e:
         logging.critical("There was an error reading the users file (%s). The "
-                      "error is: %s." % (User.users_file, e))
+                      "error is: %s." % (user_filename, e))
         raise UserCreationError()
     users_file.close()
     
@@ -74,11 +75,11 @@ def create_user(name):
     while str(id) in ids:
         id = random.randint(1000, 9999)
     try:
-        file = open(User.users_file, 'a')
+        file = open(user_filename, 'a')
         file.write("%s:%s\n" % (id, name))
     except IOError, e:
         logging.critical("There was an error opening the users file (%s). The "
-                      "error is: %s." % (User.users_file, e))
+                      "error is: %s." % (user_filename, e))
     file.close()
     return User(id)
 
@@ -90,24 +91,25 @@ class User(object):
     or any time a get method is called, an InvalidUserIdError is thrown.
     """
     
-    users_file = os.path.join(settings.root, 'manager', 'conf', 'users.txt')
+    users_filename = os.path.join('manager', 'conf', 'users.txt')
     
     def __init__(self, user_id):
+        self.users_filename = os.path.join(settings.root, self.users_filename)
         self._id = user_id
         self.__read_my_entry()
     
     def __read_my_entry(self):
         try:
-            file = open(self.users_file)
+            file = open(self.users_filename)
         except IOError, e:
             logging.critical("There was an error opening the users file (%s). The "
-                          "error is: %s." % (User.users_file, e))
+                          "error is: %s." % (self.users_filename, e))
             raise UserError('Error opening users file')
         try:
             lines = file.readlines()
         except IOError, e:
             logging.critical("There was an error opening the users file (%s). The "
-                          "error is: %s." % (User.users_file, e))
+                          "error is: %s." % (self.users_filename, e))
             raise UserError('Error reading users file')
         file.close()
         for line in lines:
