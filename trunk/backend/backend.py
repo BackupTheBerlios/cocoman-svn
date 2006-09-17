@@ -5,6 +5,7 @@
 
 
 import os
+import sys
 from settings import settings
 import logging
 import user
@@ -15,25 +16,7 @@ import time
 class Backend:
 
     def __init__(self):
-        usage = 'usage: %prog [options] <mode>'
-        parser = OptionParser(usage)
-        parser.add_option("-r", "--root", dest="root", default=".",
-                          help="Specify the root of the cocoman installation "
-                               "(defaults to the current directory)")
-        parser.add_option("-d", "--debug", action="store_true", dest="debug", 
-                          default=False, help="Enable debug mode")
-        (options, args) = parser.parse_args()
-        settings.root = options.root
-        if options.debug:
-            logging.basicConfig(level=logging.DEBUG,
-                                format='%(levelname)-8s %(message)s')
-        if len(args) == 0:
-            parser.error('You must specify a mode.')
-        modes = {'registration': self.process_registrations}
-        if args[0] not in modes.keys():
-            parser.error('You specified an illegal mode.')
-        modes[args[0]]()
-        assert False, "Execution should never reach here."
+        pass
     
     def process_registrations(self):
         """Doesn't return."""
@@ -160,3 +143,22 @@ class Backend:
 
 if __name__ == '__main__':
     app = Backend()
+    usage = "Usage: %%prog [options] <mode>\nType '%s --help' for help." % sys.argv[0]
+    parser = OptionParser(usage)
+    parser.add_option("-r", "--root", dest="root", default=".",
+                      help="Specify the root of the cocoman installation "
+                           "(defaults to the current directory)")
+    parser.add_option("-d", "--debug", action="store_true", dest="debug", 
+                      default=False, help="Enable debug mode")
+    (options, args) = parser.parse_args()
+    settings.root = options.root
+    if options.debug:
+        logging.basicConfig(level=logging.DEBUG,
+                            format='%(levelname)-8s %(message)s')
+    if len(args) == 0:
+        parser.error('You must specify a mode.')
+    modes = {'registration': app.process_registrations}
+    if args[0] not in modes.keys():
+        parser.error('You specified an illegal mode.')
+    modes[args[0]]()
+    assert False, "Execution should never reach here."
