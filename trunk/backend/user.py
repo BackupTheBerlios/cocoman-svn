@@ -133,5 +133,8 @@ class User(object):
     def set_name(self, name):
         raise NotImplementedError()
     
+    def __str__(self):
+        return '%s (%s)' % (self._name, self._id)
+    
     id = property(get_id)
     name = property(get_name, set_name)
