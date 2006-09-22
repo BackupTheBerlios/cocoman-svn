@@ -15,20 +15,25 @@ from subprocess import Popen, PIPE, STDOUT
 
 class TestRegistration(unittest.TestCase):
     def setUp(self):
-        self.conf_dir = os.path.join(settings.root, 'manager', 'conf')
-        self.users_file = os.path.join(self.conf_dir, 'users.txt')
-        self.temp_web_dir = os.path.join(settings.root, 'temp_web')
-        os.makedirs(self.conf_dir)
-        os.makedirs(self.temp_web_dir)
+        try:
+            self.conf_dir = os.path.join(settings.root, 'manager', 'conf')
+            self.users_file = os.path.join(self.conf_dir, 'users.txt')
+            self.temp_web_dir = os.path.join(settings.root, 'temp_web')
+            self.problems_dir = os.path.join(settings.root, 'submissions/Problem1')
+            os.makedirs(self.conf_dir)
+            os.makedirs(self.temp_web_dir)
+            os.makedirs(self.problems_dir)
+        except Exception, e:
+            pass
         open(self.users_file, 'w').close() # touch file
         backend_filename = os.path.join(relativePathToParent, 'backend.py')
-        command = ['python', backend_filename, 'registration', '-r', settings.root, '-d']
+        command = ['python', backend_filename, 'registration', 'submission', '-r', settings.root, '-d']
         self.backend = Popen(command, stdin=PIPE, stdout=PIPE, 
                                     stderr=STDOUT, close_fds=True)    
     
     def tearDown(self):
         os.kill(self.backend.pid, 9)
-        shutil.rmtree(settings.root)
+#        shutil.rmtree(settings.root)
     
     def testNormalRegistration(self):
         random_chars = 'ahc8kncuao0'
@@ -42,6 +47,17 @@ class TestRegistration(unittest.TestCase):
         time.sleep(1.1)
         list_of_files = os.listdir(self.temp_web_dir)
         self.assertEqual(len(list_of_files), 0)
+
+    def testNormalSubmission(self):
+        random_chars = 'natanisawesome'
+        user_id = '1234'
+        stime = '12:30'
+        problem_no = 1
+        ext = 'c'
+        self._writeSubmission(random_chars, user_id, stime, problem_no, ext)
+        time.sleep(1.1)
+        self.assert_(self._submissionExists(random_chars, user_id, stime, problem_no, ext), 'Submission file was not created')
+
     
     def _writeRequest(self, random_chars, name, ip_address):
         request_file_name = 'registration_request-%s' % random_chars
@@ -65,6 +81,17 @@ class TestRegistration(unittest.TestCase):
                                         'registration_done-%s' % random_chars)
         done_file = open(done_file_name, 'w')
         done_file.close()
+
+    def _writeSubmission(self, random_chars, user_id, time, problem_no, ext):
+        submission_file_name = 'submission-%s-%s-Problem%s-%s.%s' % (user_id, time, problem_no, random_chars, ext)
+        submission_file_name = os.path.join(self.temp_web_dir, submission_file_name)
+        submission_file = open(submission_file_name, 'w')
+        submission_file.write("Just a test")
+        submission_file.close()
+
+    def _submissionExists(self, random_chars, user_id, time, problem_no, ext):
+        submission_file = '%s-%s.%s' % (user_id, time, ext)
+        return os.path.exists('%s/submissions/Problem%s/%s' % (settings.root, problem_no, submission_file))
 
 if __name__ == "__main__":
     unittest.main()
