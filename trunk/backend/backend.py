@@ -42,14 +42,43 @@ class Backend:
                     registration_file = os.path.join(self.registration_dir, entry)
                     self._process_registration_request(registration_file)
                 
-                # Cleanup - TODO
+                # Cleanup
+                done_registrations = []
                 for open_request in self.open_registrations:
-                    pass
-                    # if find done file with those chars
-                    # delete all 3 prefixes with those chars
-                    # remove from open list
+                    done_file_name = 'registration_done-%s' % open_request[0]
+                    done_file_name = os.path.join(self.registration_dir, done_file_name)
+                    if os.path.exists(done_file_name):
+                        request_file_name = 'registration_request-%s' % open_request[0]
+                        request_file_name = os.path.join(self.registration_dir, request_file_name)
+                        status_file_name = 'registration_status-%s' % open_request[0]
+                        status_file_name = os.path.join(self.registration_dir, status_file_name)
+                        try:
+                            os.remove(request_file_name)
+                        except OSError, e:
+                            pass # TODO Verify errno is 2
+                        try:
+                            os.remove(status_file_name)
+                        except OSError, e:
+                            logging.info("There was an error removing a done "
+                                         "status file: %s" % e)
+                        try:
+                            os.remove(done_file_name)
+                        except OSError, e:
+                            logging.error("There was an error removing a "
+                                          "completed request done file: %s" % e)
+                        done_registrations.append(open_request)
+                        number_open_requests = len(self.open_registrations) - \
+                                               len(done_registrations)
+                        logging.debug("Cleaned up after request %s. Open "
+                                      "requests: %s" % (open_request[0],
+                                                        number_open_requests))
+                    # TODO
                     # else
                     # if too old, log it
+                # There's probably a better way to remove entries from 
+                # open_registration, but this works for now
+                for done_entry in done_registrations:
+                    self.open_registrations.remove(done_entry)
     
     def process_submissions(self):
         """Doesn't return."""
