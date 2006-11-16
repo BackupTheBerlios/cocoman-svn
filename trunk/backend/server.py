@@ -40,7 +40,17 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         argdict = self.split_args(query)
         host, port = self.client_address
         path = urllib.unquote(path)
-        print path, host, port
+        
+        if path.strip('/') == "":
+            # Serve index.html
+            html_content = open("html/index.html").read()
+            self.respond(200, type="text/html", data=html_content)
+        else:
+            if os.path.exists(".%s"%path):
+                html_content = open(".%s"%path).read()
+                self.respond(200, type="text/html", data=html_content)
+            else:
+                self.respond(404, type="text/html", data="404 Page not found")
 
     # if someone sends us a post request through our upload form, let's save the file.
     def do_POST(self):
@@ -65,7 +75,6 @@ def handle_request(server, request, client_address):
 class Server:
     # TODO: set transfer to be cleaner than just a []
     def __init__(self):
-        self.SERVE = False
         self.PORT=8000
         
         self.Handler = Handler 
@@ -85,5 +94,6 @@ class Server:
         server.server_close()
         del server
 
-server = Server()
-server.serve()
+if __name__ == "__main__":
+    server = Server()
+    server.serve()
