@@ -1,0 +1,59 @@
+This is just a notepad for general idea exchanges.
+
+-- 
+(New) Things we want from cocoman:
+- personal scoreboard
+- single python app
+- submission management from a frontend (regrading, and such)
+- automatic submission with optional recommendation mode.
+
+--
+
+User Class:
+Id
+Name
+Submissions []
+solved_problems() - a function that goes through submissions and returns a list of all solved problems.
+
+Submission Class:
+time
+filename
+userid
+problem number
+
+Sample flow:
+
+handler.queue_submission(user_id, file_contents, file_name, problem_number)
+new Submission()
+user.add_submission(submission)
+subumission_processor.add_submission(submission)
+handle.ok_response()
+
+--
+
+add_submission(submission) (in submission_processor
+add submission to queue
+
+-- 
+submission process, main()
+    while True
+        get submission from queue
+        log
+        build
+        run tests
+        set submission status
+        lookup user and rebuild scoreboard
+        webserver.rebuild_scoreboard()
+
+
+--
+
+Look of the personal scoreboard:
+
+(Solved)   Problem1    [3] [12:30]
+(Unsolved) Problem2    [1] [12:35]
+(Solved)   Problem3    [1] [12:15]
+
+Pending:
+[Problem2 submitted at 12:37]
+[Problem2 submitted at 12:40]
