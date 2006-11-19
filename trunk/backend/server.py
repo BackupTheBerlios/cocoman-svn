@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # please note that the hash function is __builtins__.hash
 from urlparse import urlparse
 import BaseHTTPServer
