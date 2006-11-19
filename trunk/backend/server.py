@@ -36,7 +36,8 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         
         if path.strip('/') == "":
             # Serve index.html
-            html_content = open("html/index.html").read()
+            file_name = os.path.join(settings.root, 'web', 'index.html')
+            html_content = open(file_name).read()
             self.send_response(200, html_content)
         else:
             self.send_error(404)
