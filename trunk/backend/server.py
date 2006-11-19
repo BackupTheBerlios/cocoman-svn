@@ -63,19 +63,20 @@ class Server:
 
     def serve(self):
         server = BaseHTTPServer.HTTPServer(('', self.PORT), self.Handler)
-        logging.info("Starting server on %s" % (self.PORT))
-        fd = server.fileno()
-        poller = select.poll()
-        poller.register(fd)
-        while True:
-            poller.poll()
-            request, client_address = server.get_request()
-            request_thread = threading.Thread(target=handle_request, args=(server, request, client_address))
-            request_thread.start()
-            # TODO clean up old threads
+        try:
+            logging.info("Starting server on %s" % (self.PORT))
+            fd = server.fileno()
+            poller = select.poll()
+            poller.register(fd)
+            while True:
+                poller.poll()
+                request, client_address = server.get_request()
+                request_thread = threading.Thread(target=handle_request, args=(server, request, client_address))
+                request_thread.start()
+                # TODO clean up old threads
+        finally:
+            server.server_close()
 
-        server.server_close()
-        del server
 
 if __name__ == "__main__":
     usage = "Usage: %%prog [options]\nType '%s --help' for help." % sys.argv[0]
