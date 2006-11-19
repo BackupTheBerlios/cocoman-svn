@@ -8,10 +8,10 @@ import os
 import select
 import threading
 import urllib
-
-
-def debug(s):
-    print s
+import sys
+from optparse import OptionParser
+from settings import settings
+import logging
 
 class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def split_arg(self, arg):
@@ -61,7 +61,7 @@ class Server:
 
     def serve(self):
         server = BaseHTTPServer.HTTPServer(('', self.PORT), self.Handler)
-        debug("Starting server on %s" % (self.PORT))
+        logging.info("Starting server on %s" % (self.PORT))
         fd = server.fileno()
         poller = select.poll()
         poller.register(fd)
@@ -76,5 +76,23 @@ class Server:
         del server
 
 if __name__ == "__main__":
+    usage = "Usage: %%prog [options]\nType '%s --help' for help." % sys.argv[0]
+    parser = OptionParser(usage)
+    parser.add_option("-r", "--root", dest="root", default=".",
+                      help="Specify the root of the cocoman installation "
+                           "(defaults to the current directory)")
+    parser.add_option("-d", "--debug", action="store_true", dest="debug", 
+                      default=False, help="Enable debug mode")
+    (options, args) = parser.parse_args()
+    settings.root = options.root
+    if options.debug:
+        logging.basicConfig(level=logging.DEBUG,
+                            format='%(levelname)-8s %(message)s')
+    
+    # Had to move it over here, because intialization takes place after root is 
+    # set.
     server = Server()
-    server.serve()
+    try:
+        server.serve()
+    except KeyboardInterrupt:
+        logging.info("Exiting.")
