@@ -1,6 +1,7 @@
 # Simple Python HTTP Server to serve individual files based on hash and filename.
 # please note that the hash function is __builtins__.hash
 from urlparse import urlparse
+import BaseHTTPServer
 import SimpleHTTPServer
 import SocketServer
 import cgi
@@ -59,12 +60,6 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         headers=self.headers, environ = {'REQUEST_METHOD':'POST'}, \
         keep_blank_values = 1)
         fileField = fs['fileField']
-        
-
-# We need to overload the __init__ so that we can let the server 
-# reuse its address.
-class RebindServer(SocketServer.TCPServer):
-    allow_reuse_address = True
 
 
 def handle_request(server, request, client_address):
@@ -76,11 +71,10 @@ class Server:
     # TODO: set transfer to be cleaner than just a []
     def __init__(self):
         self.PORT=8000
-        
         self.Handler = Handler 
 
     def serve(self):
-        server = RebindServer(('', self.PORT), self.Handler)
+        server = BaseHTTPServer.HTTPServer(('', self.PORT), self.Handler)
         debug("Starting server on %s" % (self.PORT))
         fd = server.fileno()
         poller = select.poll()
