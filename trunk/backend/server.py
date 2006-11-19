@@ -1,4 +1,3 @@
-# Simple Python HTTP Server to serve individual files based on hash and filename.
 # please note that the hash function is __builtins__.hash
 from urlparse import urlparse
 import BaseHTTPServer
@@ -27,15 +26,6 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         args = map(self.split_arg, args)
         return dict(args) 
 
-    def respond(self, code, type=None, data=None):
-        self.send_response(code)
-        if type and data:
-            self.send_header("Content-type", type)
-            self.end_headers()
-            self.wfile.write(data)
-        else:
-            self.end_headers()
-
     def do_GET(self):
         scheme, netloc, path, parameters, query, fragment = urlparse(self.path)
         argdict = self.split_args(query)
@@ -45,13 +35,12 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         if path.strip('/') == "":
             # Serve index.html
             html_content = open("html/index.html").read()
+            self.send_response(200, html_content)
+        elif os.path.exists(".%s"%path):
+            html_content = open(".%s"%path).read()
             self.respond(200, type="text/html", data=html_content)
         else:
-            if os.path.exists(".%s"%path):
-                html_content = open(".%s"%path).read()
-                self.respond(200, type="text/html", data=html_content)
-            else:
-                self.respond(404, type="text/html", data="404 Page not found")
+            self.send_error(404, "Error 404: Page not found")
 
     # if someone sends us a post request through our upload form, let's save the file.
     def do_POST(self):
@@ -84,6 +73,7 @@ class Server:
             request, client_address = server.get_request()
             request_thread = threading.Thread(target=handle_request, args=(server, request, client_address))
             request_thread.start()
+            # TODO clean up old threads
 
         server.server_close()
         del server
