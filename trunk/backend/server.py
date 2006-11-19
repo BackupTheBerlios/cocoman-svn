@@ -37,7 +37,7 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             html_content = open("html/index.html").read()
             self.send_response(200, html_content)
         else:
-            self.send_error(404, "Error 404: Page not found")
+            self.send_error(404)
 
     # if someone sends us a post request through our upload form, let's save the file.
     def do_POST(self):
