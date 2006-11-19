@@ -36,9 +36,6 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             # Serve index.html
             html_content = open("html/index.html").read()
             self.send_response(200, html_content)
-        elif os.path.exists(".%s"%path):
-            html_content = open(".%s"%path).read()
-            self.respond(200, type="text/html", data=html_content)
         else:
             self.send_error(404, "Error 404: Page not found")
 
