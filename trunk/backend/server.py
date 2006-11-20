@@ -14,6 +14,8 @@ import sys
 from optparse import OptionParser
 from settings import settings
 import logging
+import view.registration_result as registration_result
+import user
 
 class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def split_arg(self, arg):
@@ -34,11 +36,16 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         host, port = self.client_address
         path = urllib.unquote(path)
         
-        if path.strip('/') == "":
-            # Serve index.html
-            file_name = os.path.join(settings.root, 'web', 'index.html')
+        path = path.strip('/')
+        if path == '':
+            path = 'index.html'
+        allowable_files = ['index.html', 'style.css']
+        if path in allowable_files:
+            file_name = os.path.join(settings.root, 'web', path)
             html_content = open(file_name).read()
             self.send_response(200, html_content)
+        elif path == 'register.py':
+            self._register_user(argdict['name'], '') # TODO
         else:
             self.send_error(404)
 
@@ -49,6 +56,32 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         headers=self.headers, environ = {'REQUEST_METHOD':'POST'}, \
         keep_blank_values = 1)
         fileField = fs['fileField']
+    
+    def _register_user(self, name, ip):
+        """Tries to register a user and sends a result page back to the client.
+        
+        """
+        # TODO Validate IP address
+        try:
+            new_user = user.create_user(name)
+            new_user.ip = ip
+            logging.info("Created user %s." % new_user)
+            message = "You have been successfully registered. Your user id is" \
+                      " %s. Write this number down now! You may need it later" \
+                      " to log in again." % new_user.id
+            html = registration_result.succeeded_html(message, new_user.id)
+        except user.InvalidNameError, e:
+            logging.error("Registration request contained an invalid name "
+                          "(%s)." % e)
+            message = "Your name contains invalid characters."
+            html = registration_result.failed_html(message)
+        except IOError, e:
+            logging.error("There was an error creating user '%s': %s." % 
+                          (name, e))
+            message = "There was an error saving your user on the server. " \
+                      "Please notify a proctor."
+            html = registration_result.failed_html(message)
+        self.send_response(200, html)
 
 
 def handle_request(server, request, client_address):
