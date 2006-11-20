@@ -9,6 +9,7 @@ import random
 random.seed()
 import logging
 
+ALLOWED_CHARACTERS="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
 
 class UserError(Exception):
     def __init__(self, message):
@@ -22,7 +23,8 @@ class UserCreationError(UserError):
         UserError.__init__(self, message or 'Could not create user')
 
 class InvalidNameError(UserCreationError):
-    # TODO Add reason
+    def __init__(self, message=None):
+        UserCreationError.__init__(self, message)
     pass
 
 class InvalidUserIdError(UserError):
@@ -42,8 +44,16 @@ def create_user(name):
     If another user exists with this name, raises a TODO.
     
     """
-    # TODO Validate name
     
+    # DONE: Validate name
+    # Validating characters.
+    invalid_chars = {}
+    for c in name:
+        if c not in ALLOWED_CHARACTERS: # ALLOWED_CHARACTERS defined at top of file
+            invalid_chars[c] = True 
+    if len(invalid_chars):
+        raise InvalidNameError("Name contains invalid characters [%s]"%''.join(invalid_chars.keys()))
+
     user_filename = os.path.join(settings.root, User.users_filename)
     try:
         users_file = None
@@ -67,10 +77,10 @@ def create_user(name):
         if len(entry) != 2:
             logging.error("There is an invalid entry in the users file: %s. "
                       "Skipping this entry." % line)
-        ids.append(entry[0])
-        names.append(entry[1])
+        ids.append(entry[0].strip())
+        names.append(entry[1].strip())
     if name in names:
-        raise NameAlreadyExistsError()
+        raise InvalidNameError("User already exists")
     id = random.randint(1000, 9999)
     while str(id) in ids:
         id = random.randint(1000, 9999)

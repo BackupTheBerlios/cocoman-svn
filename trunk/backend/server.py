@@ -73,7 +73,7 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         except user.InvalidNameError, e:
             logging.error("Registration request contained an invalid name "
                           "(%s)." % e)
-            message = "Your name contains invalid characters."
+            message = "Specified username is invalid (%s)." % e
             html = registration_result.failed_html(message)
         except IOError, e:
             logging.error("There was an error creating user '%s': %s." % 
