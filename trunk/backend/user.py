@@ -23,6 +23,7 @@ class UserCreationError(UserError):
         UserError.__init__(self, message or 'Could not create user')
 
 class InvalidNameError(UserCreationError):
+    # TODO Get rid of this?
     def __init__(self, message=None):
         UserCreationError.__init__(self, message)
     pass
@@ -40,12 +41,11 @@ def create_user(name):
     """Creates a new User. Writes an entry in users.txt for the new user. 
     Exceptions:
     If the specified name contains any characters other than letters, numbers, 
-    or spaces, raises an InvalidNameError.
-    If another user exists with this name, raises a TODO.
+    or spaces or a user with that name already exists, raises an 
+    InvalidNameError.
     
     """
     
-    # DONE: Validate name
     # Validating characters.
     invalid_chars = {}
     for c in name:
